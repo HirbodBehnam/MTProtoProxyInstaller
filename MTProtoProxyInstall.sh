@@ -14,6 +14,7 @@ SECRETS=""
 SECRET=""
 TAG=""
 COUNTER=1
+clear
 echo "Welcome to MTProto-Proxy auto installer!"
 echo "Created by Hirbod Behnam"
 echo "I will install mtprotoproxy python script by alexbers"
