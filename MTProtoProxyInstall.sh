@@ -101,7 +101,9 @@ clear
 yum -y install epel-release yum-utils groupinstall development
 yum -y update
 yum -y install https://centos7.iuscommunity.org/ius-release.rpm
-yum -y install git python36u python36u-devel
+yum -y install git python36u python36u-devel python36u-pip
+#This lib make proxy faster
+pip3.6 install pycryptodome
 cd /opt
 git clone https://github.com/alexbers/mtprotoproxy.git
 cd mtprotoproxy
@@ -124,15 +126,14 @@ fi
 cd /etc/systemd/system
 touch mtprotoproxypython.service
 echo "[Unit]
-Description=MTProto Proxy Service
+Description = MTProto Proxy Service
 
 [Service]
-Type=simple
-ExecStart=/usr/bin/python3.6 /opt/mtprotoproxy/mtprotoproxy.py
-WorkingDirectory=/opt/mtprotoproxy/
+Type = simple
+ExecStart = /usr/bin/python3.6 /opt/mtprotoproxy/mtprotoproxy.py
 
 [Install]
-WantedBy=sysinit.target" >> mtprotoproxypython.service
+WantedBy = multi-user.target" >> mtprotoproxypython.service
 systemctl enable mtprotoproxypython
 systemctl start mtprotoproxypython
 clear
