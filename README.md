@@ -10,8 +10,9 @@ On your CentOS run
 wget https://git.io/vhgUt -O MTProtoProxyInstall.sh
 sudo bash MTProtoProxyInstall.sh
 ```
-and wait until the setup finishes the install.
-Then enter `systemctl status mtprotoproxypython -l` and you can see the proxy link there. (Usually the last line and it starts with tg://...)
+and wait until the setup finishes the install. <br />
+Then enter `systemctl status mtprotoproxypython -l` and you can see the proxy link there. (Usually the last line and it starts with tg://...) <br />
+**Remember to open the port you specified in your firewall.**
 ## Control The Proxy
 ### Service
 Use `systemctl start mtprotoproxypython` to start, `systemctl stop mtprotoproxypython` to stop and `systemctl status mtprotoproxypython` to see logs of script.
