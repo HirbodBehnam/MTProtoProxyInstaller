@@ -24,3 +24,7 @@ You can buy a server at [Virmach](https://virmach.com/) they also accept cryptos
 I only and only created a simple installer to install [this repo](https://github.com/alexbers/mtprotoproxy) on CentOS 7. Please report proxy related issues at [here](https://github.com/alexbers/mtprotoproxy/issues)
 ## Donate
 You can donate me with bitcoin at `1XDgEkpnkJ7hC8Kwv5adfaDC1Z3FrkwsK`, Ethereum at `0xbb527a28B76235E1C125206B7CcFF944459b4894` and ZCash at `t1ZKYrYZCjxDYvo6mQaLZi3gNe2a6MydUo3`
+## What's Next?
+- [ ] Add updater
+- [x] Add uninstaller
+- [x] Add manager to manage secrets and... after install
