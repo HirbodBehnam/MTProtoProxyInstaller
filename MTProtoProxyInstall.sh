@@ -8,13 +8,50 @@ if readlink /proc/$$/exe | grep -q "dash"; then
 	echo "This script needs to be run with bash, not sh"
 	exit
 fi
+clear
+#Check if user already installed Proxy
+if [ -d "/opt/mtprotoproxy" ]; then
+	echo "You have already installed MTProtoProxy! What do you want to do?"
+	echo "	1) Uninstall Proxy"
+	echo "	2) Upgrade Proxy Software"
+	echo "	*) Exit"
+	read -p "Please enter a number: " OPTION
+	case $OPTION in
+		1)
+		#Uninstall proxy
+		read -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n) " OPTION
+		case $OPTION in
+			"y")
+			systemctl stop mtprotoproxypython
+			systemctl disable mtprotoproxypython
+			rm -rf /opt/mtprotoproxy
+			rm -f /etc/systemd/system/mtprotoproxypython.service
+			echo "Ok it's done."
+			;;
+		esac
+		;;
+		2)
+		#Update
+		cd /opt
+		systemctl stop mtprotoproxypython
+		cp /opt/mtprotoproxy/config.py /tmp/config.py
+		rm -rf /opt/mtprotoproxy
+		git clone https://github.com/alexbers/mtprotoproxy.git
+		rm -f /opt/mtprotoproxy/config.py
+		cp /tmp/config.py /opt/mtprotoproxy/config.py
+		rm -f /tmp/config.py
+		systemctl start mtprotoproxypython
+		echo "Proxy updated."
+		;;
+	esac
+	exit
+fi
 #Variables
 regex='^[0-9]+$'
 SECRETS=""
 SECRET=""
 TAG=""
 COUNTER=1
-clear
 echo "Welcome to MTProto-Proxy auto installer!"
 echo "Created by Hirbod Behnam"
 echo "I will install mtprotoproxy python script by alexbers"
@@ -29,7 +66,7 @@ if ! [[ $PORT =~ $regex ]] ; then
    echo "error: The input is not a valid number"
    exit 1
 fi
-if [[ $PORT -gt 65535 ]] ; then
+if [ $PORT -gt 65535 ] ; then
 	echo "error: Number must be less than 65536"
 	exit 1
 fi
@@ -54,7 +91,7 @@ while true; do
 		;;
 		2)
 		SECRET="$(hexdump -vn "16" -e ' /1 "%02x"'  /dev/urandom)"
-		echo "OK we created one: $SECRET"
+		echo "OK I created one: $SECRET"
 		;;
 		*)
 		echo "Invalid option"
@@ -98,9 +135,9 @@ esac
 read -n 1 -s -r -p "Press any key to install..."
 #Now lets install
 clear
-yum -y install epel-release yum-utils groupinstall development
-yum -y update
+yum -y install epel-release yum-utils
 yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+yum -y update
 yum -y install git python36u python36u-devel python36u-pip
 #This lib make proxy faster
 pip3.6 install pycryptodome
