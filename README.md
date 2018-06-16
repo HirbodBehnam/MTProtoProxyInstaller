@@ -28,3 +28,4 @@ You can donate me with bitcoin at `1XDgEkpnkJ7hC8Kwv5adfaDC1Z3FrkwsK`, Ethereum 
 - [X] Add updater
 - [X] Add uninstaller
 - [ ] Add manager to manage secrets and... after install
+- [ ] CentOS 6 Support
