@@ -36,7 +36,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		systemctl stop mtprotoproxypython
 		cp /opt/mtprotoproxy/config.py /tmp/config.py
 		rm -rf /opt/mtprotoproxy
-		git clone https://github.com/alexbers/mtprotoproxy.git
+		git clone -b stable https://github.com/alexbers/mtprotoproxy.git
 		rm -f /opt/mtprotoproxy/config.py
 		cp /tmp/config.py /opt/mtprotoproxy/config.py
 		rm -f /tmp/config.py
@@ -142,7 +142,7 @@ yum -y install git python36u python36u-devel python36u-pip
 #This lib make proxy faster
 pip3.6 install pycryptodome
 cd /opt
-git clone https://github.com/alexbers/mtprotoproxy.git
+git clone -b stable https://github.com/alexbers/mtprotoproxy.git
 cd mtprotoproxy
 #Now edit the config file
 rm -f config.py
