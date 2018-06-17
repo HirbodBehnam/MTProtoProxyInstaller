@@ -20,7 +20,7 @@ To update, uninstall, change port, revoke secret or... the proxy, run the script
 ### Service
 Use `systemctl start mtprotoproxypython` to start, `systemctl stop mtprotoproxypython` to stop and `systemctl status mtprotoproxypython` to see logs of script.
 ### Config
-TO manualy config proxy edit config.py in /opt/mtprotoproxy to change the config. Then restart the server using `systemctl restart mtprotoproxypython` or just run script again.
+To manualy config proxy edit config.py in /opt/mtprotoproxy to change the config. Then restart the server using `systemctl restart mtprotoproxypython` or just run script again.
 ## Server
 You can buy a server at [Virmach](https://virmach.com/) they also accept cryptos!
 # Main Project
