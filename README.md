@@ -14,7 +14,7 @@ sudo bash MTProtoProxyInstall.sh
 ```
 and wait until the setup finishes the install. <br />
 Then enter `systemctl status mtprotoproxypython -l` and you can see the proxy link there. (Usually the last line and it starts with tg://...) <br />
-To update or uninstall the proxy, run the script again. <br />
+To update, uninstall, change port, revoke secret or... the proxy, run the script again. <br />
 **Remember to open the port you specified in your firewall.**
 ## Control The Proxy
 ### Service
