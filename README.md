@@ -4,6 +4,8 @@ A very small script to install MTProtoProxy On CentOS 7
 * Generate random secret
 * Create a service to run it on background and start up
 * Setup proxy with small knowledge
+* Simple updater
+* Revoke and add secrets after install
 ## Install
 On your CentOS run
 ```
@@ -28,5 +30,5 @@ You can donate me with bitcoin at `1XDgEkpnkJ7hC8Kwv5adfaDC1Z3FrkwsK`, Ethereum 
 ## What's Next?
 - [X] Add updater
 - [X] Add uninstaller
-- [ ] Add manager to manage secrets and... after install
+- [X] Add manager to manage secrets and... after install
 - [ ] CentOS 6 Support

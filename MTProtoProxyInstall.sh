@@ -12,14 +12,18 @@ clear
 #Check if user already installed Proxy
 if [ -d "/opt/mtprotoproxy" ]; then
 	echo "You have already installed MTProtoProxy! What do you want to do?"
-	echo "	1) Uninstall Proxy"
-	echo "	2) Upgrade Proxy Software"
-	echo "	*) Exit"
+	echo "  1) Uninstall Proxy"
+	echo "  2) Upgrade Proxy Software"
+	echo "  3) Change PORT"
+	echo "  4) Change AD_TAG"
+	echo "  5) Revoke Secret"
+	echo "  6) Add Secret"
+	echo "  *) Exit"
 	read -p "Please enter a number: " OPTION
 	case $OPTION in
 		1)
 		#Uninstall proxy
-		read -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n) " OPTION
+		read -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n)" OPTION
 		case $OPTION in
 			"y")
 			systemctl stop mtprotoproxypython
@@ -43,6 +47,158 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		systemctl start mtprotoproxypython
 		echo "Proxy updated."
 		;;
+		3)
+		#Change port
+		cd /opt/mtprotoproxy
+		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+		SECRET=$(echo "$SECRET" | tr "'" '"')
+		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		read -p "Current port is $PORT. Enter your new port: " -e -i 443 PORT
+		systemctl stop mtprotoproxypython
+		rm -f config.py
+		echo "PORT = $PORT
+USERS = $SECRET
+" >> config.py
+		if ! [ -z "$TAG" ]; then
+			TAGTEMP="AD_TAG = "
+			TAGTEMP+='"'
+			TAGTEMP+="$TAG"
+			TAGTEMP+='"'
+			echo "$TAGTEMP" >> config.py
+		fi
+		systemctl start mtprotoproxypython
+		echo "Done"
+		;;
+		4)
+		#Change AD TAG
+		cd /opt/mtprotoproxy
+		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+		SECRET=$(echo "$SECRET" | tr "'" '"')
+		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		if [ -z "$TAG" ]; then
+			echo "It looks like your AD TAG is empty. Get the AD TAG at https://t.me/mtproxybot and enter it here:"
+		else
+			echo "Current tag is $TAG. If you want to remove it, just press enter. Otherwise type the new TAG:"
+		fi
+		read TAG
+		systemctl stop mtprotoproxypython
+		rm -f config.py
+		echo "PORT = $PORT
+USERS = $SECRET
+" >> config.py
+		if ! [ -z "$TAG" ]; then
+			TAGTEMP="AD_TAG = "
+			TAGTEMP+='"'
+			TAGTEMP+="$TAG"
+			TAGTEMP+='"'
+			echo "$TAGTEMP" >> config.py
+		fi
+		systemctl start mtprotoproxypython
+		echo "Done"
+		;;
+		5)
+		echo "Just a second..."
+		if yum -q list installed packageX &>/dev/null; then
+			read -p "In order to revoke a user I must install jq package. Continue?(y/n)" OPTION
+			case $OPTION in
+				"y")
+				yum -y install jq
+				;;
+				*)
+				exit
+			esac
+		fi 
+		clear
+		cd /opt/mtprotoproxy
+		rm -f tempSecrets.json
+		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+		SECRET=$(echo "$SECRET" | tr "'" '"')
+		echo "$SECRET" >> tempSecrets.json
+		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		SECRET_ARY=()
+		mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
+		echo "Here are list of current users:"
+		COUNTER=1
+		for i in "${SECRET_ARY[@]}"
+		do
+   			echo "	$COUNTER) $i"
+			COUNTER=$((COUNTER+1))
+		done
+		read -p "Please select a user by it's index to revoke: " USER_TO_REVOKE
+		USER_TO_REVOKE=$((USER_TO_REVOKE-1))
+		#I should add a script to check the input but not for now
+		SECRET=$(jq "del(.${SECRET_ARY[$USER_TO_REVOKE]})" tempSecrets.json)
+		systemctl stop mtprotoproxypython
+		rm -f config.py
+		echo "PORT = $PORT
+USERS = $SECRET
+" >> config.py
+		if ! [ -z "$TAG" ]; then
+			TAGTEMP="AD_TAG = "
+			TAGTEMP+='"'
+			TAGTEMP+="$TAG"
+			TAGTEMP+='"'
+			echo "$TAGTEMP" >> config.py
+		fi
+		systemctl start mtprotoproxypython
+		rm -f tempSecrets.json
+		echo "Done"
+		;;
+		6)
+		#New secret
+		cd /opt/mtprotoproxy
+		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+		SECRETS=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+		SECRETS=$(echo "$SECRETS" | tr "'" '"')
+		SECRETS="${SECRETS: : -1}"
+		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		read -p "Ok now please enter the username: " -e -i "NewUser" NEW_USR
+		echo "Do you want to set secret manualy or shall I create a random secret?"
+		echo "   1) Manualy enter a secret"
+		echo "   2) Create a random secret"
+		read -p "Please select one [1-2]: " OPTION
+			case $OPTION in
+			1)
+			echo "Enter a 32 character string filled by 0-9 and a-f: "
+			read SECRET
+			#Validate length
+			SECRET="$(echo $SECRET | tr '[A-Z]' '[a-z]')"
+			if ! [[ $SECRET =~ ^[0-9a-f]{32}$ ]] ; then
+ 	  			echo "error: Enter hexadecimal character and secret must be 32 characters."
+				exit 1
+			fi
+			;;
+			2)
+			SECRET="$(hexdump -vn "16" -e ' /1 "%02x"'  /dev/urandom)"
+			echo "OK I created one: $SECRET"
+			;;
+			*)
+			echo "Invalid option"
+			exit 1
+		esac
+		SECRETS+=', "'
+		SECRETS+="$NEW_USR"
+		SECRETS+='": "'
+		SECRETS+="$SECRET"
+		SECRETS+='"}'
+		systemctl stop mtprotoproxypython
+		rm -f config.py
+		echo "PORT = $PORT
+USERS = $SECRETS
+" >> config.py
+		if ! [ -z "$TAG" ]; then
+			TAGTEMP="AD_TAG = "
+			TAGTEMP+='"'
+			TAGTEMP+="$TAG"
+			TAGTEMP+='"'
+			echo "$TAGTEMP" >> config.py
+		fi
+		systemctl start mtprotoproxypython
+		echo "Done"
+		;;
 	esac
 	exit
 fi
@@ -59,8 +215,7 @@ echo "Source at https://github.com/alexbers/mtprotoproxy"
 echo "Now I will gather some info from you."
 echo ""
 echo ""
-echo "Ok select a port to proxy listen on it: "
-read -e -i 443 PORT
+read -p "Ok select a port to proxy listen on it: " -e -i 443 PORT
 #Lets check if the PORT is valid
 if ! [[ $PORT =~ $regex ]] ; then
    echo "error: The input is not a valid number"
@@ -74,7 +229,7 @@ fi
 while true; do
 	echo "Now tell me a user name. Usernames are used to name secrets: "
 	read -e -i "MTSecret$COUNTER" USERNAME
-	echo "Do you want to set secret manualy or shall i create a random secret?"
+	echo "Do you want to set secret manualy or shall I create a random secret?"
 	echo "   1) Manualy enter a secret"
 	echo "   2) Create a random secret"
 	read -p "Please select one [1-2]: " OPTION
@@ -151,7 +306,8 @@ chmod 0777 config.py
 echo "PORT = $PORT
 USERS = {
 $SECRETS
-}" >> config.py
+}
+" >> config.py
 if ! [ -z "$TAG" ]; then
 	TAGTEMP="AD_TAG = "
 	TAGTEMP+='"'
