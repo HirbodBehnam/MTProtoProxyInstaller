@@ -296,7 +296,6 @@ yum -y update
 yum -y install git python36u python36u-devel python36u-pip
 #This lib make proxy faster
 pip3.6 install pycryptodome
-pip3.6 install --upgrade 'pycryptodome==3.6.1'
 cd /opt
 git clone -b stable https://github.com/alexbers/mtprotoproxy.git
 cd mtprotoproxy
