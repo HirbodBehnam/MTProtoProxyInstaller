@@ -26,10 +26,10 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		read -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n)" OPTION
 		case $OPTION in
 			"y")
-			systemctl stop mtprotoproxypython
-			systemctl disable mtprotoproxypython
+			systemctl stop mtprotoproxy
+			systemctl disable mtprotoproxy
 			rm -rf /opt/mtprotoproxy
-			rm -f /etc/systemd/system/mtprotoproxypython.service
+			rm -f /etc/systemd/system/mtprotoproxy.service
 			echo "Ok it's done."
 			;;
 		esac
@@ -37,14 +37,14 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		2)
 		#Update
 		cd /opt
-		systemctl stop mtprotoproxypython
+		systemctl stop mtprotoproxy
 		cp /opt/mtprotoproxy/config.py /tmp/config.py
 		rm -rf /opt/mtprotoproxy
 		git clone -b stable https://github.com/alexbers/mtprotoproxy.git
 		rm -f /opt/mtprotoproxy/config.py
 		cp /tmp/config.py /opt/mtprotoproxy/config.py
 		rm -f /tmp/config.py
-		systemctl start mtprotoproxypython
+		systemctl start mtprotoproxy
 		echo "Proxy updated."
 		;;
 		3)
@@ -55,7 +55,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		SECRET=$(echo "$SECRET" | tr "'" '"')
 		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
 		read -p "Current port is $PORT. Enter your new port: " -e -i 443 PORT
-		systemctl stop mtprotoproxypython
+		systemctl stop mtprotoproxy
 		rm -f config.py
 		echo "PORT = $PORT
 USERS = $SECRET
@@ -67,7 +67,7 @@ USERS = $SECRET
 			TAGTEMP+='"'
 			echo "$TAGTEMP" >> config.py
 		fi
-		systemctl start mtprotoproxypython
+		systemctl start mtprotoproxy
 		echo "Done"
 		;;
 		4)
@@ -83,7 +83,7 @@ USERS = $SECRET
 			echo "Current tag is $TAG. If you want to remove it, just press enter. Otherwise type the new TAG:"
 		fi
 		read TAG
-		systemctl stop mtprotoproxypython
+		systemctl stop mtprotoproxy
 		rm -f config.py
 		echo "PORT = $PORT
 USERS = $SECRET
@@ -95,7 +95,7 @@ USERS = $SECRET
 			TAGTEMP+='"'
 			echo "$TAGTEMP" >> config.py
 		fi
-		systemctl start mtprotoproxypython
+		systemctl start mtprotoproxy
 		echo "Done"
 		;;
 		5)
@@ -131,7 +131,7 @@ USERS = $SECRET
 		USER_TO_REVOKE=$((USER_TO_REVOKE-1))
 		#I should add a script to check the input but not for now
 		SECRET=$(jq "del(.${SECRET_ARY[$USER_TO_REVOKE]})" tempSecrets.json)
-		systemctl stop mtprotoproxypython
+		systemctl stop mtprotoproxy
 		rm -f config.py
 		echo "PORT = $PORT
 USERS = $SECRET
@@ -143,7 +143,7 @@ USERS = $SECRET
 			TAGTEMP+='"'
 			echo "$TAGTEMP" >> config.py
 		fi
-		systemctl start mtprotoproxypython
+		systemctl start mtprotoproxy
 		rm -f tempSecrets.json
 		echo "Done"
 		;;
@@ -184,7 +184,7 @@ USERS = $SECRET
 		SECRETS+='": "'
 		SECRETS+="$SECRET"
 		SECRETS+='"}'
-		systemctl stop mtprotoproxypython
+		systemctl stop mtprotoproxy
 		rm -f config.py
 		echo "PORT = $PORT
 USERS = $SECRETS
@@ -196,7 +196,7 @@ USERS = $SECRETS
 			TAGTEMP+='"'
 			echo "$TAGTEMP" >> config.py
 		fi
-		systemctl start mtprotoproxypython
+		systemctl start mtprotoproxy
 		echo "Done"
 		;;
 	esac
@@ -317,7 +317,7 @@ if ! [ -z "$TAG" ]; then
 fi
 #Now lets create the service
 cd /etc/systemd/system
-touch mtprotoproxypython.service
+touch mtprotoproxy.service
 echo "[Unit]
 Description = MTProto Proxy Service
 
@@ -326,10 +326,10 @@ Type = simple
 ExecStart = /usr/bin/python3.6 /opt/mtprotoproxy/mtprotoproxy.py
 
 [Install]
-WantedBy = multi-user.target" >> mtprotoproxypython.service
-systemctl enable mtprotoproxypython
-systemctl start mtprotoproxypython
+WantedBy = multi-user.target" >> mtprotoproxy.service
+systemctl enable mtprotoproxy
+systemctl start mtprotoproxy
 clear
 echo "Ok it must be done. I created a service to run or stop the proxy."
-echo 'Use "systemctl start mtprotoproxypython" or "systemctl stop mtprotoproxypython" to stop it'
-echo 'Also use "systemctl status mtprotoproxypython -l" to get the proxy link'
+echo 'Use "systemctl start mtprotoproxy" or "systemctl stop mtprotoproxy" to stop it'
+echo 'Also use "systemctl status mtprotoproxy -l" to get the proxy link'

@@ -9,18 +9,17 @@ A very small script to install MTProtoProxy On CentOS 7
 ## Install
 On your CentOS run
 ```
-wget https://git.io/vhgUt -O MTProtoProxyInstall.sh && sudo bash MTProtoProxyInstall.sh
+wget https://git.io/vhgUt -O MTProtoProxyInstall.sh && bash MTProtoProxyInstall.sh
 ```
-
 and wait until the setup finishes the install. <br />
-Then enter `systemctl status mtprotoproxypython -l` and you can see the proxy link there. (Usually the last line and it starts with tg://...) <br />
+Then enter `systemctl status mtprotoproxy -l` and you can see the proxy link there. (Usually the last line and it starts with tg://...) <br />
 To update, uninstall, change port, revoke secret or... the proxy, run the script again. <br />
 **Remember to open the port you specified in your firewall.**
 ## Control The Proxy
 ### Service
-Use `systemctl start mtprotoproxypython` to start, `systemctl stop mtprotoproxypython` to stop and `systemctl status mtprotoproxypython` to see logs of script.
+Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy` to see logs of script.
 ### Config
-To manually config proxy edit config.py in /opt/mtprotoproxy to change the config. Then restart the server using `systemctl restart mtprotoproxypython` or just run script again.
+To manually config proxy edit config.py in /opt/mtprotoproxy to change the config. Then restart the server using `systemctl restart mtprotoproxy` or just run script again.
 ## Server
 You can buy a server at [Virmach](https://virmach.com/) they also accept cryptos!
 # Main Project
@@ -31,4 +30,3 @@ You can donate me with bitcoin at `1XDgEkpnkJ7hC8Kwv5adfaDC1Z3FrkwsK`, Ethereum 
 - [X] Add updater
 - [X] Add uninstaller
 - [X] Add manager to manage secrets and... after install
-
