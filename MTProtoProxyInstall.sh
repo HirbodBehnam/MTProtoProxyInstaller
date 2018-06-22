@@ -36,14 +36,13 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		;;
 		2)
 		#Update
-		cd /opt
+		cd /opt/mtprotoproxy/
 		systemctl stop mtprotoproxy
-		cp /opt/mtprotoproxy/config.py /tmp/config.py
-		rm -rf /opt/mtprotoproxy
-		git clone -b stable https://github.com/alexbers/mtprotoproxy.git
-		rm -f /opt/mtprotoproxy/config.py
-		cp /tmp/config.py /opt/mtprotoproxy/config.py
-		rm -f /tmp/config.py
+		mv /opt/mtprotoproxy/config.py /tmp/config.py
+		git pull origin stable:stable
+		mv /tmp/config.py /opt/mtprotoproxy/config.py
+		#Update pycryptodome
+		pip3.6 install --upgrade pycryptodome
 		systemctl start mtprotoproxy
 		echo "Proxy updated."
 		;;
