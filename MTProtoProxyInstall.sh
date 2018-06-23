@@ -41,8 +41,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		mv /opt/mtprotoproxy/config.py /tmp/config.py
 		git pull origin stable:stable
 		mv /tmp/config.py /opt/mtprotoproxy/config.py
-		#Update pycryptodome
-		pip3.6 install --upgrade pycryptodome
+		#Update pycryptodome and uvloop
+		pip3.6 install --upgrade pycryptodome uvloop
 		systemctl start mtprotoproxy
 		echo "Proxy updated."
 		;;
@@ -293,8 +293,8 @@ yum -y install epel-release yum-utils
 yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 yum -y update
 yum -y install git python36u python36u-devel python36u-pip
-#This lib make proxy faster
-pip3.6 install pycryptodome
+#This libs make proxy faster
+pip3.6 install pycryptodome uvloop
 cd /opt
 git clone -b stable https://github.com/alexbers/mtprotoproxy.git
 cd mtprotoproxy
