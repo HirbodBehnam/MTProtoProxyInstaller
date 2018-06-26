@@ -98,7 +98,7 @@ USERS = $SECRET
 		echo "Done"
 		;;
 		5)
-		echo "Just a second..."
+		echo "$(tput setaf 3)Just a second...$(tput sgr 0)"
 		if yum -q list installed packageX &>/dev/null; then
 			read -p "In order to revoke a user I must install jq package. Continue?(y/n)" OPTION
 			case $OPTION in
@@ -106,7 +106,7 @@ USERS = $SECRET
 				yum -y install jq
 				;;
 				*)
-				exit
+				exit 2
 			esac
 		fi 
 		clear
@@ -166,7 +166,7 @@ USERS = $SECRET
 			#Validate length
 			SECRET="$(echo $SECRET | tr '[A-Z]' '[a-z]')"
 			if ! [[ $SECRET =~ ^[0-9a-f]{32}$ ]] ; then
- 	  			echo "error: Enter hexadecimal character and secret must be 32 characters."
+ 	  			echo "$(tput setaf 1)Error:$(tput sgr 0) Enter hexadecimal characters and secret must be 32 characters."
 				exit 1
 			fi
 			;;
@@ -175,7 +175,7 @@ USERS = $SECRET
 			echo "OK I created one: $SECRET"
 			;;
 			*)
-			echo "Invalid option"
+			echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
 			exit 1
 		esac
 		SECRETS+=', "'
@@ -217,11 +217,11 @@ echo ""
 read -p "Ok select a port to proxy listen on it: " -e -i 443 PORT
 #Lets check if the PORT is valid
 if ! [[ $PORT =~ $regex ]] ; then
-   echo "error: The input is not a valid number"
+   echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
    exit 1
 fi
 if [ $PORT -gt 65535 ] ; then
-	echo "error: Number must be less than 65536"
+	echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
 	exit 1
 fi
 #Now the username
@@ -239,7 +239,7 @@ while true; do
 		#Validate length
 		SECRET="$(echo $SECRET | tr '[A-Z]' '[a-z]')"
 		if ! [[ $SECRET =~ ^[0-9a-f]{32}$ ]] ; then
- 	  		echo "error: Enter hexadecimal character and secret must be 32 characters."
+ 	  		echo "$(tput setaf 1)Error:$(tput sgr 0) Enter hexadecimal characters and secret must be 32 characters."
 			exit 1
 		fi
 		;;
@@ -248,7 +248,7 @@ while true; do
 		echo "OK I created one: $SECRET"
 		;;
 		*)
-		echo "Invalid option"
+		echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
 		exit 1
 	esac
 	#Now add them to secrets
@@ -266,7 +266,7 @@ while true; do
 		break
 		;;
 		*)
-		echo "Invalid option"
+		echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
 		exit 1
 	esac
 	COUNTER=$((COUNTER+1))
@@ -276,6 +276,7 @@ SECRETS=${SECRETS::${#SECRETS}-2}
 read -p "Do you want to setup the advertising tag?(y/n)" OPTION
 case $OPTION in
 	'y')
+	echo "$(tput setaf 1)Note:$(tput sgr 0) Channel admins can't see thier own sponsored channels."
 	echo "On telegram go to @MTProxybot Bot and enter this server IP and $PORT as port. Then as secret enter $SECRET"
 	echo "Bot now must give you a string named as TAG. Enter it here:"
 	read TAG
@@ -283,7 +284,7 @@ case $OPTION in
 	'n')
 	;;
 	*)
-	echo "Invalid option"
+	echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
 	exit 1
 esac
 read -n 1 -s -r -p "Press any key to install..."
