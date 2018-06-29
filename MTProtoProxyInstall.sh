@@ -99,8 +99,8 @@ USERS = $SECRET
 		;;
 		5)
 		echo "$(tput setaf 3)Just a second...$(tput sgr 0)"
-		if yum -q list installed packageX &>/dev/null; then
-			read -p "In order to revoke a user I must install jq package. Continue?(y/n)" OPTION
+		if ! yum -q list installed jq &>/dev/null; then
+			read -p "In order to revoke a user I must install jq package. Continue?(y/n) " -e -i "y" OPTION
 			case $OPTION in
 				"y")
 				yum -y install jq
@@ -158,7 +158,7 @@ USERS = $SECRET
 		echo "Do you want to set secret manualy or shall I create a random secret?"
 		echo "   1) Manualy enter a secret"
 		echo "   2) Create a random secret"
-		read -p "Please select one [1-2]: " OPTION
+		read -p "Please select one [1-2]: " -e -i 2 OPTION
 			case $OPTION in
 			1)
 			echo "Enter a 32 character string filled by 0-9 and a-f: "
@@ -231,7 +231,7 @@ while true; do
 	echo "Do you want to set secret manualy or shall I create a random secret?"
 	echo "   1) Manualy enter a secret"
 	echo "   2) Create a random secret"
-	read -p "Please select one [1-2]: " OPTION
+	read -p "Please select one [1-2]: " -e -i 2 OPTION
 	case $OPTION in
 		1)
 		echo "Enter a 32 character string filled by 0-9 and a-f: "
@@ -258,7 +258,7 @@ while true; do
 	SECRETTEMP+="$SECRET"
 	SECRETTEMP+='"'
 	SECRETS+="$SECRETTEMP , "
-	read -p "Do you want to add another secret?(y/n)" OPTION
+	read -p "Do you want to add another secret?(y/n) " -e -i "n" OPTION
 	case $OPTION in
 		'y')
 		;;
@@ -273,7 +273,7 @@ while true; do
 done
 SECRETS=${SECRETS::${#SECRETS}-2}
 #Now setup the tag
-read -p "Do you want to setup the advertising tag?(y/n)" OPTION
+read -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
 case $OPTION in
 	'y')
 	echo "$(tput setaf 1)Note:$(tput sgr 0) Channel admins can't see thier own sponsored channels."
