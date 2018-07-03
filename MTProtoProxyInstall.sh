@@ -39,7 +39,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		cd /opt/mtprotoproxy/
 		systemctl stop mtprotoproxy
 		mv /opt/mtprotoproxy/config.py /tmp/config.py
-		git pull origin stable:stable
+		BRANCH=$(git rev-parse --abbrev-ref HEAD)
+		git pull origin $BRANCH
 		mv /tmp/config.py /opt/mtprotoproxy/config.py
 		#Update pycryptodome and uvloop
 		pip3.6 install --upgrade pycryptodome uvloop
@@ -297,7 +298,12 @@ yum -y install git2u python36u python36u-devel python36u-pip
 #This libs make proxy faster
 pip3.6 install pycryptodome uvloop
 cd /opt
-git clone -b stable https://github.com/alexbers/mtprotoproxy.git
+if [ "$1" == "-m" ]; then
+	git clone https://github.com/alexbers/mtprotoproxy.git
+else
+	git clone -b stable https://github.com/alexbers/mtprotoproxy.git
+fi
+
 cd mtprotoproxy
 #Now edit the config file
 rm -f config.py
