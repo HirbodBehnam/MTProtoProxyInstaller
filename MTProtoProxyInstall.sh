@@ -206,6 +206,8 @@ fi
 regex='^[0-9]+$'
 SECRETS=""
 SECRET=""
+SECRET_END_ARY=()
+USERNAME_END_ARY=()
 TAG=""
 COUNTER=1
 echo "Welcome to MTProto-Proxy auto installer!"
@@ -246,6 +248,8 @@ while true; do
 		;;
 		2)
 		SECRET="$(hexdump -vn "16" -e ' /1 "%02x"'  /dev/urandom)"
+		SECRET_END_ARY+=($SECRET)
+		USERNAME_END_ARY+=($USERNAME)
 		echo "OK I created one: $SECRET"
 		;;
 		*)
@@ -294,7 +298,7 @@ clear
 yum -y install epel-release yum-utils
 yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 yum -y update
-yum -y install git2u python36u python36u-devel python36u-pip
+yum -y install git2u python36u python36u-devel python36u-pip wget
 #This libs make proxy faster
 pip3.6 install pycryptodome uvloop
 cd /opt
@@ -337,5 +341,16 @@ systemctl enable mtprotoproxy
 systemctl start mtprotoproxy
 clear
 echo "Ok it must be done. I created a service to run or stop the proxy."
-echo 'Use "systemctl start mtprotoproxy" or "systemctl stop mtprotoproxy" to stop it'
-echo 'Also use "systemctl status mtprotoproxy -l" to get the proxy link'
+echo 'Use "systemctl start mtprotoproxy" or "systemctl stop mtprotoproxy" to start or stop it'
+echo
+echo "Use these links to connect to your proxy:"
+PUBLIC_IP="$(wget https://api.ipify.org -q -O -)"
+if [ $? -ne 0 ]; then
+	PUBLIC_IP="YOUR_IP"
+fi
+COUNTER=0
+for i in "${SECRET_END_ARY[@]}"
+do
+   echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$i"
+   COUNTER=$COUNTER+1
+done
