@@ -11,10 +11,13 @@ On your machine run
 ```
 wget https://git.io/vhgUt -O MTProtoProxyInstall.sh && bash MTProtoProxyInstall.sh
 ```
-and wait until the setup finishes the install. <br />
-Then enter `systemctl status mtprotoproxy -l` and you can see the proxy link there. (Usually the last line and it starts with tg://...) <br />
-To update, uninstall, change port, revoke secret or... the proxy, run the script again. <br />
+and wait until the setup finishes the install you will se the links after install. (Or enter `systemctl status mtprotoproxy -l`) <br />
+To update, uninstall, change port, revoke secret or... the proxy, run this script again. <br />
 **Remember to open the port you specified in your firewall.**
+### Random Padding (Beta)
+Due to some ISPs detecting MTProxy by packet sizes, random padding is added to packets if such mode is enabled.
+It's only enabled for clients which request it.
+Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
 ##### Install Master Branch
 Run this:
 ```
