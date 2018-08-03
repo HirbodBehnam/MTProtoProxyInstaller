@@ -283,7 +283,7 @@ case $OPTION in
 	'y')
 	echo "$(tput setaf 1)Note:$(tput sgr 0) Channel admins can't see thier own sponsored channels."
 	echo "On telegram go to @MTProxybot Bot and enter this server IP and $PORT as port. Then as secret enter $SECRET"
-	echo "Bot now must give you a string named as TAG. Enter it here:"
+	echo "Bot will give you a string named as TAG. Enter it here:"
 	read TAG
 	;;
 	'n')
