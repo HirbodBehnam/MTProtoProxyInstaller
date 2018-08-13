@@ -42,8 +42,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		BRANCH=$(git rev-parse --abbrev-ref HEAD)
 		git pull origin $BRANCH
 		mv /tmp/config.py /opt/mtprotoproxy/config.py
-		#Update pycryptodome and uvloop
-		pip3.6 install --upgrade pycryptodome uvloop
+		#Update cryptography and uvloop
+		pip3.6 install --upgrade cryptography uvloop
 		systemctl start mtprotoproxy
 		echo "Proxy updated."
 		;;
@@ -129,7 +129,7 @@ USERS = $SECRET
 		done
 		read -p "Please select a user by it's index to revoke: " USER_TO_REVOKE
 		USER_TO_REVOKE=$((USER_TO_REVOKE-1))
-		#I should add a script to check the input but not for now
+		#I should add a script to check the input but not for now (I'm so lazy)
 		SECRET=$(jq "del(.${SECRET_ARY[$USER_TO_REVOKE]})" tempSecrets.json)
 		systemctl stop mtprotoproxy
 		rm -f config.py
@@ -300,7 +300,7 @@ yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 yum -y update
 yum -y install git2u python36u python36u-devel python36u-pip wget
 #This libs make proxy faster
-pip3.6 install pycryptodome uvloop
+pip3.6 install cryptography uvloop
 cd /opt
 if [ "$1" == "-m" ]; then
 	git clone https://github.com/alexbers/mtprotoproxy.git
