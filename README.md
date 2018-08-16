@@ -11,7 +11,7 @@ On your machine run
 ```
 wget https://git.io/vhgUt -O MTProtoProxyInstall.sh && bash MTProtoProxyInstall.sh
 ```
-and wait until the setup finishes the install you will se the links after install. (Or enter `systemctl status mtprotoproxy -l`) <br />
+and wait until the setup finishes the install you will see the links after install. (Or enter `systemctl status mtprotoproxy -l`) <br />
 To update, uninstall, change port, revoke secret or... the proxy, run this script again. <br />
 **Remember to open the port you specified in your firewall.**
 ### Random Padding (Beta)
