@@ -13,7 +13,12 @@ wget https://git.io/vhgUt -O MTProtoProxyInstall.sh && bash MTProtoProxyInstall.
 ```
 and wait until the setup finishes the install you will see the links after install. (Or enter `systemctl status mtprotoproxy -l`) <br />
 To update, uninstall, change port, revoke secret or... the proxy, run this script again. <br />
-**Remember to open the port you specified in your firewall.**
+### Firewall
+If you are using firewalld you can open the port you specified with this command. (Change 443 with port you specified)
+```
+firewall-cmd --zone=public --permanent --add-port=443/tcp
+firewall-cmd --reload
+```
 ### Random Padding (Beta)
 Due to some ISPs detecting MTProxy by packet sizes, random padding is added to packets if such mode is enabled.
 It's only enabled for clients which request it.
@@ -32,6 +37,8 @@ To manually config proxy edit config.py in /opt/mtprotoproxy to change the confi
 You can buy a server at [Virmach](https://virmach.com/) they also accept cryptos!
 ### Persian Guide To Buy Server and Install Script
 http://www.mediafire.com/folder/3zcys4aw9v232/Guide
+### English To Buy Server And Config It
+https://www.reddit.com/r/Telegram/comments/95m5vi/how_to_deploy_mtproto_proxy_server_on_centos/
 # Main Project
 I only and only created a simple installer to install [this repo](https://github.com/alexbers/mtprotoproxy) on CentOS 7. Please report proxy related issues at [here](https://github.com/alexbers/mtprotoproxy/issues)
 ## Donate
