@@ -19,10 +19,12 @@ If you are using firewalld you can open the port you specified with this command
 firewall-cmd --zone=public --permanent --add-port=443/tcp
 firewall-cmd --reload
 ```
-### Random Padding (Beta)
+### Random Padding
 Due to some ISPs detecting MTProxy by packet sizes, random padding is added to packets if such mode is enabled.
 It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
+
+To deny all connections but ones with random padding, set "Secure Mode" true. (Only works in master branch)
 ##### Install Master Branch
 Run this:
 ```

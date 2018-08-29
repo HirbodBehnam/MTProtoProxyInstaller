@@ -178,7 +178,7 @@ USERS = $SECRET
 			*)
 			echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
 			exit 1
-		esac
+			esac
 		SECRETS+=', "'
 		SECRETS+="$NEW_USR"
 		SECRETS+='": "'
@@ -277,6 +277,18 @@ while true; do
 	COUNTER=$((COUNTER+1))
 done
 SECRETS=${SECRETS::${#SECRETS}-2}
+#Set secure mode
+read -p "Enable \"Secure Mode\"?(y/n) " -e -i "n" OPTION
+case $OPTION in
+	'y')
+	SECURE_MODE=true
+	;;
+	'n')
+	;;
+	*)
+	echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
+	exit 1
+esac
 #Now setup the tag
 read -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
 case $OPTION in
@@ -324,6 +336,9 @@ if ! [ -z "$TAG" ]; then
 	TAGTEMP+="$TAG"
 	TAGTEMP+='"'
 	echo "$TAGTEMP" >> config.py
+fi
+if [ $SECURE_MODE = true ]; then
+	echo "SECURE_MODE = True" >> config.py
 fi
 #Now lets create the service
 cd /etc/systemd/system
