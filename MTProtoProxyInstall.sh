@@ -338,7 +338,7 @@ if ! [ -z "$TAG" ]; then
 	echo "$TAGTEMP" >> config.py
 fi
 if [ $SECURE_MODE = true ]; then
-	echo "SECURE_MODE = True" >> config.py
+	echo "SECURE_ONLY = True" >> config.py
 fi
 #Now lets create the service
 cd /etc/systemd/system
