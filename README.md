@@ -9,7 +9,7 @@ A very small script to install MTProtoProxy On CentOS 7
 ## Install
 On your machine run
 ```
-wget https://git.io/vhgUt -O MTProtoProxyInstall.sh && bash MTProtoProxyInstall.sh
+curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInstall.sh
 ```
 and wait until the setup finishes the install you will see the links after install. (Or enter `systemctl status mtprotoproxy -l`) <br />
 To update, uninstall, change port, revoke secret or... the proxy, run this script again. <br />
