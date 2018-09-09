@@ -28,11 +28,11 @@ To deny all connections but ones with random padding, set "Secure Mode" true. (O
 ##### Install Master Branch
 Run this:
 ```
-wget https://git.io/vhgUt -O MTProtoProxyInstall.sh && bash MTProtoProxyInstall.sh -m
+curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInstall.sh -m
 ```
 ## Control The Proxy
 ### Service
-Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy` to see logs of script.
+Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy -l` to see logs of script.
 ### Config
 To manually config proxy edit config.py in /opt/mtprotoproxy to change the config. Then restart the server using `systemctl restart mtprotoproxy` or just run script again.
 ## Server
