@@ -14,10 +14,10 @@ if [ -d "/opt/mtprotoproxy" ]; then
 	echo "You have already installed MTProtoProxy! What do you want to do?"
 	echo "  1) Uninstall Proxy"
 	echo "  2) Upgrade Proxy Software"
-	echo "  3) Change PORT"
-	echo "  4) Change AD_TAG"
-	echo "  5) Revoke Secret"
-	echo "  6) Add Secret"
+	echo "  3) Change AD_TAG"
+	echo "  4) Revoke Secret"
+	echo "  5) Add Secret"
+	echo "  6) Generate Firewalld rules"
 	echo "  *) Exit"
 	read -p "Please enter a number: " OPTION
 	case $OPTION in
@@ -26,10 +26,14 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		read -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n)" OPTION
 		case $OPTION in
 			"y")
+			cd /opt/mtprotoproxy/
+			PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
 			systemctl stop mtprotoproxy
 			systemctl disable mtprotoproxy
 			rm -rf /opt/mtprotoproxy
 			rm -f /etc/systemd/system/mtprotoproxy.service
+			firewall-cmd --permanent --remove-port=$PORT/tcp
+			firewall-cmd --reload
 			echo "Ok it's done."
 			;;
 		esac
@@ -48,29 +52,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		echo "Proxy updated."
 		;;
 		3)
-		#Change port
-		cd /opt/mtprotoproxy
-		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
-		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-		SECRET=$(echo "$SECRET" | tr "'" '"')
-		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
-		read -p "Current port is $PORT. Enter your new port: " -e -i 443 PORT
-		systemctl stop mtprotoproxy
-		rm -f config.py
-		echo "PORT = $PORT
-USERS = $SECRET
-" >> config.py
-		if ! [ -z "$TAG" ]; then
-			TAGTEMP="AD_TAG = "
-			TAGTEMP+='"'
-			TAGTEMP+="$TAG"
-			TAGTEMP+='"'
-			echo "$TAGTEMP" >> config.py
-		fi
-		systemctl start mtprotoproxy
-		echo "Done"
-		;;
-		4)
 		#Change AD TAG
 		cd /opt/mtprotoproxy
 		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
@@ -98,7 +79,7 @@ USERS = $SECRET
 		systemctl start mtprotoproxy
 		echo "Done"
 		;;
-		5)
+		4)
 		echo "$(tput setaf 3)Just a second...$(tput sgr 0)"
 		if ! yum -q list installed jq &>/dev/null; then
 			read -p "In order to revoke a user I must install jq package. Continue?(y/n) " -e -i "y" OPTION
@@ -147,7 +128,7 @@ USERS = $SECRET
 		rm -f tempSecrets.json
 		echo "Done"
 		;;
-		6)
+		5)
 		#New secret
 		cd /opt/mtprotoproxy
 		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
@@ -198,6 +179,13 @@ USERS = $SECRETS
 		fi
 		systemctl start mtprotoproxy
 		echo "Done"
+		;;
+		6)
+		#Firewall rules
+		cd /opt/mtprotoproxy/
+		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+		echo "firewall-cmd --zone=public --permanent --add-port=$PORT/tcp"
+		echo "firewall-cmd --reload"
 		;;
 	esac
 	exit
@@ -307,7 +295,7 @@ esac
 read -n 1 -s -r -p "Press any key to install..."
 #Now lets install
 clear
-yum -y install epel-release yum-utils
+yum -y install epel-release yum-utils ca-certificates
 yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 yum -y update
 yum -y install git2u python36u python36u-devel python36u-pip wget
@@ -340,6 +328,10 @@ fi
 if [ $SECURE_MODE = true ]; then
 	echo "SECURE_ONLY = True" >> config.py
 fi
+#Setup firewall
+echo "Setting firewalld rules"
+firewall-cmd --zone=public --permanent --add-port=$PORT/tcp
+firewall-cmd --reload
 #Now lets create the service
 cd /etc/systemd/system
 touch mtprotoproxy.service
@@ -354,7 +346,6 @@ ExecStart = /usr/bin/python3.6 /opt/mtprotoproxy/mtprotoproxy.py
 WantedBy = multi-user.target" >> mtprotoproxy.service
 systemctl enable mtprotoproxy
 systemctl start mtprotoproxy
-clear
 echo "Ok it must be done. I created a service to run or stop the proxy."
 echo 'Use "systemctl start mtprotoproxy" or "systemctl stop mtprotoproxy" to start or stop it'
 echo
