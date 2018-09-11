@@ -14,7 +14,7 @@ curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInsta
 and wait until the setup finishes the install you will see the links after install. (Or enter `systemctl status mtprotoproxy -l`) <br />
 To update, uninstall, change port, revoke secret or... the proxy, run this script again. <br />
 ### Firewall
-Setup will try to configure the proxy on public zone. How. (Change 443 with port you specified)
+Setup will try to configure the proxy on public zone. However you can manually enter these rules. (Change 443 with port you specified)
 ```
 firewall-cmd --zone=public --permanent --add-port=443/tcp
 firewall-cmd --reload
