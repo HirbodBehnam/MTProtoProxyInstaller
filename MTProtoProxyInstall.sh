@@ -298,7 +298,7 @@ clear
 yum -y install epel-release yum-utils ca-certificates
 yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 yum -y update
-yum -y install git2u python36u python36u-devel python36u-pip wget
+yum -y install git2u python36u python36u-pip wget
 #This libs make proxy faster
 pip3.6 install cryptography uvloop
 cd /opt
