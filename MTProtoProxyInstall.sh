@@ -325,7 +325,7 @@ if ! [ -z "$TAG" ]; then
 	TAGTEMP+='"'
 	echo "$TAGTEMP" >> config.py
 fi
-if [ $SECURE_MODE = true ]; then
+if [ "$SECURE_MODE" = true ]; then
 	echo "SECURE_ONLY = True" >> config.py
 fi
 #Setup firewall
