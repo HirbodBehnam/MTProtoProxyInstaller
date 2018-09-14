@@ -281,8 +281,8 @@ esac
 read -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
 case $OPTION in
 	'y')
-	echo "$(tput setaf 1)Note:$(tput sgr 0) Channel admins can't see thier own sponsored channels."
-	echo "On telegram go to @MTProxybot Bot and enter this server IP and $PORT as port. Then as secret enter $SECRET"
+	echo "$(tput setaf 1)Note:$(tput sgr 0) Joined users and admins won't see the channel at very top."
+	echo "On telegram, go to @MTProxybot Bot and enter this server IP and $PORT as port. Then as secret enter $SECRET"
 	echo "Bot will give you a string named as TAG. Enter it here:"
 	read TAG
 	;;
