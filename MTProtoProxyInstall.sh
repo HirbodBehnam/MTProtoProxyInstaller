@@ -295,10 +295,10 @@ esac
 read -n 1 -s -r -p "Press any key to install..."
 #Now lets install
 clear
-yum -y install epel-release yum-utils ca-certificates
-yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+yum -y install epel-release ca-certificates
 yum -y update
-yum -y install git2u python36u python36u-libs python36u-devel python36u-pip wget
+yum -y install git python36 wget
+curl https://bootstrap.pypa.io/get-pip.py | python3.6
 #This libs make proxy faster
 pip3.6 install cryptography uvloop
 cd /opt
@@ -307,7 +307,6 @@ if [ "$1" == "-m" ]; then
 else
 	git clone -b stable https://github.com/alexbers/mtprotoproxy.git
 fi
-
 cd mtprotoproxy
 #Now edit the config file
 rm -f config.py
