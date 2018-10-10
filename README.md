@@ -11,10 +11,10 @@ On your machine run
 ```
 curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInstall.sh
 ```
-and wait until the setup finishes the install you will see the links after install. (Or enter `systemctl status mtprotoproxy -l`) <br />
+and wait until the setup finishes the install you will see the links after install. (Or enter `systemctl status mtprotoproxy -l` in case of any failure to see the links) <br />
 To update, uninstall, change port, revoke secret or... the proxy, run this script again. <br />
 ### Firewall
-Setup will try to configure the proxy on public zone. However you can manually enter these rules. (Change 443 with port you specified)
+Setup will try to configure the proxy on public zone. However you can manually enter these rules in case of any error or whatever. (Change 443 with port you specified)
 ```
 firewall-cmd --zone=public --permanent --add-port=443/tcp
 firewall-cmd --reload
@@ -24,9 +24,8 @@ Due to some ISPs detecting MTProxy by packet sizes, random padding is added to p
 It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
 
-To deny all connections but ones with random padding, set "Secure Mode" true. (Only works in master branch)
+To deny all connections but ones with random padding, set "Secure Mode" true. (**Only works in master branch**)
 ##### Install Master Branch
-Run this:
 ```
 curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInstall.sh -m
 ```
