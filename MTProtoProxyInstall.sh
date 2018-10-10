@@ -299,7 +299,7 @@ read -n 1 -s -r -p "Press any key to install..."
 clear
 yum -y install epel-release ca-certificates
 yum -y update
-yum -y install git python36 wget
+yum -y install git python36 curl
 curl https://bootstrap.pypa.io/get-pip.py | python3.6
 #This libs make proxy faster
 pip3.6 install cryptography uvloop
@@ -351,13 +351,17 @@ echo "Ok it must be done. I created a service to run or stop the proxy."
 echo 'Use "systemctl start mtprotoproxy" or "systemctl stop mtprotoproxy" to start or stop it'
 echo
 echo "Use these links to connect to your proxy:"
-PUBLIC_IP="$(wget https://api.ipify.org -q -O -)"
+PUBLIC_IP="$(curl https://api.ipify.org -sS)"
 if [ $? -ne 0 ]; then
 	PUBLIC_IP="YOUR_IP"
 fi
 COUNTER=0
 for i in "${SECRET_END_ARY[@]}"
 do
-   echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$i"
-   COUNTER=$COUNTER+1
+	if [ "$SECURE_MODE" = true ]; then
+		echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
+	else
+		echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$i"
+	fi
+	COUNTER=$COUNTER+1
 done
