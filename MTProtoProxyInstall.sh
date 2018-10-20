@@ -19,14 +19,14 @@ if [ -d "/opt/mtprotoproxy" ]; then
 	echo "  5) Add Secret"
 	echo "  6) Generate Firewalld rules"
 	echo "  *) Exit"
-	read -p "Please enter a number: " OPTION
+	read -r -p "Please enter a number: " OPTION
 	case $OPTION in
 		1)
 		#Uninstall proxy
-		read -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n)" OPTION
+		read -r -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n)" OPTION
 		case $OPTION in
 			"y")
-			cd /opt/mtprotoproxy/
+			cd /opt/mtprotoproxy/ || exit 2
 			PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
 			systemctl stop mtprotoproxy
 			systemctl disable mtprotoproxy
@@ -40,11 +40,11 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		;;
 		2)
 		#Update
-		cd /opt/mtprotoproxy/
+		cd /opt/mtprotoproxy/ || exit 2
 		systemctl stop mtprotoproxy
 		mv /opt/mtprotoproxy/config.py /tmp/config.py
 		BRANCH=$(git rev-parse --abbrev-ref HEAD)
-		git pull origin $BRANCH
+		git pull origin "$BRANCH"
 		mv /tmp/config.py /opt/mtprotoproxy/config.py
 		#Update cryptography and uvloop
 		pip3.6 install --upgrade cryptography uvloop
@@ -53,7 +53,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		;;
 		3)
 		#Change AD TAG
-		cd /opt/mtprotoproxy
+		cd /opt/mtprotoproxy || exit 2
 		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
 		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
 		SECRET=$(echo "$SECRET" | tr "'" '"')
@@ -63,7 +63,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		else
 			echo "Current tag is $TAG. If you want to remove it, just press enter. Otherwise type the new TAG:"
 		fi
-		read TAG
+		read -r TAG
 		systemctl stop mtprotoproxy
 		rm -f config.py
 		echo "PORT = $PORT
@@ -82,17 +82,17 @@ USERS = $SECRET
 		4)
 		echo "$(tput setaf 3)Just a second...$(tput sgr 0)"
 		if ! yum -q list installed jq &>/dev/null; then
-			read -p "In order to revoke a user I must install jq package. Continue?(y/n) " -e -i "y" OPTION
+			read -r -p "In order to revoke a user I must install jq package. Continue?(y/n) " -e -i "y" OPTION
 			case $OPTION in
 				"y")
 				yum -y install jq
 				;;
 				*)
-				exit 2
+				exit 3
 			esac
 		fi 
 		clear
-		cd /opt/mtprotoproxy
+		cd /opt/mtprotoproxy || exit 2
 		rm -f tempSecrets.json
 		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
 		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
@@ -108,7 +108,7 @@ USERS = $SECRET
    			echo "	$COUNTER) $i"
 			COUNTER=$((COUNTER+1))
 		done
-		read -p "Please select a user by it's index to revoke: " USER_TO_REVOKE
+		read -r -p "Please select a user by it's index to revoke: " USER_TO_REVOKE
 		USER_TO_REVOKE=$((USER_TO_REVOKE-1))
 		#I should add a script to check the input but not for now (I'm so lazy)
 		SECRET=$(jq "del(.${SECRET_ARY[$USER_TO_REVOKE]})" tempSecrets.json)
@@ -130,21 +130,21 @@ USERS = $SECRET
 		;;
 		5)
 		#New secret
-		cd /opt/mtprotoproxy
+		cd /opt/mtprotoproxy || exit 2
 		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
 		SECRETS=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
 		SECRETS=$(echo "$SECRETS" | tr "'" '"')
 		SECRETS="${SECRETS: : -1}"
 		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
-		read -p "Ok now please enter the username: " -e -i "NewUser" NEW_USR
+		read -r -p "Ok now please enter the username: " -e -i "NewUser" NEW_USR
 		echo "Do you want to set secret manualy or shall I create a random secret?"
 		echo "   1) Manualy enter a secret"
 		echo "   2) Create a random secret"
-		read -p "Please select one [1-2]: " -e -i 2 OPTION
+		read -r -p "Please select one [1-2]: " -e -i 2 OPTION
 			case $OPTION in
 			1)
 			echo "Enter a 32 character string filled by 0-9 and a-f: "
-			read SECRET
+			read -r SECRET
 			#Validate length
 			SECRET="$(echo $SECRET | tr '[A-Z]' '[a-z]')"
 			if ! [[ $SECRET =~ ^[0-9a-f]{32}$ ]] ; then
@@ -182,7 +182,7 @@ USERS = $SECRETS
 		;;
 		6)
 		#Firewall rules
-		cd /opt/mtprotoproxy/
+		cd /opt/mtprotoproxy/ || exit 2
 		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
 		echo "firewall-cmd --zone=public --permanent --add-port=$PORT/tcp"
 		echo "firewall-cmd --reload"
@@ -205,28 +205,28 @@ echo "Source at https://github.com/alexbers/mtprotoproxy"
 echo "Now I will gather some info from you."
 echo ""
 echo ""
-read -p "Ok select a port to proxy listen on it: " -e -i 443 PORT
+read -r -p "Ok select a port to proxy listen on it: " -e -i 443 PORT
 #Lets check if the PORT is valid
 if ! [[ $PORT =~ $regex ]] ; then
    echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
    exit 1
 fi
-if [ $PORT -gt 65535 ] ; then
+if [ "$PORT" -gt 65535 ] ; then
 	echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
 	exit 1
 fi
 #Now the username
 while true; do
 	echo "Now tell me a user name. Usernames are used to name secrets: "
-	read -e -i "MTSecret$COUNTER" USERNAME
+	read -r -e -i "MTSecret$COUNTER" USERNAME
 	echo "Do you want to set secret manualy or shall I create a random secret?"
 	echo "   1) Manualy enter a secret"
 	echo "   2) Create a random secret"
-	read -p "Please select one [1-2]: " -e -i 2 OPTION
+	read -r -p "Please select one [1-2]: " -e -i 2 OPTION
 	case $OPTION in
 		1)
 		echo "Enter a 32 character string filled by 0-9 and a-f: "
-		read SECRET
+		read -r SECRET
 		#Validate length
 		SECRET="$(echo $SECRET | tr '[A-Z]' '[a-z]')"
 		if ! [[ $SECRET =~ ^[0-9a-f]{32}$ ]] ; then
@@ -236,8 +236,8 @@ while true; do
 		;;
 		2)
 		SECRET="$(hexdump -vn "16" -e ' /1 "%02x"'  /dev/urandom)"
-		SECRET_END_ARY+=($SECRET)
-		USERNAME_END_ARY+=($USERNAME)
+		SECRET_END_ARY+=("$SECRET")
+		USERNAME_END_ARY+=("$USERNAME")
 		echo "OK I created one: $SECRET"
 		;;
 		*)
@@ -251,7 +251,7 @@ while true; do
 	SECRETTEMP+="$SECRET"
 	SECRETTEMP+='"'
 	SECRETS+="$SECRETTEMP , "
-	read -p "Do you want to add another secret?(y/n) " -e -i "n" OPTION
+	read -r -p "Do you want to add another secret?(y/n) " -e -i "n" OPTION
 	case $OPTION in
 		'y')
 		;;
@@ -267,7 +267,7 @@ done
 SECRETS=${SECRETS::${#SECRETS}-2}
 #Set secure mode
 if [ "$1" == "-m" ]; then
-	read -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "n" OPTION
+	read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "n" OPTION
 	case $OPTION in
 		'y')
 		SECURE_MODE=true
@@ -280,13 +280,13 @@ if [ "$1" == "-m" ]; then
 	esac
 fi
 #Now setup the tag
-read -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
+read -r -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
 case $OPTION in
 	'y')
 	echo "$(tput setaf 1)Note:$(tput sgr 0) Joined users and admins won't see the channel at very top."
 	echo "On telegram, go to @MTProxybot Bot and enter this server IP and $PORT as port. Then as secret enter $SECRET"
 	echo "Bot will give you a string named as TAG. Enter it here:"
-	read TAG
+	read -r TAG
 	;;
 	'n')
 	;;
@@ -303,13 +303,13 @@ yum -y install git python36 curl
 curl https://bootstrap.pypa.io/get-pip.py | python3.6
 #This libs make proxy faster
 pip3.6 install cryptography uvloop
-cd /opt
+cd /opt || exit 2
 if [ "$1" == "-m" ]; then
 	git clone https://github.com/alexbers/mtprotoproxy.git
 else
 	git clone -b stable https://github.com/alexbers/mtprotoproxy.git
 fi
-cd mtprotoproxy
+cd mtprotoproxy || exit 2
 #Now edit the config file
 rm -f config.py
 touch config.py
@@ -334,7 +334,7 @@ echo "Setting firewalld rules"
 firewall-cmd --zone=public --permanent --add-port=$PORT/tcp
 firewall-cmd --reload
 #Now lets create the service
-cd /etc/systemd/system
+cd /etc/systemd/system || exit
 touch mtprotoproxy.service
 echo "[Unit]
 Description = MTProto Proxy Service
