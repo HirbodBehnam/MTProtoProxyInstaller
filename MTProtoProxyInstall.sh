@@ -58,6 +58,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
 		SECRET=$(echo "$SECRET" | tr "'" '"')
 		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		SECURE_ONLY=$(python3.6 -c 'import config;print(getattr(config, "SECURE_ONLY", False))')
 		if [ -z "$TAG" ]; then
 			echo "It looks like your AD TAG is empty. Get the AD TAG at https://t.me/mtproxybot and enter it here:"
 		else
@@ -76,9 +77,11 @@ USERS = $SECRET
 			TAGTEMP+='"'
 			echo "$TAGTEMP" >> config.py
 		fi
+		echo "SECURE_ONLY = $SECURE_ONLY" >> config.py
 		systemctl start mtprotoproxy
 		echo "Done"
 		;;
+		#Revoke secret
 		4)
 		echo "$(tput setaf 3)Just a second...$(tput sgr 0)"
 		if ! yum -q list installed jq &>/dev/null; then
@@ -99,6 +102,7 @@ USERS = $SECRET
 		SECRET=$(echo "$SECRET" | tr "'" '"')
 		echo "$SECRET" >> tempSecrets.json
 		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		SECURE_ONLY=$(python3.6 -c 'import config;print(getattr(config, "SECURE_ONLY", False))')
 		SECRET_ARY=()
 		mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
 		echo "Here are list of current users:"
@@ -124,6 +128,7 @@ USERS = $SECRET
 			TAGTEMP+='"'
 			echo "$TAGTEMP" >> config.py
 		fi
+		echo "SECURE_ONLY = $SECURE_ONLY" >> config.py
 		systemctl start mtprotoproxy
 		rm -f tempSecrets.json
 		echo "Done"
@@ -136,6 +141,7 @@ USERS = $SECRET
 		SECRETS=$(echo "$SECRETS" | tr "'" '"')
 		SECRETS="${SECRETS: : -1}"
 		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		SECURE_ONLY=$(python3.6 -c 'import config;print(getattr(config, "SECURE_ONLY", False))')
 		read -r -p "Ok now please enter the username: " -e -i "NewUser" NEW_USR
 		echo "Do you want to set secret manualy or shall I create a random secret?"
 		echo "   1) Manualy enter a secret"
@@ -177,6 +183,7 @@ USERS = $SECRETS
 			TAGTEMP+='"'
 			echo "$TAGTEMP" >> config.py
 		fi
+		echo "SECURE_ONLY = $SECURE_ONLY" >> config.py
 		systemctl start mtprotoproxy
 		echo "Done"
 		;;
