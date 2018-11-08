@@ -36,9 +36,9 @@ Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to st
 To manually config proxy edit config.py in /opt/mtprotoproxy to change the config. Then restart the server using `systemctl restart mtprotoproxy` or just run script again.
 ## Server
 You can buy a server at [Virmach](https://virmach.com/) they also accept cryptos!
-### Persian Guide To Buy Server and Install Script
+### Persian guide to buying servers, installing script and making servers censorship-resistant
 http://www.mediafire.com/folder/3zcys4aw9v232/Guide
-### English Guide To Buy Server and Install Script
+### English guide to buying servers and installing script
 https://www.reddit.com/r/Telegram/comments/95m5vi/how_to_deploy_mtproto_proxy_server_on_centos/
 # Main Project
 I only and only created a simple installer to install [this repo](https://github.com/alexbers/mtprotoproxy) on CentOS 7. Please report proxy related issues at [here](https://github.com/alexbers/mtprotoproxy/issues)
