@@ -24,7 +24,7 @@ Due to some ISPs detecting MTProxy by packet sizes, random padding is added to p
 It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
 
-To deny all connections but ones with random padding, set "Secure Mode" true. (**Only works in master branch**)
+To deny all connections but ones with random padding, set "Secure Mode" true.
 ##### Install Master Branch
 ```
 curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInstall.sh -m

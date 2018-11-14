@@ -18,6 +18,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 	echo "  4) Revoke Secret"
 	echo "  5) Add Secret"
 	echo "  6) Generate Firewalld rules"
+	echo "  7) Change Secure Mode" 
 	echo "  *) Exit"
 	read -r -p "Please enter a number: " OPTION
 	case $OPTION in
@@ -194,6 +195,40 @@ USERS = $SECRETS
 		echo "firewall-cmd --zone=public --permanent --add-port=$PORT/tcp"
 		echo "firewall-cmd --reload"
 		;;
+		7)
+		cd /opt/mtprotoproxy || exit 2
+		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+		SECRET=$(echo "$SECRET" | tr "'" '"')
+		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "n" OPTION
+		case $OPTION in
+		'y')
+			SECURE_MODE="True"
+		;;
+		'n')
+			SECURE_MODE="False"
+		;;
+		*)
+			echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
+			exit 1
+		esac
+		systemctl stop mtprotoproxy
+		rm -f config.py
+		echo "PORT = $PORT
+USERS = $SECRET
+" >> config.py
+		if ! [ -z "$TAG" ]; then
+			TAGTEMP="AD_TAG = "
+			TAGTEMP+='"'
+			TAGTEMP+="$TAG"
+			TAGTEMP+='"'
+			echo "$TAGTEMP" >> config.py
+		fi
+		echo "SECURE_ONLY = $SECURE_MODE" >> config.py
+		systemctl start mtprotoproxy
+		echo "Done"
+		;;
 	esac
 	exit
 fi
@@ -273,19 +308,17 @@ while true; do
 done
 SECRETS=${SECRETS::${#SECRETS}-2}
 #Set secure mode
-if [ "$1" == "-m" ]; then
-	read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "n" OPTION
-	case $OPTION in
-		'y')
-		SECURE_MODE=true
-		;;
-		'n')
-		;;
-		*)
-		echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
-		exit 1
-	esac
-fi
+read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "n" OPTION
+case $OPTION in
+	'y')
+	SECURE_MODE=true
+	;;
+	'n')
+	;;
+	*)
+	echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
+	exit 1
+esac
 #Now setup the tag
 read -r -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
 case $OPTION in
@@ -338,10 +371,10 @@ if [ "$SECURE_MODE" = true ]; then
 fi
 #Setup firewall
 echo "Setting firewalld rules"
-firewall-cmd --zone=public --permanent --add-port=$PORT/tcp
+firewall-cmd --zone=public --permanent --add-port="$PORT"/tcp
 firewall-cmd --reload
 #Now lets create the service
-cd /etc/systemd/system || exit
+cd /etc/systemd/system || exit 2
 touch mtprotoproxy.service
 echo "[Unit]
 Description = MTProto Proxy Service
