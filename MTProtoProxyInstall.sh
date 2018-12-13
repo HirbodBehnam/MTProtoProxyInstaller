@@ -194,6 +194,11 @@ USERS = $SECRETS
       PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
       echo "firewall-cmd --zone=public --permanent --add-port=$PORT/tcp"
       echo "firewall-cmd --reload"
+      read -r -p "Do you want to apply these rules?[y/n] " -e -i "y" OPTION
+      if [ "$OPTION" == "y" ] ; then
+        firewall-cmd --zone=public --permanent --add-port="$PORT"/tcp
+        firewall-cmd --reload
+      fi
       ;;
     7)
       cd /opt/mtprotoproxy || exit 2
@@ -388,6 +393,9 @@ ExecStart = /usr/bin/python3.6 /opt/mtprotoproxy/mtprotoproxy.py
 WantedBy = multi-user.target" >> mtprotoproxy.service
 systemctl enable mtprotoproxy
 systemctl start mtprotoproxy
+tput setaf 3
+printf "%`tput cols`s"|tr ' ' '#'
+tput sgr 0
 echo "Ok it must be done. I created a service to run or stop the proxy."
 echo 'Use "systemctl start mtprotoproxy" or "systemctl stop mtprotoproxy" to start or stop it'
 echo
