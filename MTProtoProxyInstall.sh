@@ -17,7 +17,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
   echo "  3) Change AD_TAG"
   echo "  4) Revoke Secret"
   echo "  5) Add Secret"
-  echo "  6) Generate Firewalld rules"
+  echo "  6) Generate Firewalld Rules"
   echo "  7) Change Secure Mode"
   echo "  *) Exit"
   read -r -p "Please enter a number: " OPTION
