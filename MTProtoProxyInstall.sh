@@ -381,11 +381,10 @@ echo "Setting firewalld rules"
 SETFIREWALL=true
 if ! yum -q list installed firewalld &>/dev/null; then
   echo ""
-  read -r -p "Looks \"firewalld\" is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
+  read -r -p "Looks like \"firewalld\" is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
     case $OPTION in
       "y")
         yum -y install firewalld
-        systemctl start firewalld
         systemctl enable firewalld
         ;;
       *)
