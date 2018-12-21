@@ -93,6 +93,7 @@ USERS = $SECRET
             ;;
           *)
             exit 3
+            ;;
         esac
       fi
       clear
@@ -377,8 +378,26 @@ if [ "$SECURE_MODE" = true ]; then
 fi
 #Setup firewall
 echo "Setting firewalld rules"
-firewall-cmd --zone=public --permanent --add-port="$PORT"/tcp
-firewall-cmd --reload
+SETFIREWALL=true
+if ! yum -q list installed firewalld &>/dev/null; then
+  echo ""
+  read -r -p "Looks \"firewalld\" is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
+    case $OPTION in
+      "y")
+        yum -y install firewalld
+        systemctl start firewalld
+        systemctl enable firewalld
+        ;;
+      *)
+        SETFIREWALL=false
+        ;;
+    esac
+fi
+if [ "$SETFIREWALL" = true ]; then
+  systemctl start firewalld
+  firewall-cmd --zone=public --permanent --add-port="$PORT"/tcp
+  firewall-cmd --reload
+fi
 #Now lets create the service
 cd /etc/systemd/system || exit 2
 touch mtprotoproxy.service
