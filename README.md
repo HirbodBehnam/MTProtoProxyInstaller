@@ -2,6 +2,7 @@
 A very small script to install MTProtoProxy On CentOS 7
 ### Why this installer?
 * Generate random secret
+* Automatically configure firewall
 * Create a service to run it on background and start up
 * Setup proxy with small knowledge
 * Simple updater
