@@ -33,8 +33,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
           systemctl disable mtprotoproxy
           rm -rf /opt/mtprotoproxy
           rm -f /etc/systemd/system/mtprotoproxy.service
-          firewall-cmd --permanent --remove-port=$PORT/tcp
-          firewall-cmd --reload
+          firewall-cmd --remove-port="$PORT"/tcp
+          firewall-cmd --runtime-to-permanent
           echo "Ok it's done."
           ;;
       esac
@@ -193,12 +193,12 @@ USERS = $SECRETS
       #Firewall rules
       cd /opt/mtprotoproxy/ || exit 2
       PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
-      echo "firewall-cmd --zone=public --permanent --add-port=$PORT/tcp"
-      echo "firewall-cmd --reload"
+      echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
+      echo "firewall-cmd --runtime-to-permanent"
       read -r -p "Do you want to apply these rules?[y/n] " -e -i "y" OPTION
       if [ "$OPTION" == "y" ] ; then
-        firewall-cmd --zone=public --permanent --add-port="$PORT"/tcp
-        firewall-cmd --reload
+        firewall-cmd --zone=public --add-port="$PORT"/tcp
+        firewall-cmd --runtime-to-permanent
       fi
       ;;
     7)
@@ -394,8 +394,8 @@ if ! yum -q list installed firewalld &>/dev/null; then
 fi
 if [ "$SETFIREWALL" = true ]; then
   systemctl start firewalld
-  firewall-cmd --zone=public --permanent --add-port="$PORT"/tcp
-  firewall-cmd --reload
+  firewall-cmd --zone=public --add-port="$PORT"/tcp
+  firewall-cmd --runtime-to-permanent
 fi
 #Now lets create the service
 cd /etc/systemd/system || exit 2
