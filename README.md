@@ -22,13 +22,14 @@ It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
 
 To deny all connections but ones with random padding, set "Secure Mode" true.
-##### Install Master Branch
+##### Install Proxy's Project Master Branch
+You may want to test the stuff that are not available in stable branch of [mtprotoproxy](https://github.com/alexbers/mtprotoproxy). Then pass `-m` as argument to install master branch.
 ```
 curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInstall.sh -m
 ```
 ## Control The Proxy
 ### Service
-Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy -l` to see logs of script.
+Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy -l` to see logs of script.ty7
 ### Config
 To manually config proxy edit config.py in /opt/mtprotoproxy to change the config. Then restart the server using `systemctl restart mtprotoproxy` or just run script again.
 ## Server
