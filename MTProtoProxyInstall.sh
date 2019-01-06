@@ -1,11 +1,14 @@
 #!/bin/bash
+function RemoveMultiLineUser(){
+  SECRET_T=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+  SECRET_T=$(echo "$SECRET_T" | tr "'" '"')
+  python3.6 -c "import re;f = open('config.py', 'r');s = f.read();p = re.compile('USERS\\s*=\\s*\\{.*?\\}', re.DOTALL);nonBracketedString = p.sub('', s);f = open('config.py', 'w');f.write(nonBracketedString)"
+  echo "" >> config.py
+  echo "USERS = $SECRET_T" >> config.py
+}
 #User must run the script as root
 if [[ "$EUID" -ne 0 ]]; then
   echo "Please run this script as root"
-  exit
-fi
-if readlink /proc/$$/exe | grep -q "dash"; then
-  echo "This script needs to be run with bash, not sh"
   exit
 fi
 clear
@@ -22,9 +25,9 @@ if [ -d "/opt/mtprotoproxy" ]; then
   echo "  *) Exit"
   read -r -p "Please enter a number: " OPTION
   case $OPTION in
+    #Uninstall proxy
     1)
-      #Uninstall proxy
-      read -r -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n)" OPTION
+      read -r -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n) " OPTION
       case $OPTION in
         "y")
           cd /opt/mtprotoproxy/ || exit 2
@@ -39,8 +42,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
           ;;
       esac
       ;;
+    #Update
     2)
-      #Update
       cd /opt/mtprotoproxy/ || exit 2
       systemctl stop mtprotoproxy
       mv /opt/mtprotoproxy/config.py /tmp/config.py
@@ -49,36 +52,42 @@ if [ -d "/opt/mtprotoproxy" ]; then
       mv /tmp/config.py /opt/mtprotoproxy/config.py
       #Update cryptography and uvloop
       pip3.6 install --upgrade cryptography uvloop
+      yum -y update #Update whole system
       systemctl start mtprotoproxy
       echo "Proxy updated."
       ;;
+    #Change AD_TAG
     3)
-      #Change AD TAG
       cd /opt/mtprotoproxy || exit 2
-      PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
-      SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-      SECRET=$(echo "$SECRET" | tr "'" '"')
       TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
-      SECURE_ONLY=$(python3.6 -c 'import config;print(getattr(config, "SECURE_ONLY", False))')
+      OldEmptyTag=false
       if [ -z "$TAG" ]; then
+        OldEmptyTag=true
         echo "It looks like your AD TAG is empty. Get the AD TAG at https://t.me/mtproxybot and enter it here:"
       else
         echo "Current tag is $TAG. If you want to remove it, just press enter. Otherwise type the new TAG:"
       fi
       read -r TAG
       systemctl stop mtprotoproxy
-      rm -f config.py
-      echo "PORT = $PORT
-USERS = $SECRET
-      " >> config.py
-      if ! [ -z "$TAG" ]; then
+      if ! [ -z "$TAG" ] && [ "$OldEmptyTag" = true ]; then
+        #This adds the AD_TAG to end of file
+        echo "" >> config.py #Adds a new line
         TAGTEMP="AD_TAG = "
         TAGTEMP+='"'
         TAGTEMP+="$TAG"
         TAGTEMP+='"'
         echo "$TAGTEMP" >> config.py
+      elif ! [ -z "$TAG" ] && [ "$OldEmptyTag" = false ]; then
+        # This replaces the AD_TAG
+        TAGTEMP='"'
+        TAGTEMP+="$TAG"
+        TAGTEMP+='"'
+        sed -i "s/^AD_TAG =.*/AD_TAG = $TAGTEMP/" config.py
+      elif [ -z "$TAG" ] && [ "$OldEmptyTag" = false ]; then
+        # This part removes the last AD_TAG
+        sed -i '/^AD_TAG/ d' config.py
       fi
-      echo "SECURE_ONLY = $SECURE_ONLY" >> config.py
+      sed -i '/^$/d' config.py #Remove empty lines
       systemctl start mtprotoproxy
       echo "Done"
       ;;
@@ -96,15 +105,18 @@ USERS = $SECRET
             ;;
         esac
       fi
-      clear
       cd /opt/mtprotoproxy || exit 2
+      clear
       rm -f tempSecrets.json
-      PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
       SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+      SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+      if [ "$SECRET_COUNT" == "0" ] ; then
+        echo "You have 0 secret. Cannot revoke nothing!"
+        exit 4
+      fi
+      RemoveMultiLineUser #Regenerate USERS only in one line
       SECRET=$(echo "$SECRET" | tr "'" '"')
       echo "$SECRET" >> tempSecrets.json
-      TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
-      SECURE_ONLY=$(python3.6 -c 'import config;print(getattr(config, "SECURE_ONLY", False))')
       SECRET_ARY=()
       mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
       echo "Here are list of current users:"
@@ -119,18 +131,10 @@ USERS = $SECRET
       #I should add a script to check the input but not for now (I'm so lazy)
       SECRET=$(jq "del(.${SECRET_ARY[$USER_TO_REVOKE]})" tempSecrets.json)
       systemctl stop mtprotoproxy
-      rm -f config.py
-      echo "PORT = $PORT
-USERS = $SECRET
-      " >> config.py
-      if ! [ -z "$TAG" ]; then
-        TAGTEMP="AD_TAG = "
-        TAGTEMP+='"'
-        TAGTEMP+="$TAG"
-        TAGTEMP+='"'
-        echo "$TAGTEMP" >> config.py
-      fi
-      echo "SECURE_ONLY = $SECURE_ONLY" >> config.py
+      sed -i '/^USERS\s*=.*/ d' config.py #Remove USERS
+      echo "" >> config.py
+      echo "USERS = $SECRET" >> config.py
+      sed -i '/^$/d' config.py #Remove empty lines
       systemctl start mtprotoproxy
       rm -f tempSecrets.json
       echo "Done"
@@ -138,12 +142,10 @@ USERS = $SECRET
     5)
       #New secret
       cd /opt/mtprotoproxy || exit 2
-      PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
-      SECRETS=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+      SECRETS=$(python3.6 -c 'import config;print(getattr(config, "USERS","{}"))')
+      SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
       SECRETS=$(echo "$SECRETS" | tr "'" '"')
-      SECRETS="${SECRETS: : -1}"
-      TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
-      SECURE_ONLY=$(python3.6 -c 'import config;print(getattr(config, "SECURE_ONLY", False))')
+      SECRETS="${SECRETS: : -1}" #Remove last char "}" here
       read -r -p "Ok now please enter the username: " -e -i "NewUser" NEW_USR
       echo "Do you want to set secret manualy or shall I create a random secret?"
       echo "   1) Manualy enter a secret"
@@ -168,24 +170,20 @@ USERS = $SECRET
           echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
           exit 1
       esac
-      SECRETS+=', "'
+      RemoveMultiLineUser #Regenerate USERS only in one line
+      if [ "$SECRET_COUNT" -ne 0 ] ; then
+        SECRETS+=','
+      fi
+      SECRETS+='"'
       SECRETS+="$NEW_USR"
       SECRETS+='": "'
       SECRETS+="$SECRET"
       SECRETS+='"}'
       systemctl stop mtprotoproxy
-      rm -f config.py
-      echo "PORT = $PORT
-USERS = $SECRETS
-      " >> config.py
-      if ! [ -z "$TAG" ]; then
-        TAGTEMP="AD_TAG = "
-        TAGTEMP+='"'
-        TAGTEMP+="$TAG"
-        TAGTEMP+='"'
-        echo "$TAGTEMP" >> config.py
-      fi
-      echo "SECURE_ONLY = $SECURE_ONLY" >> config.py
+      sed -i '/^USERS\s*=.*/ d' config.py #Remove USERS
+      echo "" >> config.py
+      echo "USERS = $SECRETS" >> config.py
+      sed -i '/^$/d' config.py #Remove empty lines
       systemctl start mtprotoproxy
       echo "Done"
       ;;
@@ -202,11 +200,8 @@ USERS = $SECRETS
       fi
       ;;
     7)
+      #Change Secure only
       cd /opt/mtprotoproxy || exit 2
-      PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
-      SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-      SECRET=$(echo "$SECRET" | tr "'" '"')
-      TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
       read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "n" OPTION
       case $OPTION in
         'y')
@@ -220,18 +215,10 @@ USERS = $SECRETS
           exit 1
       esac
       systemctl stop mtprotoproxy
-      rm -f config.py
-      echo "PORT = $PORT
-USERS = $SECRET
-      " >> config.py
-      if ! [ -z "$TAG" ]; then
-        TAGTEMP="AD_TAG = "
-        TAGTEMP+='"'
-        TAGTEMP+="$TAG"
-        TAGTEMP+='"'
-        echo "$TAGTEMP" >> config.py
-      fi
+      sed -i '/^SECURE_ONLY\s*=.*/ d' config.py #Remove Secret_Only
+      echo "" >> config.py
       echo "SECURE_ONLY = $SECURE_MODE" >> config.py
+      sed -i '/^$/d' config.py #Remove empty lines
       systemctl start mtprotoproxy
       echo "Done"
       ;;
@@ -346,7 +333,7 @@ read -n 1 -s -r -p "Press any key to install..."
 clear
 yum -y install epel-release ca-certificates
 yum -y update
-yum -y install git python36 curl
+yum -y install sed git python36 curl
 curl https://bootstrap.pypa.io/get-pip.py | python3.6
 #This libs make proxy faster
 pip3.6 install cryptography uvloop
