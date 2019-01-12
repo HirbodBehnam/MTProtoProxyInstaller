@@ -6,6 +6,12 @@ function RemoveMultiLineUser(){
   echo "" >> config.py
   echo "USERS = $SECRET_T" >> config.py
 }
+function GetRandomPort(){
+  PORT=$((RANDOM % 16383 + 49152))
+  if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
+    GetRandomPort
+  fi
+}
 #User must run the script as root
 if [[ "$EUID" -ne 0 ]]; then
   echo "Please run this script as root"
@@ -240,7 +246,11 @@ echo "Source at https://github.com/alexbers/mtprotoproxy"
 echo "Now I will gather some info from you."
 echo ""
 echo ""
-read -r -p "Ok select a port to proxy listen on it: " -e -i 443 PORT
+read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i 443 PORT
+if [[ $PORT -eq -1 ]] ; then
+  GetRandomPort
+  echo "I've selected $PORT as your port."
+fi
 #Lets check if the PORT is valid
 if ! [[ $PORT =~ $regex ]] ; then
   echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
