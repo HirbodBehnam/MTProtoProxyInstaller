@@ -153,8 +153,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
       SECRETS=$(echo "$SECRETS" | tr "'" '"')
       SECRETS="${SECRETS: : -1}" #Remove last char "}" here
       read -r -p "Ok now please enter the username: " -e -i "NewUser" NEW_USR
-      echo "Do you want to set secret manualy or shall I create a random secret?"
-      echo "   1) Manualy enter a secret"
+      echo "Do you want to set secret manually or shall I create a random secret?"
+      echo "   1) Manually enter a secret"
       echo "   2) Create a random secret"
       read -r -p "Please select one [1-2]: " -e -i 2 OPTION
       case $OPTION in
@@ -264,8 +264,8 @@ fi
 while true; do
   echo "Now tell me a user name. Usernames are used to name secrets: "
   read -r -e -i "MTSecret$COUNTER" USERNAME
-  echo "Do you want to set secret manualy or shall I create a random secret?"
-  echo "   1) Manualy enter a secret"
+  echo "Do you want to set secret manually or shall I create a random secret?"
+  echo "   1) Manually enter a secret"
   echo "   2) Create a random secret"
   read -r -p "Please select one [1-2]: " -e -i 2 OPTION
   case $OPTION in
