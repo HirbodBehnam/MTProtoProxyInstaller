@@ -270,7 +270,7 @@ while true; do
   read -r -p "Please select one [1-2]: " -e -i 2 OPTION
   case $OPTION in
     1)
-      echo "Enter a 32 character string filled by 0-9 and a-f: "
+      echo "Enter a 32 character string filled by 0-9 and a-f(hexadecimal): "
       read -r SECRET
       #Validate length
       SECRET="$(echo $SECRET | tr '[A-Z]' '[a-z]')"
@@ -281,14 +281,14 @@ while true; do
       ;;
     2)
       SECRET="$(hexdump -vn "16" -e ' /1 "%02x"'  /dev/urandom)"
-      SECRET_END_ARY+=("$SECRET")
-      USERNAME_END_ARY+=("$USERNAME")
       echo "OK I created one: $SECRET"
       ;;
     *)
       echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
       exit 1
   esac
+  SECRET_END_ARY+=("$SECRET")
+  USERNAME_END_ARY+=("$USERNAME")
   #Now add them to secrets
   SECRETTEMP='"'
   SECRETTEMP+="$USERNAME"
