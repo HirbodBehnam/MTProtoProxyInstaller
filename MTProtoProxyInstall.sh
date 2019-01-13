@@ -117,7 +117,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
       SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
       if [ "$SECRET_COUNT" == "0" ] ; then
-        echo "You have 0 secret. Cannot revoke nothing!"
+        echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets. Cannot revoke nothing!"
         exit 4
       fi
       RemoveMultiLineUser #Regenerate USERS only in one line
@@ -127,14 +127,23 @@ if [ -d "/opt/mtprotoproxy" ]; then
       mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
       echo "Here are list of current users:"
       COUNTER=1
+      NUMBER_OF_SECRETS=${#SECRET_ARY[@]}
       for i in "${SECRET_ARY[@]}"
       do
         echo "	$COUNTER) $i"
         COUNTER=$((COUNTER+1))
       done
       read -r -p "Please select a user by it's index to revoke: " USER_TO_REVOKE
+      regex='^[0-9]+$'
+      if ! [[ $USER_TO_REVOKE =~ $regex ]] ; then
+        echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
+        exit 1
+      fi
+      if [ "$USER_TO_REVOKE" -lt 1 ] || [ "$USER_TO_REVOKE" -gt "$NUMBER_OF_SECRETS" ]; then
+        echo "$(tput setaf 1)Error:$(tput sgr 0) Invalid number"
+        exit 1
+      fi
       USER_TO_REVOKE=$((USER_TO_REVOKE-1))
-      #I should add a script to check the input but not for now (I'm so lazy)
       SECRET=$(jq "del(.${SECRET_ARY[$USER_TO_REVOKE]})" tempSecrets.json)
       systemctl stop mtprotoproxy
       sed -i '/^USERS\s*=.*/ d' config.py #Remove USERS
