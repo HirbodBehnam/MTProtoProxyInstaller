@@ -357,6 +357,9 @@ yum -y install sed git python36 curl ca-certificates
 curl https://bootstrap.pypa.io/get-pip.py | python3.6
 #This libs make proxy faster
 pip3.6 install cryptography uvloop
+if ! [ -d "/opt" ]; then
+  mkdir /opt
+fi
 cd /opt || exit 2
 if [ "$1" == "-m" ]; then
   git clone https://github.com/alexbers/mtprotoproxy.git
