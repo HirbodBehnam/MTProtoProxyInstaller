@@ -319,7 +319,7 @@ esac
 #Get CPU Cores
 CPU_CORES=$(nproc --all)
 echo "I've detected that your server has $CPU_CORES cores. If you want I can configure proxy to run at all of your cores. This will make the proxy to spawn $CPU_CORES workers. For some reasons, proxy will most likely to fail at more than 16 cores. So please choose a number between 1 and 16."
-read -r -p "Who many workers you want proxy to spawn? " -e -i "$CPU_CORES" CPU_CORES
+read -r -p "How many workers you want proxy to spawn? " -e -i "$CPU_CORES" CPU_CORES
 if ! [[ $CPU_CORES =~ $regex ]] ; then #Check if input is number
   echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
   exit 1
