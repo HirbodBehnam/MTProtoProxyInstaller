@@ -15,7 +15,7 @@ function GetRandomPort(){
 #User must run the script as root
 if [[ "$EUID" -ne 0 ]]; then
   echo "Please run this script as root"
-  exit
+  exit 1
 fi
 clear
 #Check if user already installed Proxy
@@ -42,6 +42,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
           systemctl disable mtprotoproxy
           rm -rf /opt/mtprotoproxy
           rm -f /etc/systemd/system/mtprotoproxy.service
+          systemctl daemon-reload
           firewall-cmd --remove-port="$PORT"/tcp
           firewall-cmd --runtime-to-permanent
           echo "Ok it's done."
@@ -350,9 +351,9 @@ esac
 read -n 1 -s -r -p "Press any key to install..."
 #Now lets install
 clear
-yum -y install epel-release ca-certificates
+yum -y install epel-release
 yum -y update
-yum -y install sed git python36 curl
+yum -y install sed git python36 curl ca-certificates
 curl https://bootstrap.pypa.io/get-pip.py | python3.6
 #This libs make proxy faster
 pip3.6 install cryptography uvloop
@@ -415,6 +416,7 @@ ExecStart = /usr/bin/python3.6 /opt/mtprotoproxy/mtprotoproxy.py
 
 [Install]
 WantedBy = multi-user.target" >> mtprotoproxy.service
+systemctl daemon-reload
 systemctl enable mtprotoproxy
 systemctl start mtprotoproxy
 tput setaf 3
@@ -425,7 +427,8 @@ echo 'Use "systemctl start mtprotoproxy" or "systemctl stop mtprotoproxy" to sta
 echo
 echo "Use these links to connect to your proxy:"
 PUBLIC_IP="$(curl https://api.ipify.org -sS)"
-if [ $? -ne 0 ]; then
+CURL_EXIT_STATUS=$?
+if [ $CURL_EXIT_STATUS -ne 0 ]; then
   PUBLIC_IP="YOUR_IP"
 fi
 COUNTER=0
