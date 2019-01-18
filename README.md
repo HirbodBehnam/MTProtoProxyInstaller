@@ -13,6 +13,7 @@ Use python if:
 2. Your server is low-end.
 3. You are serving a small group of people. (Like family or small company)
 4. You want to disable to access users without random padding. [See here](#secure-only)
+5. You also have another application running on your server. (Openvpn, shadowsocks, nginx or ...)
 
 Otherwise, use official proxy.
 #### Performance?
