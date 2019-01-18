@@ -305,9 +305,9 @@ read -r -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
 case $OPTION in
   'y')
     echo "$(tput setaf 1)Note:$(tput sgr 0) Joined users and admins won't see the channel at very top."
-    echo "On telegram, go to @MTProxybot Bot and enter this server IP and $PORT as port. Then as secret enter $SECRET"
-    echo "Also make sure server time is precise, otherwise the proxy may not work when AD_TAG is set."
-    echo "Bot will give you a string named as TAG. Enter it here:"
+    echo "On telegram, go to @MTProxybot Bot and enter this server's IP and $PORT as port. Then as secret enter $SECRET"
+    echo "Also make sure server time is precise, otherwise the proxy may not work when AG is set."
+    echo "Bot will give you a string named TAG. Enter it here:"
     read -r TAG
     ;;
   'n')
