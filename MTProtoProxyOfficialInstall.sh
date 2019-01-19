@@ -71,6 +71,8 @@ if [ -d "/opt/MTProxy" ]; then
           rm -rf /opt/MTProxy
           rm -f /etc/systemd/system/MTProxy.service
           systemctl daemon-reload
+          sed '\|cd /opt/MTProxy/objs/bin && bash updater.sh|d' /etc/crontab
+          systemctl restart crond
           echo "Ok it's done."
           ;;
       esac
@@ -196,7 +198,7 @@ if [ -d "/opt/MTProxy" ]; then
     ;;
     #Change other args
     6)
-      echo "If you want to use custom argumets to run the proxy enter them here; Otherwise just press enter."
+      echo "If you want to use custom arguments to run the proxy enter them here; Otherwise just press enter."
       read -r -e -i "$CUSTOM_ARGS" CUSTOM_ARGS
       #Save
       cd /etc/systemd/system || exit 2
@@ -329,16 +331,16 @@ if [ "$CPU_CORES" -gt 16 ] || [ "$CPU_CORES" -lt 1 ]; then #Check range of worke
   exit 1
 fi
 #Other arguments
-echo "If you want to use custom argumets to run the proxy enter them here; Otherwise just press enter."
+echo "If you want to use custom arguments to run the proxy enter them here; Otherwise just press enter."
 read -r CUSTOM_ARGS
-#############################################################
-## I will add some kind of daily updater for secret and ip ##
-#############################################################
+#Secret and config updater
+read -r -p "Do you want to enable the automatic config updater? I will update \"proxy-secret\" and \"proxy-multi.conf\" each day at midnight(12:00 AM). It's recommended to enable this.[y/n]" -e -i "y" ENABLE_UPDATER
+#Install
 read -n 1 -s -r -p "Press any key to install..."
 clear
-#Now install packeges
+#Now install packages
 yum -y install epel-release
-yum -y install openssl-devel zlib-devel curl ca-certificates sed
+yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie
 yum -y groupinstall "Development Tools"
 cd /opt || exit 2
 git clone https://github.com/TelegramMessenger/MTProxy
@@ -406,7 +408,28 @@ if [ $SERVICE_STATUS -ne 0 ]; then
   echo "Check status with \"systemctl status MTProxy\""
 fi
 systemctl enable MTProxy
-
+#Setup cornjob
+if [ "$ENABLE_UPDATER" = "y" ]; then
+  echo "#!/bin/bash
+systemctl stop MTProxy
+cd /opt/MTProxy/objs/bin
+curl -s https://core.telegram.org/getProxySecret -o proxy-secret1
+STATUS_SECRET=$?
+if [ $STATUS_SECRET -eq 0 ]; then
+  cp proxy-secret1 proxy-secret
+fi
+rm proxy-secret1
+curl -s https://core.telegram.org/getProxyConfig -o proxy-multi.conf1
+STATUS_SECRET=$?
+if [ $STATUS_SECRET -eq 0 ]; then
+  cp proxy-multi.conf1 proxy-multi.conf
+fi
+rm proxy-multi.conf1
+systemctl start MTProxy" >> /opt/MTProxy/objs/bin/updater.sh
+  echo "" >> /etc/crontab
+  echo "0 0 * * * root cd /opt/MTProxy/objs/bin && bash updater.sh" >> /etc/crontab
+  systemctl restart crond
+fi
 #Show proxy links
 echo "These are the links with random padding:"
 PUBLIC_IP="$(curl https://api.ipify.org -sS)"
