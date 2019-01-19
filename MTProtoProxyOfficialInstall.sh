@@ -71,7 +71,7 @@ if [ -d "/opt/MTProxy" ]; then
           rm -rf /opt/MTProxy
           rm -f /etc/systemd/system/MTProxy.service
           systemctl daemon-reload
-          sed '\|cd /opt/MTProxy/objs/bin && bash updater.sh|d' /etc/crontab
+          sed -i '\|cd /opt/MTProxy/objs/bin && bash updater.sh|d' /etc/crontab
           systemctl restart crond
           echo "Ok it's done."
           ;;
