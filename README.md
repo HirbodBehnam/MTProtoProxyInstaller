@@ -13,6 +13,7 @@ Use python if:
 2. Your server is low-end.
 3. You are serving a small group of people. (Like family or small company)
 4. You want to disable to access users without random padding. [See here](#secure-only)
+5. You also have another application running on your server. (Openvpn, shadowsocks, nginx or ...)
 
 Otherwise, use official proxy.
 #### Performance?
@@ -44,7 +45,7 @@ curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInsta
 ### Install
 On your server run
 ```
-curl -o MTProtoProxyOfficialInstall.sh -L https://raw.githubusercontent.com/HirbodBehnam/MTProtoProxyCentOSInstall/master/MTProtoProxyOfficialInstall.sh && bash MTProtoProxyOfficialInstall.sh
+curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh
 ```
 and wait until the setup finishes and you will see the links after install.
 #### Workers
