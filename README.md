@@ -45,7 +45,7 @@ curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInsta
 ### Install
 On your server run
 ```
-curl -o MTProtoProxyOfficialInstall.sh -L https://raw.githubusercontent.com/HirbodBehnam/MTProtoProxyCentOSInstall/master/MTProtoProxyOfficialInstall.sh && bash MTProtoProxyOfficialInstall.sh
+curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh
 ```
 and wait until the setup finishes and you will see the links after install.
 #### Workers
