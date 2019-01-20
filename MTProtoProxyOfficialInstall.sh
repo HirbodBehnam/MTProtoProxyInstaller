@@ -431,6 +431,9 @@ systemctl start MTProxy" >> /opt/MTProxy/objs/bin/updater.sh
   systemctl restart crond
 fi
 #Show proxy links
+tput setaf 3
+printf "%`tput cols`s"|tr ' ' '#'
+tput sgr 0
 echo "These are the links with random padding:"
 PUBLIC_IP="$(curl https://api.ipify.org -sS)"
 CURL_EXIT_STATUS=$?
