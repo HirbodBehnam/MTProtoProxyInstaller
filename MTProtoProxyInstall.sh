@@ -428,7 +428,7 @@ tput sgr 0
 echo "Ok it must be done. I created a service to run or stop the proxy."
 echo 'Use "systemctl start mtprotoproxy" or "systemctl stop mtprotoproxy" to start or stop it'
 echo
-echo "Use these links to connect to your proxy:"
+echo "Use these links to connect to your proxy (With random padding):"
 PUBLIC_IP="$(curl https://api.ipify.org -sS)"
 CURL_EXIT_STATUS=$?
 if [ $CURL_EXIT_STATUS -ne 0 ]; then
@@ -437,10 +437,6 @@ fi
 COUNTER=0
 for i in "${SECRET_END_ARY[@]}"
 do
-  if [ "$SECURE_MODE" = true ]; then
-    echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
-  else
-    echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$i"
-  fi
+  echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
   COUNTER=$COUNTER+1
 done
