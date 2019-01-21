@@ -9,7 +9,7 @@ A very small script to install MTProtoProxy On CentOS 7
 * Revoke and add secrets after install
 ## Official Or Python Proxy?
 Use python if:
-1. Your server's CPU has one core.
+1. Your server's CPU has one core or you want to run proxy on one core.
 2. Your server is low-end.
 3. You are serving a small group of people. (Like family or small company)
 4. You want to disable to access users without random padding. [See here](#secure-only)
