@@ -62,6 +62,8 @@ Setup will try to configure the proxy on public zone. However you can manually e
 Due to some ISPs detecting MTProxy by packet sizes, random padding is added to packets if such mode is enabled.
 It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
+### Debian, Ubuntu or Windows?
+It is possible to patch the script to make it *partly* compatible with Ubutnu/Debian. However for windows you cannot patch the script, but I've written a small guide to install that on Windows. Please read [wiki](https://github.com/HirbodBehnam/MTProtoProxyCentOSInstall/wiki) for more info. 
 ### Server
 You can use any VPS or Dedicated Server. If you want a cheap and low-end server, I personally recommend to buy one at [Virmach](https://virmach.com/); They also accept cryptos!
 
