@@ -13,7 +13,7 @@ Use python if:
 2. Your server is low-end.
 3. You are serving a small group of people. (Like family or small company)
 4. You want to disable to access users without random padding. [See here](#secure-only)
-5. You also have another application running on your server. (Openvpn, shadowsocks, nginx or ...)
+5. You also have another application or service running on your server. (Openvpn, shadowsocks, nginx or ...)
 
 Otherwise, use official proxy.
 #### Performance?
@@ -54,7 +54,9 @@ Each worker can handle more than 10000 connections on a modern CPU. Connections 
 ##### Service
 Use `systemctl start MTProxy` to start, `systemctl stop MTProxy` to stop and `systemctl status MTProxy -l` to see logs of script.
 ##### Config
-The service file is saved in `/etc/systemd/system/MTProxy.service`. You can edit it manually. There is also a file named `mtconfig.conf` at `/opt/MTProxy/objs/bin` that is created by script. It’s used in loading proxy configs by script. *You must not delete this file* ,however, you can edit it. Also if you config automatic updater, two another files named `updater.sh` ad `updater.log` will be available.
+The service file is saved in `/etc/systemd/system/MTProxy.service`. You can edit it manually. There is also a file named `mtconfig.conf` at `/opt/MTProxy/objs/bin` that is created by script. It’s used in loading proxy configs by script. *You must not delete this file* ,however, you can edit it.
+###### Secure Only?
+Somehow yes. See [here](https://github.com/TelegramMessenger/MTProxy/pull/248).(I have not tested it yet.)
 ## Other Information
 ### Firewall
 Setup will try to configure the proxy on public zone. However you can manually enter these rules in case of any error or whatever. Just rerun the script and choose `Generate Firewalld Rules` and script will generate and apply firewall rules.
@@ -62,6 +64,8 @@ Setup will try to configure the proxy on public zone. However you can manually e
 Due to some ISPs detecting MTProxy by packet sizes, random padding is added to packets if such mode is enabled.
 It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
+### Debian, Ubuntu or Windows?
+It is possible to patch the script to make it *partly* compatible with Ubutnu/Debian. However for windows you cannot patch the script, but I've written a small guide to install that on Windows. Please read [wiki](https://github.com/HirbodBehnam/MTProtoProxyCentOSInstall/wiki) for more info. 
 ### Server
 You can use any VPS or Dedicated Server. If you want a cheap and low-end server, I personally recommend to buy one at [Virmach](https://virmach.com/); They also accept cryptos!
 
