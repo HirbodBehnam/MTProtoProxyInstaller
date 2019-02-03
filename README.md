@@ -54,7 +54,7 @@ Each worker can handle more than 10000 connections on a modern CPU. Connections 
 ##### Service
 Use `systemctl start MTProxy` to start, `systemctl stop MTProxy` to stop and `systemctl status MTProxy -l` to see logs of script.
 ##### Config
-The service file is saved in `/etc/systemd/system/MTProxy.service`. You can edit it manually. There is also a file named `mtconfig.conf` at `/opt/MTProxy/objs/bin` that is created by script. It’s used in loading proxy configs by script. *You must not delete this file* ,however, you can edit it.
+The service file is saved in `/etc/systemd/system/MTProxy.service`. You can edit it manually. There is also a file named `mtconfig.conf` at `/opt/MTProxy/objs/bin` that is created by script. It’s used in loading proxy configs by script. *You must not delete this file* ,however, you can edit it. Also if you have enabled auto updater, you will have two other files named `updater.sh` and `updater.log`
 ###### Secure Only?
 Somehow yes. See [here](https://github.com/TelegramMessenger/MTProxy/pull/248).(I have not tested it yet.)
 ## Other Information
