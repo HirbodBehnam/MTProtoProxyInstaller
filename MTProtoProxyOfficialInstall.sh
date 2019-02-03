@@ -409,7 +409,7 @@ fi
 systemctl enable MTProxy
 #Setup cornjob
 if [ "$ENABLE_UPDATER" = "y" ]; then
-  echo "#!/bin/bash
+  echo '#!/bin/bash
 systemctl stop MTProxy
 cd /opt/MTProxy/objs/bin
 curl -s https://core.telegram.org/getProxySecret -o proxy-secret1
@@ -419,12 +419,13 @@ if [ $STATUS_SECRET -eq 0 ]; then
 fi
 rm proxy-secret1
 curl -s https://core.telegram.org/getProxyConfig -o proxy-multi.conf1
-STATUS_SECRET=$?
-if [ $STATUS_SECRET -eq 0 ]; then
+STATUS_CONF=$?
+if [ $STATUS_CONF -eq 0 ]; then
   cp proxy-multi.conf1 proxy-multi.conf
 fi
 rm proxy-multi.conf1
-systemctl start MTProxy" >> /opt/MTProxy/objs/bin/updater.sh
+systemctl start MTProxy
+echo "Updater runned at $(date). Exit codes of getProxySecret and getProxyConfig are $STATUS_SECRET and $STATUS_CONF" >> updater.log' >> /opt/MTProxy/objs/bin/updater.sh
   echo "" >> /etc/crontab
   echo "0 0 * * * root cd /opt/MTProxy/objs/bin && bash updater.sh" >> /etc/crontab
   systemctl restart crond
