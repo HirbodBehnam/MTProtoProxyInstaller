@@ -23,7 +23,8 @@ function GenerateService(){
   if ! [ -z "$TAG" ]; then
     ARGS_STR+=" -P $TAG "
   fi
-  ARGS_STR+=" -M $CPU_CORES $CUSTOM_ARGS --aes-pwd proxy-secret proxy-multi.conf"
+  NEW_CORE=$(($CPU_CORES-1))
+  ARGS_STR+=" -M $NEW_CORE $CUSTOM_ARGS --aes-pwd proxy-secret proxy-multi.conf"
   SERVICE_STR="[Unit]
 Description=MTProxy
 After=network.target
