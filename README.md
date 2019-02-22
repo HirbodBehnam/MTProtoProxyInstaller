@@ -71,6 +71,7 @@ You can use any VPS or Dedicated Server. If you want a cheap and low-end server,
 
 If you live in Iran and you want to pay with IRR you can buy one at [Tikweb](https://tikweb.ir/) or [ParsHost](https://pars.host/).
 #### Persian guide to buying servers, installing script and making servers censorship-resistant
+(If you are from Iran, you may need to open this link with VPN)
 http://www.mediafire.com/folder/3zcys4aw9v232/Guide
 #### English guide to buying servers and installing script
 https://www.reddit.com/r/Telegram/comments/95m5vi/how_to_deploy_mtproto_proxy_server_on_centos/
