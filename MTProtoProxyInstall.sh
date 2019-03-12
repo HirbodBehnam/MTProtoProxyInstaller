@@ -218,7 +218,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
     7)
       #Change Secure only
       cd /opt/mtprotoproxy || exit 2
-      read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "n" OPTION
+      read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "y" OPTION
       case $OPTION in
         'y')
           SECURE_MODE="True"
@@ -321,7 +321,7 @@ while true; do
 done
 SECRETS=${SECRETS::${#SECRETS}-2}
 #Set secure mode
-read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "n" OPTION
+read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "y" OPTION
 case $OPTION in
   'y')
     SECURE_MODE=true
