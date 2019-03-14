@@ -308,7 +308,7 @@ case $OPTION in
   'y')
     echo "$(tput setaf 1)Note:$(tput sgr 0) Joined users and admins won't see the channel at very top."
     echo "On telegram, go to @MTProxybot Bot and enter this server's IP and $PORT as port. Then as secret enter $SECRET"
-    echo "Also make sure server time is precise, otherwise the proxy may not work when AG is set."
+    echo "$(tput setaf 3)Also make sure server time is precise, otherwise the proxy may not work when AG is set.$(tput sgr 0) You may need to use ntp to sync your system time."
     echo "Bot will give you a string named TAG. Enter it here:"
     read -r TAG
     ;;
