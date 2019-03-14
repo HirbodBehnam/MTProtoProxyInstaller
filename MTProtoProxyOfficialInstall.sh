@@ -1,17 +1,37 @@
 #!/bin/bash
 function GetRandomPort(){
+  if ! [ "$INSTALLED_LSOF" == true ];then 
+    echo "Installing lsof package. Please wait."
+    yum -y -q install lsof
+    RETURN_CODE=$?
+    if [ $RETURN_CODE -ne 0 ]; then
+      echo "$(tput setaf 3)Warning!$(tput sgr 0) lsof package did not installed successfully. The randomized port may be in use."
+    else
+      INSTALLED_LSOF=true
+    fi
+  fi
   PORT=$((RANDOM % 16383 + 49152))
   if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
     GetRandomPort
   fi
 }
 function GetRandomPortLO(){
+  if ! [ "$INSTALLED_LSOF" == true ];then 
+    echo "Installing lsof package. Please wait."
+    yum -y -q install lsof
+    RETURN_CODE=$?
+    if [ $RETURN_CODE -ne 0 ]; then
+      echo "$(tput setaf 3)Warning!$(tput sgr 0) lsof package did not installed successfully. The randomized port may be in use."
+    else
+      INSTALLED_LSOF=true
+    fi
+  fi
   PORT_LO=$((RANDOM % 16383 + 49152))
   if lsof -Pi :$PORT_LO -sTCP:LISTEN -t >/dev/null ; then
-    GetRandomPort
+    GetRandomPortLO
   fi
   if [ $PORT_LO -eq $PORT ]; then
-    GetRandomPort
+    GetRandomPortLO
   fi
 }
 function GenerateService(){
