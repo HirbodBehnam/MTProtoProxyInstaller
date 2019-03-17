@@ -71,7 +71,10 @@ You can use any VPS or Dedicated Server. If you want a cheap and low-end server,
 
 If you live in Iran and you want to pay with IRR you can buy one at [Tikweb](https://tikweb.ir/) or [ParsHost](https://pars.host/).
 #### Persian guide to buying servers, installing script and making servers censorship-resistant
+*BEFORE YOU BEGIN*: If you are going to invest in MTProto and you are going to publish your proxy's link, I think you should just turn back. I believe MTProto Proxy to be a failed project in Iran, since your server closes in about 2 days after tunneling traffic through it. However, utilizing this for self-use could significantly lessen the chance of your server's IP getting censored. I don't say there is no way to make your server censorship-resistant, I just don't know them.
+
 (If you are from Iran, you may need to open this link with VPN)
+
 http://www.mediafire.com/folder/3zcys4aw9v232/Guide
 #### English guide to buying servers and installing script
 https://www.reddit.com/r/Telegram/comments/95m5vi/how_to_deploy_mtproto_proxy_server_on_centos/
