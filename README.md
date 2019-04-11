@@ -56,7 +56,8 @@ You can use command below to automatically install MTProto proxy to without even
 curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh PORT STATS_PORT SECRET [TAG]
 ```
 You can enter more than one secret by splitting secrets by `,`.
-Example of using 443 as proxy port, generate random port for stats port, 00000000000000000000000000000000 and 0123456789abcdef0123456789abcdef as secrets , and empty tag.
+
+Example of using 443 as proxy port, generate random port for stats port, 00000000000000000000000000000000 and 0123456789abcdef0123456789abcdef as secrets , and empty tag:
 ```
 curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh 443 -1 00000000000000000000000000000000,0123456789abcdef0123456789abcdef
 ```
