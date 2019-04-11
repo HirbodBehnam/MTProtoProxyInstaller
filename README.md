@@ -50,6 +50,16 @@ curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoPr
 and wait until the setup finishes and you will see the links after install.
 #### Workers
 Each worker can handle more than 10000 connections on a modern CPU. Connections will be split between workers. Do not spawn workers more than your CPUs thread count.
+#### Auto Install (Keyless)
+You can use command below to automatically install MTProto proxy to without even pressing a key.
+```
+curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh PORT STATS_PORT SECRET [TAG]
+```
+You can enter more than one secret by splitting secrets by `,`.
+Example of using 443 as proxy port, generate random port for stats port, 00000000000000000000000000000000 and 0123456789abcdef0123456789abcdef as secrets , and empty tag.
+```
+curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh 443 -1 00000000000000000000000000000000,0123456789abcdef0123456789abcdef
+```
 #### Managing The Proxy
 ##### Service
 Use `systemctl start MTProxy` to start, `systemctl stop MTProxy` to stop and `systemctl status MTProxy -l` to see logs of script.

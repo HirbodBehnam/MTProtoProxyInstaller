@@ -246,6 +246,55 @@ if [ -d "/opt/MTProxy" ]; then
   esac
   exit
 fi
+if [ "$#" -ge 3 ]; then
+  AUTO=true
+  #Check secret
+  SECRETS=$3
+  SECRET_ARY=(${SECRETS//,/ })
+  for i in "${SECRET_ARY[@]}"
+  do 
+    if ! [[ $i =~ ^[0-9a-f]{32}$ ]] ; then
+      echo "$(tput setaf 1)Error:$(tput sgr 0) Enter hexadecimal characters and secret must be 32 characters. Error on secret $i"
+      exit 1
+    fi
+  done
+  #Check port
+  PORT=$1
+  if [[ $PORT -eq -1 ]] ; then #Check random port
+    GetRandomPort
+    echo "I've selected $PORT as your port."
+  fi
+  if ! [[ $PORT =~ $regex ]] ; then #Check if the port is valid
+    echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
+    exit 1
+  fi
+  if [ "$PORT" -gt 65535 ] ; then
+    echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
+    exit 1
+  fi
+  #Check loopback port
+  PORT_LO=$2
+  if [[ $PORT_LO -eq -1 ]] ; then #Check random loopback status port
+    GetRandomPortLO
+    echo "I've selected $PORT_LO as your loopback status port."
+  fi
+  if ! [[ $PORT_LO =~ $regex ]] ; then #Check if the loopback status port is valid
+    echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
+    exit 1
+  fi
+  if [ "$PORT_LO" -gt 65535 ] ; then
+    echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
+    exit 1
+  fi
+  #Check tag
+  if [ "$#" -ge 4 ]; then
+    TAG=$4
+  fi
+  CPU_CORES=$(nproc --all)
+  CUSTOM_ARGS=""
+  ENABLE_UPDATER="y"
+  read
+else
 #Variables
 SECRET=""
 SECRET_ARY=()
@@ -253,6 +302,7 @@ TAG=""
 echo "Welcome to MTProto-Proxy auto installer!"
 echo "Created by Hirbod Behnam"
 echo "I will install mtprotoproxy the official repository"
+echo "You can auto install like \"./MTProtoProxyOfficialInstall Port Status_Port Secret [TAG]\""
 echo "Source at https://github.com/TelegramMessenger/MTProxy"
 echo "Now I will gather some info from you."
 echo ""
@@ -358,6 +408,7 @@ read -r -p "Do you want to enable the automatic config updater? I will update \"
 #Install
 read -n 1 -s -r -p "Press any key to install..."
 clear
+fi
 #Now install packages
 yum -y install epel-release
 yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie
@@ -398,7 +449,11 @@ echo "Setting firewalld rules"
 SETFIREWALL=true
 if ! yum -q list installed firewalld &>/dev/null; then
   echo ""
-  read -r -p "Looks like \"firewalld\" is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
+  if [ "$AUTO" = true  ]; then
+    OPTION="y"
+  else
+    read -r -p "Looks like \"firewalld\" is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
+  fi
     case $OPTION in
       "y")
         yum -y install firewalld
