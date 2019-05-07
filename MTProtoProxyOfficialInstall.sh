@@ -396,9 +396,12 @@ if ! [[ $CPU_CORES =~ $regex ]] ; then #Check if input is number
   echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
   exit 1
 fi
-if [ "$CPU_CORES" -gt 16 ] || [ "$CPU_CORES" -lt 1 ]; then #Check range of workers
-  echo "$(tput setaf 1)Error:$(tput sgr 0) Enter number between 1 and 16."
+if [ "$CPU_CORES" -lt 1 ]; then #Check range of workers
+  echo "$(tput setaf 1)Error:$(tput sgr 0) Enter number more than 1."
   exit 1
+fi
+if [ "$CPU_CORES" -gt 16 ]; then
+  echo "(tput setaf 3)Warning:$(tput sgr 0) Values more than 16 can cause some problems later. Proceed at your own risk."
 fi
 #Other arguments
 echo "If you want to use custom arguments to run the proxy enter them here; Otherwise just press enter."
