@@ -90,7 +90,7 @@ If you route your traffic through a local server, it speed will be throttled in 
 
 Iran _MAY_ use DPI to block your server. So private uses may not be safe too.
 
-__I DO NOT USE MTPROTO PROXY MYSELF.__ Use (shadowsocks)[https://github.com/teddysun/shadowsocks_install] or (wireguard)[https://github.com/l-n-s/wireguard-install] instead.
+__I DO NOT USE MTPROTO PROXY MYSELF.__ Use [shadowsocks](https://github.com/teddysun/shadowsocks_install) or [wireguard](https://github.com/l-n-s/wireguard-install) instead.
 
 (If you are from Iran, you may need to open this link with VPN)
 
