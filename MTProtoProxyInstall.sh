@@ -38,6 +38,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
   echo "  5) Add Secret"
   echo "  6) Generate Firewalld Rules"
   echo "  7) Change Secure Mode"
+  echo "  8) Change User Limits"
   echo "  *) Exit"
   read -r -p "Please enter a number: " OPTION
   case $OPTION in
@@ -248,6 +249,13 @@ if [ -d "/opt/mtprotoproxy" ]; then
       systemctl start mtprotoproxy
       echo "Done"
       ;;
+    8)
+      echo "$(tput setaf 3)Make sure you installed master branch!$(tput sgr 0)"
+      echo ""
+      echo "Right now, you can edit limits by \"sudo nano /opt/mtprotoproxy/config.py\" and edit \"USER_CONN_LIMITS\"."
+      echo "It's better to multiply your preferred value by 3. Read more here: https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L48"
+      echo "I will later add something in script." 
+    ;;
   esac
   exit
 fi
@@ -280,7 +288,7 @@ if [ "$PORT" -gt 65535 ] ; then
   echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
   exit 1
 fi
-#Now the username
+#Now the username and secrets
 while true; do
   echo "Now tell me a user name. Usernames are used to name secrets: "
   read -r -e -i "MTSecret$COUNTER" USERNAME
@@ -316,6 +324,31 @@ while true; do
   SECRETTEMP+="$SECRET"
   SECRETTEMP+='"'
   SECRETS+="$SECRETTEMP , "
+  if [ "$1" == "-m" ]; then
+  #Setup limiter
+  read -r -p "Do you want to limit users connected to this secret?(y/n) " -e -i "n" OPTION
+  case $OPTION in
+    'y')
+      read -r -p "How many users do you want to connect to this secret? " OPTION
+      if ! [[ $OPTION =~ $regex ]] ; then
+        echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
+        exit 1
+      fi
+      #Multiply number of connections by 3. You can manualy change this https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L48
+      OPTION=$(expr "$OPTION" \* 3)
+      LIMITER_CONFIG='"'
+      LIMITER_CONFIG+=$USERNAME
+      LIMITER_CONFIG+='": '
+      LIMITER_CONFIG+=$OPTION
+      LIMITER_CONFIG+=" , "
+      ;;
+    'n')
+      ;;
+    *)
+      echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
+      exit 1
+  esac
+  fi
   read -r -p "Do you want to add another secret?(y/n) " -e -i "n" OPTION
   case $OPTION in
     'y')
@@ -330,6 +363,7 @@ while true; do
   COUNTER=$((COUNTER+1))
 done
 SECRETS=${SECRETS::${#SECRETS}-2}
+LIMITER_CONFIG=${LIMITER_CONFIG::${#LIMITER_CONFIG}-2}
 #Set secure mode
 read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "y" OPTION
 case $OPTION in
@@ -382,10 +416,9 @@ rm -f config.py
 touch config.py
 chmod 0777 config.py
 echo "PORT = $PORT
-USERS = {
-$SECRETS
-}
-" >> config.py
+USERS = { $SECRETS }
+USER_CONN_LIMITS = { $LIMITER_CONFIG }
+">> config.py
 if ! [ -z "$TAG" ]; then
   TAGTEMP="AD_TAG = "
   TAGTEMP+='"'
