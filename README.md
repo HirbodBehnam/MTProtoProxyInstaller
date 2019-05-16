@@ -90,7 +90,7 @@ If you route your traffic through a local server, it speed will be throttled in 
 
 Iran _MAY_ use DPI to block your server. So private uses may not be safe too.
 
-__I DO NOT USE MTPROTO PROXY MYSELF.__ Use [shadowsocks](https://github.com/teddysun/shadowsocks_install) or [wireguard](https://github.com/l-n-s/wireguard-install) instead.
+__I DO NOT USE MTPROTO PROXY MYSELF.__ Use [shadowsocks](https://github.com/teddysun/shadowsocks_install/tree/master) or [wireguard](https://github.com/l-n-s/wireguard-install) or [openvpn](https://github.com/angristan/openvpn-install) instead.
 
 (If you are from Iran, you may need to open this link with VPN)
 
@@ -99,6 +99,7 @@ http://www.mediafire.com/folder/3zcys4aw9v232/Guide
 https://www.reddit.com/r/Telegram/comments/95m5vi/how_to_deploy_mtproto_proxy_server_on_centos/
 ### Proxy Projects
 [Python Proxy](https://github.com/alexbers/mtprotoproxy)
+
 [Official C Proxy](https://github.com/TelegramMessenger/MTProxy)
 ### Donations
 You can donate to me through bitcoin at `1XDgEkpnkJ7hC8Kwv5adfaDC1Z3FrkwsK`, Ethereum at `0xbb527a28B76235E1C125206B7CcFF944459b4894`, ZCash 
