@@ -3,6 +3,7 @@ function GetRandomPort(){
   if ! [ "$INSTALLED_LSOF" == true ];then 
     echo "Installing lsof package. Please wait."
     yum -y -q install lsof
+    local RETURN_CODE
     RETURN_CODE=$?
     if [ $RETURN_CODE -ne 0 ]; then
       echo "$(tput setaf 3)Warning!$(tput sgr 0) lsof package did not installed successfully. The randomized port may be in use."
@@ -19,6 +20,7 @@ function GetRandomPortLO(){
   if ! [ "$INSTALLED_LSOF" == true ];then 
     echo "Installing lsof package. Please wait."
     yum -y -q install lsof
+    local RETURN_CODE
     RETURN_CODE=$?
     if [ $RETURN_CODE -ne 0 ]; then
       echo "$(tput setaf 3)Warning!$(tput sgr 0) lsof package did not installed successfully. The randomized port may be in use."
@@ -35,6 +37,7 @@ function GetRandomPortLO(){
   fi
 }
 function GenerateService(){
+  local ARGS_STR
   ARGS_STR="-u nobody -p $PORT_LO -H $PORT"
   for i in "${SECRET_ARY[@]}" # Add secrets
   do

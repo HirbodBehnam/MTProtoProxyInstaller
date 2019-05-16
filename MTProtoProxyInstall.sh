@@ -1,5 +1,6 @@
 #!/bin/bash
 function RemoveMultiLineUser(){
+  local SECRET_T
   SECRET_T=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
   SECRET_T=$(echo "$SECRET_T" | tr "'" '"')
   python3.6 -c "import re;f = open('config.py', 'r');s = f.read();p = re.compile('USERS\\s*=\\s*\\{.*?\\}', re.DOTALL);nonBracketedString = p.sub('', s);f = open('config.py', 'w');f.write(nonBracketedString)"
@@ -10,6 +11,7 @@ function GetRandomPort(){
   if ! [ "$INSTALLED_LSOF" == true ];then 
     echo "Installing lsof package. Please wait."
     yum -y -q install lsof
+    local RETURN_CODE
     RETURN_CODE=$?
     if [ $RETURN_CODE -ne 0 ]; then
       echo "$(tput setaf 3)Warning!$(tput sgr 0) lsof package did not installed successfully. The randomized port may be in use."
