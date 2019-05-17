@@ -254,8 +254,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
     8)
       echo "$(tput setaf 3)Make sure you installed master branch!$(tput sgr 0)"
       echo ""
-      echo "Right now, you can edit limits by \"sudo nano /opt/mtprotoproxy/config.py\" and edit \"USER_CONN_LIMITS\"."
-      echo "It's better to multiply your preferred value by 3. Read more here: https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L48"
+      echo "Right now, you can edit limits by \"sudo nano /opt/mtprotoproxy/config.py\" and edit \"USER_MAX_TCP_CONNS\"."
+      echo "It's better to multiply your preferred value by 5. Read more here: https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L48"
       echo "I will later add something in script." 
     ;;
   esac
@@ -336,8 +336,8 @@ while true; do
         echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
         exit 1
       fi
-      #Multiply number of connections by 3. You can manualy change this https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L48
-      OPTION=$(expr "$OPTION" \* 3)
+      #Multiply number of connections by 5. You can manualy change this. Read more: https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L48
+      OPTION=$(expr "$OPTION" \* 5)
       LIMITER_CONFIG='"'
       LIMITER_CONFIG+=$USERNAME
       LIMITER_CONFIG+='": '
@@ -419,7 +419,7 @@ touch config.py
 chmod 0777 config.py
 echo "PORT = $PORT
 USERS = { $SECRETS }
-USER_CONN_LIMITS = { $LIMITER_CONFIG }
+USER_MAX_TCP_CONNS = { $LIMITER_CONFIG }
 ">> config.py
 if ! [ -z "$TAG" ]; then
   TAGTEMP="AD_TAG = "
