@@ -88,7 +88,7 @@ More info about Iran censorship: It roughly takes 15 ~ 2 hours to block your new
 
 If you route your traffic through a local server, it speed will be throttled in 3 hours ~ 2 days. (Normal VPS)
 
-Iran _MAY_ use DPI to block your server. So private uses may not be safe too.
+Iran _MAY_ use DPI to block your server. So private uses may not be safe too. I've written a [small guide](https://github.com/HirbodBehnam/MTProtoProxyCentOSInstall/wiki/%5BWIP%5D-Route-Traffic-Through-Domestic-Server-With-Shadowsocks) to route proxy with shadowsocks. It's good if you are using your proxy privately.
 
 __I DO NOT USE MTPROTO PROXY MYSELF.__ Use [shadowsocks](https://github.com/teddysun/shadowsocks_install/tree/master) or [wireguard](https://github.com/l-n-s/wireguard-install) or [openvpn](https://github.com/angristan/openvpn-install) instead.
 
