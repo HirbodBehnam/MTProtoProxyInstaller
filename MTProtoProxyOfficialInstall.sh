@@ -84,6 +84,7 @@ if [ -d "/opt/MTProxy" ]; then
     #Uninstall proxy
     1)
       read -r -p "I still keep some packages \"Development Tools\". Do want to uninstall MTProto-Proxy?(y/n) " OPTION
+      OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
       case $OPTION in
         "y")
           cd /opt/MTProxy || exit 2
@@ -240,7 +241,7 @@ if [ -d "/opt/MTProxy" ]; then
       echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
       echo "firewall-cmd --runtime-to-permanent"
       read -r -p "Do you want to apply these rules?[y/n] " -e -i "y" OPTION
-      if [ "$OPTION" == "y" ] ; then
+      if [ "$OPTION" == "y" ] || [ "$OPTION" == "Y" ]  ; then
         firewall-cmd --zone=public --add-port="$PORT"/tcp
         firewall-cmd --runtime-to-permanent
         echo "Done"
@@ -364,6 +365,7 @@ while true; do
   esac
   SECRET_ARY+=("$SECRET")
   read -r -p "Do you want to add another secret?(y/n) " -e -i "n" OPTION
+  OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
   case $OPTION in
     'y')
       ;;
@@ -377,6 +379,7 @@ while true; do
 done
 #Now setup the tag
 read -r -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
+OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 case $OPTION in
   'y')
     echo "$(tput setaf 1)Note:$(tput sgr 0) Joined users and admins won't see the channel at very top."
@@ -466,6 +469,7 @@ if ! yum -q list installed firewalld &>/dev/null; then
     OPTION="y"
   else
     read -r -p "Looks like \"firewalld\" is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
+    OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
   fi
     case $OPTION in
       "y")
@@ -497,7 +501,7 @@ if [ $SERVICE_STATUS -ne 0 ]; then
 fi
 systemctl enable MTProxy
 #Setup cornjob
-if [ "$ENABLE_UPDATER" = "y" ]; then
+if [ "$ENABLE_UPDATER" = "y" ] || [ "$ENABLE_UPDATER" = "Y" ]; then
   echo '#!/bin/bash
 systemctl stop MTProxy
 cd /opt/MTProxy/objs/bin

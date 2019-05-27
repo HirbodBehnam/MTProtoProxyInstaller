@@ -47,6 +47,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
     #Uninstall proxy
     1)
       read -r -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n) " OPTION
+      OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
       case $OPTION in
         "y")
           cd /opt/mtprotoproxy/ || exit 2
@@ -223,7 +224,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
       echo "firewall-cmd --runtime-to-permanent"
       read -r -p "Do you want to apply these rules?[y/n] " -e -i "y" OPTION
-      if [ "$OPTION" == "y" ] ; then
+      if [ "$OPTION" == "y" ] || [ "$OPTION" == "Y" ] ; then
         firewall-cmd --zone=public --add-port="$PORT"/tcp
         firewall-cmd --runtime-to-permanent
       fi
@@ -232,6 +233,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       #Change Secure only
       cd /opt/mtprotoproxy || exit 2
       read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "y" OPTION
+      OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
       case $OPTION in
         'y')
           SECURE_MODE="True"
@@ -329,6 +331,7 @@ while true; do
   if [ "$1" == "-m" ]; then
   #Setup limiter
   read -r -p "Do you want to limit users connected to this secret?(y/n) " -e -i "n" OPTION
+  OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
   case $OPTION in
     'y')
       read -r -p "How many users do you want to connect to this secret? " OPTION
@@ -352,6 +355,7 @@ while true; do
   esac
   fi
   read -r -p "Do you want to add another secret?(y/n) " -e -i "n" OPTION
+  OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
   case $OPTION in
     'y')
       ;;
@@ -368,6 +372,7 @@ SECRETS=${SECRETS::${#SECRETS}-2}
 LIMITER_CONFIG=${LIMITER_CONFIG::${#LIMITER_CONFIG}-2}
 #Set secure mode
 read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "y" OPTION
+OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 case $OPTION in
   'y')
     SECURE_MODE=true
@@ -380,6 +385,7 @@ case $OPTION in
 esac
 #Now setup the tag
 read -r -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
+OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 case $OPTION in
   'y')
     echo "$(tput setaf 1)Note:$(tput sgr 0) Joined users and admins won't see the channel at very top."
