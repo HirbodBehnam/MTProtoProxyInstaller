@@ -406,11 +406,13 @@ fi
 if [ "$CPU_CORES" -gt 16 ]; then
   echo "(tput setaf 3)Warning:$(tput sgr 0) Values more than 16 can cause some problems later. Proceed at your own risk."
 fi
+#Check random padding only
+read -r -p "Do you want to allow only 'dd' secrets to connect?[y/n] " -e -i "y" DDOnly
+#Secret and config updater
+read -r -p "Do you want to enable the automatic config updater? I will update \"proxy-secret\" and \"proxy-multi.conf\" each day at midnight(12:00 AM). It's recommended to enable this.[y/n] " -e -i "y" ENABLE_UPDATER
 #Other arguments
 echo "If you want to use custom arguments to run the proxy enter them here; Otherwise just press enter."
 read -r CUSTOM_ARGS
-#Secret and config updater
-read -r -p "Do you want to enable the automatic config updater? I will update \"proxy-secret\" and \"proxy-multi.conf\" each day at midnight(12:00 AM). It's recommended to enable this.[y/n]" -e -i "y" ENABLE_UPDATER
 #Install
 read -n 1 -s -r -p "Press any key to install..."
 clear
@@ -422,6 +424,11 @@ yum -y groupinstall "Development Tools"
 cd /opt || exit 2
 git clone https://github.com/TelegramMessenger/MTProxy
 cd MTProxy || exit 2
+if [ "$DDOnly" = "y" ] || [ "$DDOnly" = "Y" ]; then
+  git fetch origin pull/248/head:ddonly
+  git checkout ddonly
+  CUSTOM_ARGS+=" -R"
+fi
 make #Build the proxy
 BUILD_STATUS=$? #Check if build was successful
 if [ $BUILD_STATUS -ne 0 ]; then

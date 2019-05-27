@@ -67,7 +67,7 @@ Use `systemctl start MTProxy` to start, `systemctl stop MTProxy` to stop and `sy
 ##### Config
 The service file is saved in `/etc/systemd/system/MTProxy.service`. You can edit it manually. There is also a file named `mtconfig.conf` at `/opt/MTProxy/objs/bin` that is created by script. It’s used in loading proxy configs by script. *You must not delete this file* ,however, you can edit it. Also if you have enabled auto updater, you will have two other files named `updater.sh` and `updater.log`
 ###### Secure Only?
-Somehow yes. See [here](https://github.com/TelegramMessenger/MTProxy/pull/248).(I have not tested it yet.)
+There is a pull request that will do it for you. See [here](https://github.com/TelegramMessenger/MTProxy/pull/248). Script will ask you if you want to enable random padding only or not.
 ## Other Information
 ### Firewall
 Setup will try to configure the proxy on public zone. However you can manually enter these rules in case of any error or whatever. Just rerun the script and choose `Generate Firewalld Rules` and script will generate and apply firewall rules.
