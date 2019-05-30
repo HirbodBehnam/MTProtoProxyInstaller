@@ -83,7 +83,7 @@ if [ -d "/opt/MTProxy" ]; then
   case $OPTION in
     #Uninstall proxy
     1)
-      read -r -p "I still keep some packages \"Development Tools\". Do want to uninstall MTProto-Proxy?(y/n) " OPTION
+      read -r -p "I still keep some packages like \"Development Tools\". Do want to uninstall MTProto-Proxy?(y/n) " OPTION
       OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
       case $OPTION in
         "y")
