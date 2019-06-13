@@ -169,8 +169,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
       rm -f tempSecrets.json
       echo "Done"
       ;;
+    #New secret
     5)
-      #New secret
       cd /opt/mtprotoproxy || exit 2
       SECRETS=$(python3.6 -c 'import config;print(getattr(config, "USERS","{}"))')
       SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
@@ -216,6 +216,15 @@ if [ -d "/opt/mtprotoproxy" ]; then
       sed -i '/^$/d' config.py #Remove empty lines
       systemctl start mtprotoproxy
       echo "Done"
+      PUBLIC_IP="$(curl https://api.ipify.org -sS)"
+      CURL_EXIT_STATUS=$?
+      if [ $CURL_EXIT_STATUS -ne 0 ]; then
+        PUBLIC_IP="YOUR_IP"
+      fi
+      PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+      echo
+      echo "You can now connect to your server with this secret with this link:"
+      echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
       ;;
     6)
       #Firewall rules
@@ -278,7 +287,7 @@ echo "Source at https://github.com/alexbers/mtprotoproxy"
 echo "Now I will gather some info from you."
 echo ""
 echo ""
-read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i 443 PORT
+read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i "-1" PORT
 if [[ $PORT -eq -1 ]] ; then
   GetRandomPort
   echo "I've selected $PORT as your port."

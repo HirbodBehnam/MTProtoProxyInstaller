@@ -1,6 +1,6 @@
 #!/bin/bash
 function GetRandomPort(){
-  if ! [ "$INSTALLED_LSOF" == true ];then 
+  if ! [ "$INSTALLED_LSOF" == true ]; then
     echo "Installing lsof package. Please wait."
     yum -y -q install lsof
     local RETURN_CODE
@@ -17,7 +17,7 @@ function GetRandomPort(){
   fi
 }
 function GetRandomPortLO(){
-  if ! [ "$INSTALLED_LSOF" == true ];then 
+  if ! [ "$INSTALLED_LSOF" == true ]; then
     echo "Installing lsof package. Please wait."
     yum -y -q install lsof
     local RETURN_CODE
@@ -194,6 +194,14 @@ if [ -d "/opt/MTProxy" ]; then
       SECRET_ARY_STR=${SECRET_ARY[*]}
       sed -i "s/^SECRET_ARY=.*/SECRET_ARY=($SECRET_ARY_STR)/" mtconfig.conf
       echo "Done"
+      PUBLIC_IP="$(curl https://api.ipify.org -sS)"
+      CURL_EXIT_STATUS=$?
+      if [ $CURL_EXIT_STATUS -ne 0 ]; then
+        PUBLIC_IP="YOUR_IP"
+      fi
+      echo
+      echo "You can now connect to your server with this secret with this link:"
+      echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
     ;;
     #Change CPU workers
     5)
@@ -312,7 +320,7 @@ echo "Now I will gather some info from you."
 echo ""
 echo ""
 #Proxy Port
-read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i 443 PORT
+read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i "-1" PORT
 if [[ $PORT -eq -1 ]] ; then #Check random port
   GetRandomPort
   echo "I've selected $PORT as your port."
@@ -326,7 +334,7 @@ if [ "$PORT" -gt 65535 ] ; then
   exit 1
 fi
 #Status port
-read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i 8888 PORT_LO
+read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i "-1" PORT_LO
 if [[ $PORT_LO -eq -1 ]] ; then #Check random loopback status port
   GetRandomPortLO
   echo "I've selected $PORT_LO as your loopback status port."
