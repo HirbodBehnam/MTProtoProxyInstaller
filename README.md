@@ -21,6 +21,7 @@ Python proxy says it can serve about 4000 concurrent connections with 1 CPU core
 
 Official proxy can serve about 10000 to 16000 connections per core.
 ## Python Script
+**Before You Begin**: Do not use OVH or IPHoster datacenters for MTProto.
 ### Install
 On your server run
 ```
