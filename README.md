@@ -24,7 +24,7 @@ Official proxy can serve about 10000 to 16000 connections per core.
 **Before You Begin**: Do not use OVH or IPHoster datacenters for MTProto.
 ### Install
 On your server run
-```
+```bash
 curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInstall.sh
 ```
 Wait until the setup finishes, you should be given the links. (using `systemctl status mtprotoproxy -l` will display said links as well)
@@ -39,13 +39,13 @@ Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to st
 To manually config, proxy edit config.py in /opt/mtprotoproxy to change the config; Then restart the server using `systemctl restart mtprotoproxy` or just run script again.
 ###### Installing Proxy's Master Branch
 Should you want to test the stuff that are not available in the stable branch of [mtprotoproxy](https://github.com/alexbers/mtprotoproxy), pass `-m` as argument to script to install master branch.
-```
+```bash
 curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInstall.sh -m
 ```
 ## Official Script
 ### Install
 On your server run
-```
+```bash
 curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh
 ```
 and wait until the setup finishes and you will see the links after install.
@@ -53,13 +53,13 @@ and wait until the setup finishes and you will see the links after install.
 Each worker can handle more than 10000 connections on a modern CPU. Connections will be split between workers. Do not spawn workers more than your CPUs thread count.
 #### Auto Install (Keyless)
 You can use command below to automatically install MTProto proxy to without even pressing a key.
-```
+```bash
 curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh PORT STATS_PORT SECRET [TAG]
 ```
 You can enter more than one secret by splitting secrets by `,`.
 
 Example of using 443 as proxy port, generate random port for stats port, 00000000000000000000000000000000 and 0123456789abcdef0123456789abcdef as secrets , and empty tag:
-```
+```bash
 curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh 443 -1 00000000000000000000000000000000,0123456789abcdef0123456789abcdef
 ```
 #### Managing The Proxy

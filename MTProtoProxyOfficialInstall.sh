@@ -57,6 +57,7 @@ Type=simple
 WorkingDirectory=/opt/MTProxy/objs/bin
 ExecStart=/opt/MTProxy/objs/bin/mtproto-proxy $ARGS_STR
 Restart=on-failure
+StartLimitBurst=0
 
 [Install]
 WantedBy=multi-user.target"

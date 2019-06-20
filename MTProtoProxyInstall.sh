@@ -472,10 +472,12 @@ cd /etc/systemd/system || exit 2
 touch mtprotoproxy.service
 echo "[Unit]
 Description = MTProto Proxy Service
+After=network.target
 
 [Service]
 Type = simple
 ExecStart = /usr/bin/python3.6 /opt/mtprotoproxy/mtprotoproxy.py
+StartLimitBurst=0
 
 [Install]
 WantedBy = multi-user.target" >> mtprotoproxy.service
