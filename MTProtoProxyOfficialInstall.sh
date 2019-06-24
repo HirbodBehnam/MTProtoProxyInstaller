@@ -348,6 +348,10 @@ if [ "$PORT_LO" -gt 65535 ] ; then
   echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
   exit 1
 fi
+if [ "$PORT" = "$PORT_LO" ]; then
+  echo "$(tput setaf 1)Error:$(tput sgr 0) The loopback status port and the main port cannot be same."
+  exit 1
+fi
 while true; do
   echo "Do you want to set secret manually or shall I create a random secret?"
   echo "   1) Manually enter a secret"
