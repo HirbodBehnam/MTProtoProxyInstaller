@@ -26,7 +26,7 @@ Official proxy can serve about 10000 to 16000 connections per core.
 ### Install
 On your server run
 ```bash
-curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInstall.sh
+curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh
 ```
 Wait until the setup finishes, you should be given the links. (using `systemctl status mtprotoproxy -l` will display said links as well)
 
@@ -41,13 +41,13 @@ To manually config, proxy edit config.py in /opt/mtprotoproxy to change the conf
 ###### Installing Proxy's Master Branch
 Should you want to test the stuff that are not available in the stable branch of [mtprotoproxy](https://github.com/alexbers/mtprotoproxy), pass `-m` as argument to script to install master branch.
 ```bash
-curl -o MTProtoProxyInstall.sh -L https://git.io/vhgUt && bash MTProtoProxyInstall.sh -m
+curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh -m
 ```
 ## Official Script
 ### Install
 On your server run
 ```bash
-curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh
+curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fjo3u && bash MTProtoProxyOfficialInstall.sh
 ```
 and wait until the setup finishes and you will see the links after install.
 #### Workers
@@ -55,13 +55,13 @@ Each worker can handle more than 10000 connections on a modern CPU. Connections 
 #### Auto Install (Keyless)
 You can use command below to automatically install MTProto proxy to without even pressing a key.
 ```bash
-curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh PORT STATS_PORT SECRET [TAG]
+curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fjo3u && bash MTProtoProxyOfficialInstall.sh PORT STATS_PORT SECRET [TAG]
 ```
 You can enter more than one secret by splitting secrets by `,`.
 
 Example of using 443 as proxy port, generate random port for stats port, 00000000000000000000000000000000 and 0123456789abcdef0123456789abcdef as secrets , and empty tag:
 ```bash
-curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fhEFY && bash MTProtoProxyOfficialInstall.sh 443 -1 00000000000000000000000000000000,0123456789abcdef0123456789abcdef
+curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fjo3u && bash MTProtoProxyOfficialInstall.sh 443 -1 00000000000000000000000000000000,0123456789abcdef0123456789abcdef
 ```
 #### Managing The Proxy
 ##### Service
@@ -77,8 +77,10 @@ Setup will try to configure the proxy on public zone. However you can manually e
 Due to some ISPs detecting MTProxy by packet sizes, random padding is added to packets if such mode is enabled.
 It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
-### Debian, Ubuntu or Windows?
-It is possible to patch the script to make it *partly* compatible with Ubutnu/Debian. However for windows you cannot patch the script, but I've written a small guide to install that on Windows. Please read [wiki](https://github.com/HirbodBehnam/MTProtoProxyCentOSInstall/wiki) for more info. 
+### Debian or Windows?
+It is possible to patch the script to make it *partly* compatible with Debian. However for windows you cannot patch the script, but I've written a small guide to install that on Windows. Please read [wiki](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki) for more info. 
+
+The official installer will work on Debian too. So you can just replace all `elif` with just `else`. I _may_ add debian support later.
 ### Server
 You can use any VPS or Dedicated Server. If you want a cheap and low-end server, I personally recommend to buy one at [Virmach](https://virmach.com/); They also accept cryptos!
 
@@ -88,7 +90,7 @@ If you live in Iran and you want to pay with IRR you can buy one at [Tikweb](htt
 
 More info about Iran censorship: It roughly takes 15 ~ 2 hours to block your new public and non-resistant server. If you route your traffic through a local server, it speed will be throttled in 3 hours ~ 2 days. (Normal VPS)
 
-Iran _MAY_ use DPI to block your server. So private uses may not be safe too. I've written a [small guide](https://github.com/HirbodBehnam/MTProtoProxyCentOSInstall/wiki/Route-Traffic-Through-Domestic-Server-With-Shadowsocks) to route proxy with shadowsocks. It's good if you are using your proxy privately.
+Iran _MAY_ use DPI to block your server. So private uses may not be safe too. I've written a [small guide](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Route-Traffic-Through-Domestic-Server-With-Shadowsocks) to route proxy with shadowsocks. It's good if you are using your proxy privately.
 
 __I DO NOT USE MTPROTO PROXY MYSELF.__ Use [shadowsocks with Cloak](https://github.com/HirbodBehnam/Shadowsocks-Cloak-Installer)(**Highly Recommended**) or [wireguard](https://github.com/l-n-s/wireguard-install) or [openvpn](https://github.com/angristan/openvpn-install) instead.
 
