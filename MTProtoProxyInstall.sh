@@ -10,7 +10,11 @@ function RemoveMultiLineUser(){
 function GetRandomPort(){
   if ! [ "$INSTALLED_LSOF" == true ];then 
     echo "Installing lsof package. Please wait."
-    yum -y -q install lsof
+    if [[ $distro =~ "CentOS" ]]; then
+      yum -y -q install lsof
+    elif [[ $distro =~ "Ubuntu" ]]; then
+      apt-get install lsof > /dev/null
+    fi
     local RETURN_CODE
     RETURN_CODE=$?
     if [ $RETURN_CODE -ne 0 ]; then
@@ -29,6 +33,7 @@ if [[ "$EUID" -ne 0 ]]; then
   echo "Please run this script as root"
   exit 1
 fi
+distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 clear
 #Check if user already installed Proxy
 if [ -d "/opt/mtprotoproxy" ]; then
@@ -38,7 +43,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
   echo "  3) Change AD_TAG"
   echo "  4) Revoke Secret"
   echo "  5) Add Secret"
-  echo "  6) Generate Firewalld Rules"
+  echo "  6) Generate Firewall Rules"
   echo "  7) Change Secure Mode"
   echo "  8) Change User Limits"
   echo "  *) Exit"
@@ -57,8 +62,12 @@ if [ -d "/opt/mtprotoproxy" ]; then
           rm -rf /opt/mtprotoproxy
           rm -f /etc/systemd/system/mtprotoproxy.service
           systemctl daemon-reload
-          firewall-cmd --remove-port="$PORT"/tcp
-          firewall-cmd --runtime-to-permanent
+          if [[ $distro =~ "CentOS" ]]; then
+            firewall-cmd --remove-port="$PORT"/tcp
+            firewall-cmd --runtime-to-permanent
+          elif [[ $distro =~ "Ubuntu" ]]; then
+            ufw delete allow "$PORT"/tcp
+          fi
           echo "Ok it's done."
           ;;
       esac
@@ -73,7 +82,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
       mv /tmp/config.py /opt/mtprotoproxy/config.py
       #Update cryptography and uvloop
       pip3.6 install --upgrade cryptography uvloop
-      yum -y update #Update whole system
       systemctl start mtprotoproxy
       echo "Proxy updated."
       ;;
@@ -114,18 +122,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
       ;;
     #Revoke secret
     4)
-      echo "$(tput setaf 3)Just a second...$(tput sgr 0)"
-      if ! yum -q list installed jq &>/dev/null; then
-        read -r -p "In order to revoke a user I must install jq package. Continue?(y/n) " -e -i "y" OPTION
-        case $OPTION in
-          "y")
-            yum -y install jq
-            ;;
-          *)
-            exit 3
-            ;;
-        esac
-      fi
       cd /opt/mtprotoproxy || exit 2
       clear
       rm -f tempSecrets.json
@@ -230,12 +226,20 @@ if [ -d "/opt/mtprotoproxy" ]; then
       #Firewall rules
       cd /opt/mtprotoproxy/ || exit 2
       PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
-      echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
-      echo "firewall-cmd --runtime-to-permanent"
+      if [[ $distro =~ "CentOS" ]]; then
+        echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
+        echo "firewall-cmd --runtime-to-permanent"
+      elif [[ $distro =~ "Ubuntu" ]]; then
+        echo "ufw allow $PORT/tcp"
+      fi
       read -r -p "Do you want to apply these rules?[y/n] " -e -i "y" OPTION
       if [ "$OPTION" == "y" ] || [ "$OPTION" == "Y" ] ; then
-        firewall-cmd --zone=public --add-port="$PORT"/tcp
-        firewall-cmd --runtime-to-permanent
+        if [[ $distro =~ "CentOS" ]]; then
+          firewall-cmd --zone=public --add-port="$PORT"/tcp
+          firewall-cmd --runtime-to-permanent
+        elif [[ $distro =~ "Ubuntu" ]]; then
+          ufw allow "$PORT"/tcp
+        fi
       fi
       ;;
     7)
@@ -412,9 +416,22 @@ esac
 read -n 1 -s -r -p "Press any key to install..."
 #Now lets install
 clear
-yum -y install epel-release
-yum -y update
-yum -y install sed git python36 curl ca-certificates
+if [[ $distro =~ "CentOS" ]]; then
+  yum -y install epel-release
+  yum -y update
+  yum -y install sed git python36 curl ca-certificates jq
+elif [[ $distro =~ "Ubuntu" ]]; then
+  apt update
+  if ! [[ $(lsb_release -r -s) =~ "17" ]] && ! [[ $(lsb_release -r -s) =~ "18" ]] && ! [[ $(lsb_release -r -s) =~ "19" ]]; then 
+    apt-get -y install software-properties-common python-software-properties
+    add-apt-repository ppa:jonathonf/python-3.6
+  fi
+  apt-get update
+  apt-get -y install python3.6 python3.6-distutils sed git curl jq ca-certificates
+else
+    echo "Your OS is not supported"
+    exit 2
+fi
 curl https://bootstrap.pypa.io/get-pip.py | python3.6
 #This libs make proxy faster
 pip3.6 install cryptography uvloop
@@ -448,24 +465,41 @@ if [ "$SECURE_MODE" = true ]; then
 fi
 #Setup firewall
 echo "Setting firewalld rules"
-SETFIREWALL=true
-if ! yum -q list installed firewalld &>/dev/null; then
-  echo ""
-  read -r -p "Looks like \"firewalld\" is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
+if [[ $distro =~ "CentOS" ]]; then
+  SETFIREWALL=true
+  if ! yum -q list installed firewalld &>/dev/null; then
+    echo ""
+    read -r -p "Looks like \"firewalld\" is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
+      case $OPTION in
+        "y")
+          yum -y install firewalld
+          systemctl enable firewalld
+          ;;
+        *)
+          SETFIREWALL=false
+          ;;
+      esac
+  fi
+  if [ "$SETFIREWALL" = true ]; then
+    systemctl start firewalld
+    firewall-cmd --zone=public --add-port="$PORT"/tcp
+    firewall-cmd --runtime-to-permanent
+  fi
+elif [[ $distro =~ "Ubuntu" ]]; then
+  if dpkg --get-selections | grep -q "^ufw[[:space:]]*install$" >/dev/null; then
+    ufw allow "$PORT"/tcp
+  else
+    echo
+    read -r -p "Looks like \"UFW\"(Firewall) is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
     case $OPTION in
-      "y")
-        yum -y install firewalld
-        systemctl enable firewalld
-        ;;
-      *)
-        SETFIREWALL=false
-        ;;
+      "y"|"Y")
+        apt-get install ufw
+        ufw enable
+        ufw allow ssh
+        ufw allow "$PORT"/tcp
+      ;;
     esac
-fi
-if [ "$SETFIREWALL" = true ]; then
-  systemctl start firewalld
-  firewall-cmd --zone=public --add-port="$PORT"/tcp
-  firewall-cmd --runtime-to-permanent
+  fi
 fi
 #Now lets create the service
 cd /etc/systemd/system || exit 2

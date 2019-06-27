@@ -1,5 +1,5 @@
-# MTProto Proxy CentOS 7 Auto Installer
-A very small script to install MTProtoProxy On CentOS 7
+# MTProto Proxy Auto Installer
+A very small script to install MTProtoProxy On Centos or Ubuntu
 ## Why this installer?
 * Generate random secret
 * Automatically configure firewall
@@ -7,6 +7,7 @@ A very small script to install MTProtoProxy On CentOS 7
 * Choose between Official Proxy and Python Proxy
 * Easy to setup
 * Revoke and add secrets after install
+* Supports Centos 7 or Ubuntu 16 or later
 ## Official Or Python Proxy?
 Use python if:
 1. Your server's CPU has one core or you want to run proxy on one core.

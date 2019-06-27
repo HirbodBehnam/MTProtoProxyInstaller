@@ -2,7 +2,11 @@
 function GetRandomPort(){
   if ! [ "$INSTALLED_LSOF" == true ]; then
     echo "Installing lsof package. Please wait."
-    yum -y -q install lsof
+    if [[ $distro =~ "CentOS" ]]; then
+      yum -y -q install lsof
+    elif [[ $distro =~ "Ubuntu" ]]; then
+      apt-get install lsof > /dev/null
+    fi
     local RETURN_CODE
     RETURN_CODE=$?
     if [ $RETURN_CODE -ne 0 ]; then
@@ -19,7 +23,11 @@ function GetRandomPort(){
 function GetRandomPortLO(){
   if ! [ "$INSTALLED_LSOF" == true ]; then
     echo "Installing lsof package. Please wait."
-    yum -y -q install lsof
+    if [[ $distro =~ "CentOS" ]]; then
+      yum -y -q install lsof
+    elif [[ $distro =~ "Ubuntu" ]]; then
+      apt-get install lsof > /dev/null
+    fi
     local RETURN_CODE
     RETURN_CODE=$?
     if [ $RETURN_CODE -ne 0 ]; then
@@ -68,6 +76,7 @@ if [[ "$EUID" -ne 0 ]]; then
   exit 1
 fi
 regex='^[0-9]+$'
+distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 clear
 if [ -d "/opt/MTProxy" ]; then
   echo "You have already installed MTProxy! What do you want to do?"
@@ -77,7 +86,7 @@ if [ -d "/opt/MTProxy" ]; then
   echo "  4) Add Secret"
   echo "  5) Change Worker Numbers"
   echo "  6) Change Custom Arguments"
-  echo "  7) Generate Firewalld Rules"
+  echo "  7) Generate Firewall Rules"
   echo "  *) Exit"
   read -r -p "Please enter a number: " OPTION
   source /opt/MTProxy/objs/bin/mtconfig.conf #Load Configs
@@ -91,8 +100,12 @@ if [ -d "/opt/MTProxy" ]; then
           cd /opt/MTProxy || exit 2
           systemctl stop MTProxy
           systemctl disable MTProxy
-          firewall-cmd --remove-port="$PORT"/tcp
-          firewall-cmd --runtime-to-permanent
+          if [[ $distro =~ "CentOS" ]]; then
+            firewall-cmd --remove-port="$PORT"/tcp
+            firewall-cmd --runtime-to-permanent
+          elif [[ $distro =~ "Ubuntu" ]]; then
+            ufw delete allow "$PORT"/tcp
+          fi
           rm -rf /opt/MTProxy
           rm -f /etc/systemd/system/MTProxy.service
           systemctl daemon-reload
@@ -126,6 +139,7 @@ if [ -d "/opt/MTProxy" ]; then
       NUMBER_OF_SECRETS=${#SECRET_ARY[@]}
       if [ "$NUMBER_OF_SECRETS" -le 1 ]; then
         echo "Cannot remove the last secret."
+        exit 1
       fi
       echo "Select a secret to revoke:"
       COUNTER=1
@@ -213,9 +227,12 @@ if [ -d "/opt/MTProxy" ]; then
         echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
         exit 1
       fi
-      if [ "$CPU_CORES" -gt 16 ] || [ "$CPU_CORES" -lt 1 ]; then #Check range of workers
-        echo "$(tput setaf 1)Error:$(tput sgr 0) Enter number between 1 and 16."
+      if [ "$CPU_CORES" -lt 1 ]; then #Check range of workers
+        echo "$(tput setaf 1)Error:$(tput sgr 0) Enter number more than 1."
         exit 1
+      fi
+      if [ "$CPU_CORES" -gt 16 ]; then
+        echo "(tput setaf 3)Warning:$(tput sgr 0) Values more than 16 can cause some problems later. Proceed at your own risk."
       fi
       #Save
       cd /etc/systemd/system || exit 2
@@ -247,13 +264,20 @@ if [ -d "/opt/MTProxy" ]; then
     ;;
     #Firewall rules
     7)
-      echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
-      echo "firewall-cmd --runtime-to-permanent"
+      if [[ $distro =~ "CentOS" ]]; then
+        echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
+        echo "firewall-cmd --runtime-to-permanent"
+      elif [[ $distro =~ "Ubuntu" ]]; then
+        echo "ufw allow $PORT/tcp"
+      fi
       read -r -p "Do you want to apply these rules?[y/n] " -e -i "y" OPTION
-      if [ "$OPTION" == "y" ] || [ "$OPTION" == "Y" ]  ; then
-        firewall-cmd --zone=public --add-port="$PORT"/tcp
-        firewall-cmd --runtime-to-permanent
-        echo "Done"
+      if [ "$OPTION" == "y" ] || [ "$OPTION" == "Y" ] ; then
+        if [[ $distro =~ "CentOS" ]]; then
+          firewall-cmd --zone=public --add-port="$PORT"/tcp
+          firewall-cmd --runtime-to-permanent
+        elif [[ $distro =~ "Ubuntu" ]]; then
+          ufw allow "$PORT"/tcp
+        fi
       fi
     ;;
   esac
@@ -434,9 +458,14 @@ read -n 1 -s -r -p "Press any key to install..."
 clear
 fi
 #Now install packages
-yum -y install epel-release
-yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie
-yum -y groupinstall "Development Tools"
+if [[ $distro =~ "CentOS" ]]; then
+  yum -y install epel-release
+  yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie
+  yum -y groupinstall "Development Tools"
+elif [[ $distro =~ "Ubuntu" ]]; then
+  apt-get update
+  apt-get -y install git curl build-essential libssl-dev zlib1g-dev sed cron ca-certificates
+fi
 cd /opt || exit 2
 git clone https://github.com/TelegramMessenger/MTProxy
 cd MTProxy || exit 2
@@ -475,6 +504,7 @@ echo "TAG=\"$TAG\"" >> mtconfig.conf
 echo "CUSTOM_ARGS=\"$CUSTOM_ARGS\"" >> mtconfig.conf
 #Setup firewall
 echo "Setting firewalld rules"
+if [[ $distro =~ "CentOS" ]]; then
 SETFIREWALL=true
 if ! yum -q list installed firewalld &>/dev/null; then
   echo ""
@@ -498,6 +528,26 @@ if [ "$SETFIREWALL" = true ]; then
   systemctl start firewalld
   firewall-cmd --zone=public --add-port="$PORT"/tcp
   firewall-cmd --runtime-to-permanent
+fi
+elif [[ $distro =~ "Ubuntu" ]]; then
+  if dpkg --get-selections | grep -q "^ufw[[:space:]]*install$" >/dev/null; then
+    ufw allow "$PORT"/tcp
+  else
+    if [ "$AUTO" = true  ]; then
+      OPTION="y"
+    else
+      echo
+      read -r -p "Looks like \"UFW\"(Firewall) is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
+    fi
+    case $OPTION in
+      "y"|"Y")
+        apt-get install ufw
+        ufw enable
+        ufw allow ssh
+        ufw allow "$PORT"/tcp
+      ;;
+    esac
+  fi
 fi
 #Setup service files
 cd /etc/systemd/system || exit 2
