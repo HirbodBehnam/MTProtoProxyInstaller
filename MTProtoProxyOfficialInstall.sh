@@ -110,7 +110,11 @@ if [ -d "/opt/MTProxy" ]; then
           rm -f /etc/systemd/system/MTProxy.service
           systemctl daemon-reload
           sed -i '\|cd /opt/MTProxy/objs/bin && bash updater.sh|d' /etc/crontab
-          systemctl restart crond
+          if [[ $distro =~ "CentOS" ]]; then
+            systemctl restart crond
+          elif [[ $distro =~ "Ubuntu" ]]; then
+            systemctl restart cron
+          fi
           echo "Ok it's done."
           ;;
       esac
@@ -584,7 +588,11 @@ systemctl start MTProxy
 echo "Updater runned at $(date). Exit codes of getProxySecret and getProxyConfig are $STATUS_SECRET and $STATUS_CONF" >> updater.log' >> /opt/MTProxy/objs/bin/updater.sh
   echo "" >> /etc/crontab
   echo "0 0 * * * root cd /opt/MTProxy/objs/bin && bash updater.sh" >> /etc/crontab
-  systemctl restart crond
+  if [[ $distro =~ "CentOS" ]]; then
+    systemctl restart crond
+  elif [[ $distro =~ "Ubuntu" ]]; then
+    systemctl restart cron
+  fi
 fi
 #Show proxy links
 tput setaf 3
