@@ -44,6 +44,7 @@ Should you want to test the stuff that are not available in the stable branch of
 curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh -m
 ```
 ## Official Script
+**Before You Begin**: Do not use OVH or IPHoster datacenters for MTProto.
 ### Install
 On your server run
 ```bash
