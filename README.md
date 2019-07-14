@@ -91,7 +91,7 @@ If you live in Iran and you want to pay with IRR you can buy one at [Tikweb](htt
 
 More info about Iran censorship: It roughly takes 15 ~ 2 hours to block your new public and non-resistant server. If you route your traffic through a local server, it speed will be throttled in 3 hours ~ 2 days. (Normal VPS)
 
-Iran _MAY_ use DPI to block your server. So private uses may not be safe too. I've written a [small guide](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Route-Traffic-Through-Domestic-Server-With-Shadowsocks) to route proxy with shadowsocks. It's good if you are using your proxy privately.
+Iran _MAY_ use DPI to block your server. So private uses may not be safe too. I've written a [small guide](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Route-Traffic-Through-Domestic-Server-With-Shadowsocks) to route proxy with shadowsocks; or alternatively you can use [kcptun](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Route-Traffic-Through-Domestic-Server-With-KCPTUN). These methods are useful if you are using your proxy privately.
 
 __I DO NOT USE MTPROTO PROXY MYSELF.__ Use [shadowsocks with Cloak](https://github.com/HirbodBehnam/Shadowsocks-Cloak-Installer)(**Highly Recommended**) or [wireguard](https://github.com/l-n-s/wireguard-install) or [openvpn](https://github.com/angristan/openvpn-install) instead.
 
