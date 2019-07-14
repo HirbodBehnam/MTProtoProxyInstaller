@@ -86,7 +86,7 @@ The official installer will work on Debian too. So you can just replace all `eli
 You can use any VPS or Dedicated Server. If you want a cheap and low-end server, I personally recommend to buy one at [Virmach](https://virmach.com/); They also accept cryptos!
 
 If you live in Iran and you want to pay with IRR you can buy one at [Tikweb](https://tikweb.ir/) or [ParsHost](https://pars.host/).
-#### Persian guide to buying servers, installing script and making servers censorship-resistant
+#### Persian guide to buying servers, installing script, making servers _nearly_ censorship-resistant and FAQ
 ***BEFORE YOU BEGIN***: If you are going to invest in MTProto and you are going to publish your proxy's link, I think you should just turn back. I believe MTProto Proxy is a failed project in Iran. Continue reading for more info. Utilizing this for self-use could significantly lessen the chance of your server's IP getting censored. *I don't say there is no way to make your server censorship-resistant, I just don't know them.* **Please do not contact me and ask me for other ways.**
 
 More info about Iran censorship: It roughly takes 15 ~ 2 hours to block your new public and non-resistant server. If you route your traffic through a local server, it speed will be throttled in 3 hours ~ 2 days. (Normal VPS)
