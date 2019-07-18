@@ -28,6 +28,20 @@ function GetRandomPort(){
     GetRandomPort
   fi
 }
+function GenerateConnectionLimiterConfig(){
+  LIMITER_CONFIG=""
+  LIMITER_FILE=""
+  for user in "${!limits[@]}"
+  do 
+    LIMITER_CONFIG+='"'
+    LIMITER_CONFIG+=$user
+    LIMITER_CONFIG+='": '
+    LIMITER_CONFIG+=${limits[$user]}
+    LIMITER_CONFIG+=" , "
+    LIMITER_FILE+="$user;${limits[$user]}\n"
+  done
+  LIMITER_CONFIG=${LIMITER_CONFIG::${#LIMITER_CONFIG}-2}
+}
 #User must run the script as root
 if [[ "$EUID" -ne 0 ]]; then
   echo "Please run this script as root"
@@ -48,6 +62,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
   echo "  8) Change User Limits"
   echo "  *) Exit"
   read -r -p "Please enter a number: " OPTION
+  cd /opt/mtprotoproxy/ || exit 2
   case $OPTION in
     #Uninstall proxy
     1)
@@ -55,7 +70,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
       OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
       case $OPTION in
         "y")
-          cd /opt/mtprotoproxy/ || exit 2
           PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
           systemctl stop mtprotoproxy
           systemctl disable mtprotoproxy
@@ -74,7 +88,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
       ;;
     #Update
     2)
-      cd /opt/mtprotoproxy/ || exit 2
       systemctl stop mtprotoproxy
       mv /opt/mtprotoproxy/config.py /tmp/config.py
       BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -87,7 +100,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
       ;;
     #Change AD_TAG
     3)
-      cd /opt/mtprotoproxy || exit 2
       TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
       OldEmptyTag=false
       if [ -z "$TAG" ]; then
@@ -122,7 +134,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
       ;;
     #Revoke secret
     4)
-      cd /opt/mtprotoproxy || exit 2
       clear
       rm -f tempSecrets.json
       SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
@@ -167,7 +178,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
       ;;
     #New secret
     5)
-      cd /opt/mtprotoproxy || exit 2
       SECRETS=$(python3.6 -c 'import config;print(getattr(config, "USERS","{}"))')
       SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
       SECRETS=$(echo "$SECRETS" | tr "'" '"')
@@ -224,7 +234,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
       ;;
     6)
       #Firewall rules
-      cd /opt/mtprotoproxy/ || exit 2
       PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
       if [[ $distro =~ "CentOS" ]]; then
         echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
@@ -244,7 +253,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
       ;;
     7)
       #Change Secure only
-      cd /opt/mtprotoproxy || exit 2
       read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "y" OPTION
       OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
       case $OPTION in
@@ -267,11 +275,76 @@ if [ -d "/opt/mtprotoproxy" ]; then
       echo "Done"
       ;;
     8)
+      clear
       echo "$(tput setaf 3)Make sure you installed master branch!$(tput sgr 0)"
-      echo ""
-      echo "Right now, you can edit limits by \"sudo nano /opt/mtprotoproxy/config.py\" and edit \"USER_MAX_TCP_CONNS\"."
-      echo "It's better to multiply your preferred value by 5. Read more here: https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L48"
-      echo "I will later add something in script." 
+      rm -f tempSecrets.json
+      SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+      SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+      if [ "$SECRET_COUNT" == "0" ] ; then
+        echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets. Cannot revoke nothing!"
+        exit 4
+      fi
+      RemoveMultiLineUser #Regenerate USERS only in one line
+      SECRET=$(echo "$SECRET" | tr "'" '"')
+      echo "$SECRET" >> tempSecrets.json
+      SECRET_ARY=()
+      mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
+      echo "Here are list of current users:"
+      COUNTER=1
+      NUMBER_OF_SECRETS=${#SECRET_ARY[@]}
+      for i in "${SECRET_ARY[@]}"
+      do
+        echo "	$COUNTER) $i"
+        COUNTER=$((COUNTER+1))
+      done
+      read -r -p "Please select a user by it's index to change the limits: " USER_TO_REVOKE
+      regex='^[0-9]+$'
+      if ! [[ $USER_TO_REVOKE =~ $regex ]] ; then
+        echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
+        exit 1
+      fi
+      if [ "$USER_TO_REVOKE" -lt 1 ] || [ "$USER_TO_REVOKE" -gt "$NUMBER_OF_SECRETS" ]; then
+        echo "$(tput setaf 1)Error:$(tput sgr 0) Invalid number"
+        exit 1
+      fi
+      USER_TO_REVOKE=$((USER_TO_REVOKE-1))
+      KEY=${SECRET_ARY[$USER_TO_REVOKE]}
+      declare -A limits
+      while IFS= read -r line
+      do
+        if [ "$line" != "" ]; then
+          arrIN=(${line//;/ })
+          limits+=( ["${arrIN[0]}"]="${arrIN[1]}")
+        fi
+      done < "limits_bash.txt"
+      if [ ${limits[$KEY]+abc} ]; then
+        MAX_USER=$((${limits[$KEY]} / 5))
+        echo "Current limit is $MAX_USER concurrent users. (${limits[$KEY]} connections)"
+      else
+        echo "This user have no restrictions."
+      fi
+      read -r -p "Please enter the max users that you want to connect to this user; Enter 0 for unlimited.: " MAX_USER
+      regex='^[0-9]+$'
+      if ! [[ $USER_TO_REVOKE =~ $regex ]] ; then
+        echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
+        exit 1
+      fi
+      MAX_USER=$((MAX_USER * 5))
+      if [ "$MAX_USER" = "0" ]; then
+        unset limits["$KEY"]
+      else
+        limits[$KEY]=$MAX_USER
+      fi
+      GenerateConnectionLimiterConfig
+      rm limits_bash.txt
+      echo -e "$LIMITER_FILE" >> "limits_bash.txt" 
+      systemctl stop mtprotoproxy
+      sed -i '/^USER_MAX_TCP_CONNS\s*=.*/ d' config.py #Remove settings
+      echo "" >> config.py
+      echo "USER_MAX_TCP_CONNS = { $LIMITER_CONFIG }" >> config.py
+      sed -i '/^$/d' config.py #Remove empty lines
+      systemctl start mtprotoproxy
+      echo "Done"
     ;;
   esac
   exit
@@ -306,6 +379,7 @@ if [ "$PORT" -gt 65535 ] ; then
   exit 1
 fi
 #Now the username and secrets
+declare -A limits
 while true; do
   echo "Now tell me a user name. Usernames are used to name secrets: "
   read -r -e -i "MTSecret$COUNTER" USERNAME
@@ -353,12 +427,8 @@ while true; do
         exit 1
       fi
       #Multiply number of connections by 5. You can manualy change this. Read more: https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L48
-      OPTION=$(expr "$OPTION" \* 5)
-      LIMITER_CONFIG='"'
-      LIMITER_CONFIG+=$USERNAME
-      LIMITER_CONFIG+='": '
-      LIMITER_CONFIG+=$OPTION
-      LIMITER_CONFIG+=" , "
+      OPTION=$((OPTION * 5))
+      limits+=( ["$USERNAME"]="$OPTION")
       ;;
     'n')
       ;;
@@ -382,7 +452,9 @@ while true; do
   COUNTER=$((COUNTER+1))
 done
 SECRETS=${SECRETS::${#SECRETS}-2}
-LIMITER_CONFIG=${LIMITER_CONFIG::${#LIMITER_CONFIG}-2}
+if [ "$1" == "-m" ]; then
+  GenerateConnectionLimiterConfi
+fi
 #Set secure mode
 read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "y" OPTION
 OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
@@ -429,8 +501,8 @@ elif [[ $distro =~ "Ubuntu" ]]; then
   apt-get update
   apt-get -y install python3.6 python3.6-distutils sed git curl jq ca-certificates
 else
-    echo "Your OS is not supported"
-    exit 2
+  echo "Your OS is not supported"
+  exit 2
 fi
 curl https://bootstrap.pypa.io/get-pip.py | python3.6
 #This libs make proxy faster
@@ -463,6 +535,7 @@ fi
 if [ "$SECURE_MODE" = true ]; then
   echo "SECURE_ONLY = True" >> config.py
 fi
+echo -e "$LIMITER_FILE" >> "limits_bash.txt" 
 #Setup firewall
 echo "Setting firewalld rules"
 if [[ $distro =~ "CentOS" ]]; then
