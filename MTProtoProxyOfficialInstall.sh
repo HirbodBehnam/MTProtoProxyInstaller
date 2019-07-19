@@ -80,44 +80,31 @@ distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 clear
 if [ -d "/opt/MTProxy" ]; then
   echo "You have already installed MTProxy! What do you want to do?"
-  echo "  1) Uninstall Proxy"
+  echo "  1) Show connection links"
   echo "  2) Change TAG"
-  echo "  3) Revoke Secret"
-  echo "  4) Add Secret"
+  echo "  3) Add a secret"
+  echo "  4) Revoke a secret"
   echo "  5) Change Worker Numbers"
   echo "  6) Change Custom Arguments"
   echo "  7) Generate Firewall Rules"
+  echo "  8) Uninstall Proxy"
   echo "  *) Exit"
   read -r -p "Please enter a number: " OPTION
   source /opt/MTProxy/objs/bin/mtconfig.conf #Load Configs
   case $OPTION in
-    #Uninstall proxy
+    #Show connections
     1)
-      read -r -p "I still keep some packages like \"Development Tools\". Do want to uninstall MTProto-Proxy?(y/n) " OPTION
-      OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
-      case $OPTION in
-        "y")
-          cd /opt/MTProxy || exit 2
-          systemctl stop MTProxy
-          systemctl disable MTProxy
-          if [[ $distro =~ "CentOS" ]]; then
-            firewall-cmd --remove-port="$PORT"/tcp
-            firewall-cmd --runtime-to-permanent
-          elif [[ $distro =~ "Ubuntu" ]]; then
-            ufw delete allow "$PORT"/tcp
-          fi
-          rm -rf /opt/MTProxy
-          rm -f /etc/systemd/system/MTProxy.service
-          systemctl daemon-reload
-          sed -i '\|cd /opt/MTProxy/objs/bin && bash updater.sh|d' /etc/crontab
-          if [[ $distro =~ "CentOS" ]]; then
-            systemctl restart crond
-          elif [[ $distro =~ "Ubuntu" ]]; then
-            systemctl restart cron
-          fi
-          echo "Ok it's done."
-          ;;
-      esac
+      clear
+      echo "$(tput setaf 3)Getting your IP address.$(tput sgr 0)"
+      PUBLIC_IP="$(curl https://api.ipify.org -sS)"
+      CURL_EXIT_STATUS=$?
+      if [ $CURL_EXIT_STATUS -ne 0 ]; then
+        PUBLIC_IP="YOUR_IP"
+      fi
+      for i in "${SECRET_ARY[@]}"
+      do
+        echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
+      done
     ;;
     #Change TAG
     2)
@@ -139,7 +126,7 @@ if [ -d "/opt/MTProxy" ]; then
       echo "Done"
     ;;
     #Revoke Secret
-    3)
+    4)
       NUMBER_OF_SECRETS=${#SECRET_ARY[@]}
       if [ "$NUMBER_OF_SECRETS" -le 1 ]; then
         echo "Cannot remove the last secret."
@@ -176,7 +163,7 @@ if [ -d "/opt/MTProxy" ]; then
       echo "Done"
     ;;
     #Add secret
-    4)
+    3)
       echo "Do you want to set secret manually or shall I create a random secret?"
       echo "   1) Manually enter a secret"
       echo "   2) Create a random secret"
@@ -283,6 +270,34 @@ if [ -d "/opt/MTProxy" ]; then
           ufw allow "$PORT"/tcp
         fi
       fi
+    ;;
+    #Uninstall proxy
+    8)
+      read -r -p "I still keep some packages like \"Development Tools\". Do want to uninstall MTProto-Proxy?(y/n) " OPTION
+      OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
+      case $OPTION in
+        "y")
+          cd /opt/MTProxy || exit 2
+          systemctl stop MTProxy
+          systemctl disable MTProxy
+          if [[ $distro =~ "CentOS" ]]; then
+            firewall-cmd --remove-port="$PORT"/tcp
+            firewall-cmd --runtime-to-permanent
+          elif [[ $distro =~ "Ubuntu" ]]; then
+            ufw delete allow "$PORT"/tcp
+          fi
+          rm -rf /opt/MTProxy
+          rm -f /etc/systemd/system/MTProxy.service
+          systemctl daemon-reload
+          sed -i '\|cd /opt/MTProxy/objs/bin && bash updater.sh|d' /etc/crontab
+          if [[ $distro =~ "CentOS" ]]; then
+            systemctl restart crond
+          elif [[ $distro =~ "Ubuntu" ]]; then
+            systemctl restart cron
+          fi
+          echo "Ok it's done."
+          ;;
+      esac
     ;;
   esac
   exit
