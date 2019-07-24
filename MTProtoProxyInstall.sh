@@ -459,7 +459,7 @@ while true; do
         echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
         exit 1
       fi
-      #Multiply number of connections by 5. You can manualy change this. Read more: https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L48
+      #Multiply number of connections by 5. You can manualy change this. Read more: https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L128
       OPTION=$((OPTION * 5))
       limits+=( ["$USERNAME"]="$OPTION")
       ;;
