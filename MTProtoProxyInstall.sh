@@ -101,8 +101,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
     2)
       systemctl stop mtprotoproxy
       mv /opt/mtprotoproxy/config.py /tmp/config.py
-      BRANCH=$(git rev-parse --abbrev-ref HEAD)
-      git pull origin "$BRANCH"
+      git pull
       mv /tmp/config.py /opt/mtprotoproxy/config.py
       #Update cryptography and uvloop
       pip3.6 install --upgrade cryptography uvloop
