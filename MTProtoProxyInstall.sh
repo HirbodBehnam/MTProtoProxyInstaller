@@ -486,7 +486,7 @@ while true; do
 done
 SECRETS=${SECRETS::${#SECRETS}-2}
 if [ "$1" == "-m" ]; then
-  GenerateConnectionLimiterConfi
+  GenerateConnectionLimiterConfig
 fi
 #Set secure mode
 read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "y" OPTION
