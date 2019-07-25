@@ -8,16 +8,20 @@ function RemoveMultiLineUser(){
   echo "USERS = $SECRET_T" >> config.py
 }
 function GetRandomPort(){
-  echo "Installing lsof package. Please wait."
-  if [[ $distro =~ "CentOS" ]]; then
-    yum -y -q install lsof
-  elif [[ $distro =~ "Ubuntu" ]]; then
-    apt-get install lsof > /dev/null
-  fi
-  local RETURN_CODE
-  RETURN_CODE=$?
-  if [ $RETURN_CODE -ne 0 ]; then
-    echo "$(tput setaf 3)Warning!$(tput sgr 0) lsof package did not installed successfully. The randomized port may be in use."
+  if ! [ "$INSTALLED_LSOF" == true ];then 
+    echo "Installing lsof package. Please wait."
+    if [[ $distro =~ "CentOS" ]]; then
+      yum -y -q install lsof
+    elif [[ $distro =~ "Ubuntu" ]]; then
+      apt-get install lsof > /dev/null
+    fi
+    local RETURN_CODE
+    RETURN_CODE=$?
+    if [ $RETURN_CODE -ne 0 ]; then
+      echo "$(tput setaf 3)Warning!$(tput sgr 0) lsof package did not installed successfully. The randomized port may be in use."
+    else
+      INSTALLED_LSOF=true
+    fi
   fi
   PORT=$((RANDOM % 16383 + 49152))
   if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
