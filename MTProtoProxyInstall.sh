@@ -8,7 +8,7 @@ function RemoveMultiLineUser(){
   echo "USERS = $SECRET_T" >> config.py
 }
 function GetRandomPort(){
-  if ! [ "$INSTALLED_LSOF" == true ];then 
+  if ! [ "$INSTALLED_LSOF" == true ]; then
     echo "Installing lsof package. Please wait."
     if [[ $distro =~ "CentOS" ]]; then
       yum -y -q install lsof
@@ -32,7 +32,7 @@ function GenerateConnectionLimiterConfig(){
   LIMITER_CONFIG=""
   LIMITER_FILE=""
   for user in "${!limits[@]}"
-  do 
+  do
     LIMITER_CONFIG+='"'
     LIMITER_CONFIG+=$user
     LIMITER_CONFIG+='": '
@@ -89,7 +89,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
       for user in "${SECRET_ARY[@]}"
       do
-        SECRET=$(jq ".$user" tempSecrets.json)
+        SECRET=$(jq --arg u "$user" -r '.[$u]' tempSecrets.json)
         SECRET="${SECRET:1}"
         SECRET="${SECRET::-1}"
         echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
@@ -232,7 +232,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
         exit 1
       fi
       USER_TO_REVOKE=$((USER_TO_REVOKE-1))
-      SECRET=$(jq "del(.${SECRET_ARY[$USER_TO_REVOKE]})" tempSecrets.json)
+      SECRET=$(jq --arg u "${SECRET_ARY[$USER_TO_REVOKE]}" 'del(.$u)' tempSecrets.json)
       systemctl stop mtprotoproxy
       sed -i '/^USERS\s*=.*/ d' config.py #Remove USERS
       echo "" >> config.py
