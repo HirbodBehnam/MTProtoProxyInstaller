@@ -232,7 +232,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
         exit 1
       fi
       USER_TO_REVOKE=$((USER_TO_REVOKE-1))
-      SECRET=$(jq --arg u "${SECRET_ARY[$USER_TO_REVOKE]}" 'del(.$u)' tempSecrets.json)
+      SECRET=$(jq --arg u "${SECRET_ARY[$USER_TO_REVOKE]}" 'del(.[$u])' tempSecrets.json)
       systemctl stop mtprotoproxy
       sed -i '/^USERS\s*=.*/ d' config.py #Remove USERS
       echo "" >> config.py
