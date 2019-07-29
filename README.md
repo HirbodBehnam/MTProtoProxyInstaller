@@ -1,5 +1,7 @@
 # MTProto Proxy Auto Installer
 A very small script to install MTProtoProxy On Centos or Ubuntu
+
+**BEFORE YOU GO ON:** MTProto is getting an update that implements a Fake TLS encryption. It obfucates the traffic therefore your server will not be blocked. (Unless you publish the proxy). The update will be avalible in few weeks. It's currently only available in Telegram Desktop Beta.
 ## Why this installer?
 * Generate random secret
 * Automatically configure firewall
