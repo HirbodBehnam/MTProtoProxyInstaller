@@ -7,7 +7,7 @@ A very small script to install MTProtoProxy On Centos or Ubuntu
 * Choose between Official Proxy and Python Proxy
 * Easy to setup
 * Revoke and add secrets after install
-* Supports Centos 7 or Ubuntu 16 or later
+* Supports Centos 7 or Ubuntu 16 or later and Debian 9 (Might work on 8 too)
 ## Official Or Python Proxy?
 Use python if:
 1. Your server's CPU has one core or you want to run proxy on one core.
@@ -78,10 +78,8 @@ Setup will try to configure the proxy on public zone. However you can manually e
 Due to some ISPs detecting MTProxy by packet sizes, random padding is added to packets if such mode is enabled.
 It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
-### Debian or Windows?
-It is possible to patch the script to make it *partly* compatible with Debian. However for windows you cannot patch the script, but I've written a small guide to install that on Windows. Please read [wiki](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki) for more info. 
-
-The official installer will work on Debian too. So you can just replace all `elif` with just `else`. I _may_ add debian support later.
+### How to install on Windows?
+I've written a small guide to install that on Windows. Please read [wiki](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki) for more info.
 ### Server
 You can use any VPS or Dedicated Server. If you want a cheap and low-end server, I personally recommend to buy one at [Virmach](https://virmach.com/); They also accept cryptos!
 

@@ -12,7 +12,7 @@ function GetRandomPort(){
     echo "Installing lsof package. Please wait."
     if [[ $distro =~ "CentOS" ]]; then
       yum -y -q install lsof
-    elif [[ $distro =~ "Ubuntu" ]]; then
+    elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
       apt-get install lsof > /dev/null
     fi
     local RETURN_CODE
@@ -323,6 +323,9 @@ if [ -d "/opt/mtprotoproxy" ]; then
         echo "firewall-cmd --runtime-to-permanent"
       elif [[ $distro =~ "Ubuntu" ]]; then
         echo "ufw allow $PORT/tcp"
+      elif [[ $distro =~ "Debian" ]]; then
+        echo "iptables -A INPUT -p tcp --dport $PORT --jump ACCEPT"
+        echo "iptables-save > /etc/iptables/rules.v4"
       fi
       read -r -p "Do you want to apply these rules?[y/n] " -e -i "y" OPTION
       if [ "$OPTION" == "y" ] || [ "$OPTION" == "Y" ] ; then
@@ -331,6 +334,9 @@ if [ -d "/opt/mtprotoproxy" ]; then
           firewall-cmd --runtime-to-permanent
         elif [[ $distro =~ "Ubuntu" ]]; then
           ufw allow "$PORT"/tcp
+        elif [[ $distro =~ "Debian" ]]; then
+          iptables -A INPUT -p tcp --dport "$PORT" --jump ACCEPT
+          iptables-save > /etc/iptables/rules.v4  
         fi
       fi
       ;;
@@ -374,6 +380,9 @@ if [ -d "/opt/mtprotoproxy" ]; then
             firewall-cmd --runtime-to-permanent
           elif [[ $distro =~ "Ubuntu" ]]; then
             ufw delete allow "$PORT"/tcp
+          elif [[ $distro =~ "Debian" ]]; then
+            iptables -D INPUT -p tcp --dport "$PORT" --jump ACCEPT
+            iptables-save > /etc/iptables/rules.v4
           fi
           echo "Ok it's done."
           ;;
@@ -533,6 +542,27 @@ elif [[ $distro =~ "Ubuntu" ]]; then
   fi
   apt-get update
   apt-get -y install python3.6 python3.6-distutils sed git curl jq ca-certificates
+elif [[ $distro =~ "Debian" ]]; then
+  apt-get update
+  apt-get install -y jq ca-certificates iptables-persistent iptables git sed curl wget
+  if ! command -v "python3.6" >/dev/null ; then
+    apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev #python packages
+    #Download and install python 3.6.9
+    cd /tmp || exit 2
+    curl -o Python-3.6.9.tar.xz https://www.python.org/ftp/python/3.6.9/Python-3.6.9.tar.xz
+    tar xvf Python-3.6.9.tar.xz
+    cd Python-3.6.9 || exit 2
+    ./configure --enable-optimizations
+    make -j8
+    make altinstall
+    ln -s /usr/local/bin/python3.6 /usr/bin/python3.6
+  fi
+  if ! [ -f "/usr/local/bin/python3.6" ]; then #in case user had python3.6
+    ln -s /usr/local/bin/python3.6 /usr/bin/python3.6
+  fi
+  #Firewall
+  iptables -A INPUT -p tcp --dport "$PORT" --jump ACCEPT
+  iptables-save > /etc/iptables/rules.v4
 else
   echo "Your OS is not supported"
   exit 2

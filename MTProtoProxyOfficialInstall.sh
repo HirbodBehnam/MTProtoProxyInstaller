@@ -4,7 +4,7 @@ function GetRandomPort(){
     echo "Installing lsof package. Please wait."
     if [[ $distro =~ "CentOS" ]]; then
       yum -y -q install lsof
-    elif [[ $distro =~ "Ubuntu" ]]; then
+    elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
       apt-get install lsof > /dev/null
     fi
     local RETURN_CODE
@@ -25,7 +25,7 @@ function GetRandomPortLO(){
     echo "Installing lsof package. Please wait."
     if [[ $distro =~ "CentOS" ]]; then
       yum -y -q install lsof
-    elif [[ $distro =~ "Ubuntu" ]]; then
+    elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
       apt-get install lsof > /dev/null
     fi
     local RETURN_CODE
@@ -260,6 +260,9 @@ if [ -d "/opt/MTProxy" ]; then
         echo "firewall-cmd --runtime-to-permanent"
       elif [[ $distro =~ "Ubuntu" ]]; then
         echo "ufw allow $PORT/tcp"
+      elif [[ $distro =~ "Debian" ]]; then
+        echo "iptables -A INPUT -p tcp --dport $PORT --jump ACCEPT"
+        echo "iptables-save > /etc/iptables/rules.v4"
       fi
       read -r -p "Do you want to apply these rules?[y/n] " -e -i "y" OPTION
       if [ "$OPTION" == "y" ] || [ "$OPTION" == "Y" ] ; then
@@ -268,6 +271,9 @@ if [ -d "/opt/MTProxy" ]; then
           firewall-cmd --runtime-to-permanent
         elif [[ $distro =~ "Ubuntu" ]]; then
           ufw allow "$PORT"/tcp
+        elif [[ $distro =~ "Debian" ]]; then
+          iptables -A INPUT -p tcp --dport "$PORT" --jump ACCEPT
+          iptables-save > /etc/iptables/rules.v4  
         fi
       fi
     ;;
@@ -285,6 +291,9 @@ if [ -d "/opt/MTProxy" ]; then
             firewall-cmd --runtime-to-permanent
           elif [[ $distro =~ "Ubuntu" ]]; then
             ufw delete allow "$PORT"/tcp
+          elif [[ $distro =~ "Debian" ]]; then
+            iptables -D INPUT -p tcp --dport "$PORT" --jump ACCEPT
+            iptables-save > /etc/iptables/rules.v4
           fi
           rm -rf /opt/MTProxy
           rm -f /etc/systemd/system/MTProxy.service
@@ -292,7 +301,7 @@ if [ -d "/opt/MTProxy" ]; then
           sed -i '\|cd /opt/MTProxy/objs/bin && bash updater.sh|d' /etc/crontab
           if [[ $distro =~ "CentOS" ]]; then
             systemctl restart crond
-          elif [[ $distro =~ "Ubuntu" ]]; then
+          elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
             systemctl restart cron
           fi
           echo "Ok it's done."
@@ -481,7 +490,7 @@ if [[ $distro =~ "CentOS" ]]; then
   yum -y install epel-release
   yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie
   yum -y groupinstall "Development Tools"
-elif [[ $distro =~ "Ubuntu" ]]; then
+elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
   apt-get update
   apt-get -y install git curl build-essential libssl-dev zlib1g-dev sed cron ca-certificates
 fi
@@ -567,6 +576,10 @@ elif [[ $distro =~ "Ubuntu" ]]; then
       ;;
     esac
   fi
+elif [[ $distro =~ "Debian" ]]; then
+  apt-get install -y iptables iptables-persistent
+  iptables -A INPUT -p tcp --dport "$PORT" --jump ACCEPT
+  iptables-save > /etc/iptables/rules.v4
 fi
 #Setup service files
 cd /etc/systemd/system || exit 2
@@ -605,7 +618,7 @@ echo "Updater runned at $(date). Exit codes of getProxySecret and getProxyConfig
   echo "0 0 * * * root cd /opt/MTProxy/objs/bin && bash updater.sh" >> /etc/crontab
   if [[ $distro =~ "CentOS" ]]; then
     systemctl restart crond
-  elif [[ $distro =~ "Ubuntu" ]]; then
+  elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
     systemctl restart cron
   fi
 fi
