@@ -13,7 +13,7 @@ function GetRandomPort(){
     if [[ $distro =~ "CentOS" ]]; then
       yum -y -q install lsof
     elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
-      apt-get install lsof > /dev/null
+      apt-get -y install lsof > /dev/null
     fi
     local RETURN_CODE
     RETURN_CODE=$?

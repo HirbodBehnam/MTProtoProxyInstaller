@@ -9,7 +9,7 @@ A very small script to install MTProtoProxy On Centos or Ubuntu
 * Choose between Official Proxy and Python Proxy
 * Easy to setup
 * Revoke and add secrets after install
-* Supports Centos 7 or Ubuntu 16 or later and Debian 9 (Might work on 8 too)
+* Supports Centos 7 or Ubuntu 16 or later and Debian 9 and 8
 ## Official Or Python Proxy?
 Use python if:
 1. Your server's CPU has one core or you want to run proxy on one core.
