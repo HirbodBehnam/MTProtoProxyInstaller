@@ -533,7 +533,7 @@ clear
 if [[ $distro =~ "CentOS" ]]; then
   yum -y install epel-release
   yum -y update
-  yum -y install sed git python36 curl ca-certificates jq
+  yum -y install sed git python36 curl ca-certificates jq ntp
 elif [[ $distro =~ "Ubuntu" ]]; then
   apt update
   if ! [[ $(lsb_release -r -s) =~ "17" ]] && ! [[ $(lsb_release -r -s) =~ "18" ]] && ! [[ $(lsb_release -r -s) =~ "19" ]]; then 
@@ -541,10 +541,10 @@ elif [[ $distro =~ "Ubuntu" ]]; then
     add-apt-repository ppa:jonathonf/python-3.6
   fi
   apt-get update
-  apt-get -y install python3.6 python3.6-distutils sed git curl jq ca-certificates
+  apt-get -y install python3.6 python3.6-distutils sed git curl jq ca-certificates ntp
 elif [[ $distro =~ "Debian" ]]; then
   apt-get update
-  apt-get install -y jq ca-certificates iptables-persistent iptables git sed curl wget
+  apt-get install -y jq ca-certificates iptables-persistent iptables git sed curl wget ntp
   if ! command -v "python3.6" >/dev/null ; then
     apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev #python packages
     #Download and install python 3.6.9
@@ -567,6 +567,10 @@ else
   echo "Your OS is not supported"
   exit 2
 fi
+#Start NTP
+systemctl start ntp
+systemctl enable ntp
+#Install pip
 curl https://bootstrap.pypa.io/get-pip.py | python3.6
 #This libs make proxy faster
 pip3.6 install cryptography uvloop

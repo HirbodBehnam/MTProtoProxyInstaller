@@ -488,12 +488,16 @@ fi
 #Now install packages
 if [[ $distro =~ "CentOS" ]]; then
   yum -y install epel-release
-  yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie
+  yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie ntp
   yum -y groupinstall "Development Tools"
 elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
   apt-get update
-  apt-get -y install git curl build-essential libssl-dev zlib1g-dev sed cron ca-certificates
+  apt-get -y install git curl build-essential libssl-dev zlib1g-dev sed cron ca-certificates ntp
 fi
+#Setup ntp
+systemctl start ntp
+systemctl enable ntp
+#Clone and build
 cd /opt || exit 2
 git clone https://github.com/TelegramMessenger/MTProxy
 cd MTProxy || exit 2
