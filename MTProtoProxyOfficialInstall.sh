@@ -472,7 +472,7 @@ if [ "$CPU_CORES" -lt 1 ]; then #Check range of workers
   exit 1
 fi
 if [ "$CPU_CORES" -gt 16 ]; then
-  echo "(tput setaf 3)Warning:$(tput sgr 0) Values more than 16 can cause some problems later. Proceed at your own risk."
+  echo "$(tput setaf 3)Warning:$(tput sgr 0) Values more than 16 can cause some problems later. Proceed at your own risk."
 fi
 #Check random padding only
 read -r -p "Do you want to allow only 'dd' secrets to connect?[y/n] " -e -i "y" DDOnly
