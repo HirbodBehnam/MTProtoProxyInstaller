@@ -387,7 +387,7 @@ if [ "$PORT" -gt 65535 ] ; then
   exit 1
 fi
 #Status port
-read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i "-1" PORT_LO
+read -r -p "Select a port for status port (-1 to randomize): " -e -i "-1" PORT_LO
 if [[ $PORT_LO -eq -1 ]] ; then #Check random loopback status port
   GetRandomPortLO
   echo "I've selected $PORT_LO as your loopback status port."
