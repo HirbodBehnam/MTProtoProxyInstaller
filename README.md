@@ -1,7 +1,7 @@
 # MTProto Proxy Auto Installer
 A very small script to install MTProtoProxy On Centos or Ubuntu
 
-**BEFORE YOU GO ON:** MTProto is getting an update that implements a Fake TLS encryption. It obfucates the traffic therefore your server will not be blocked. (Unless you publish the proxy). The update will be avalible in few weeks. It's currently only available in Telegram Desktop Beta.
+**A NEW VERSION OF MTPROTO PROTOCOL HAS BEEN RELEASED THAT SUPPORTS TLS! (Fake-TLS)**. It's currently available at master branch of python proxy. [Read More](#Fake-TLS)
 ## Why this installer?
 * Generate random secret
 * Automatically configure firewall
@@ -36,6 +36,14 @@ Wait until the setup finishes, you should be given the links. (using `systemctl 
 To update, uninstall, change port, revoke secret or... the proxy, run this script again.
 #### Secure Only
 You can enable random padding with adding a `dd` at the beginning of secret in Telegram client. [Read More](#random-padding) If you enable secure mode, server drops the connections that are not using the random padding.
+#### Fake TLS
+Fake TLS is a method that makes the proxy look like TLS (something like websites traffic). In order to use it you have to install master branch. So copy and run this line:
+```
+curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh -m
+```
+**IMPORTANT:** Because of [this](https://github.com/alexbers/mtprotoproxy/issues/115) use `00000000000000000000000000000000` as secret for now.
+
+Then run `systemctl status mtprotoproxy -l` and use the link with `(experimental)` tag in front of it
 #### Managing The Proxy
 ##### Service
 Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy -l` to see logs of script.
