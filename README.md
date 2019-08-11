@@ -41,9 +41,9 @@ Fake TLS is a method that makes the proxy look like TLS (something like websites
 ```
 curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh -m
 ```
-**IMPORTANT:** Because of [this](https://github.com/alexbers/mtprotoproxy/issues/115) use `00000000000000000000000000000000` as secret for now.
+Then run `systemctl status mtprotoproxy -l` and use the link with `(experimental)` tag in front of it.
 
-Then run `systemctl status mtprotoproxy -l` and use the link with `(experimental)` tag in front of it
+I will patch the script to give you this output at the end of installing as soon as possible.
 #### Managing The Proxy
 ##### Service
 Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy -l` to see logs of script.
