@@ -37,23 +37,12 @@ To update, uninstall, change port, revoke secret or... the proxy, run this scrip
 #### Secure Only
 You can enable random padding with adding a `dd` at the beginning of secret in Telegram client. [Read More](#random-padding) If you enable secure mode, server drops the connections that are not using the random padding.
 #### Fake TLS
-Fake TLS is a method that makes the proxy look like TLS (something like websites traffic). In order to use it you have to install master branch. So copy and run this line:
-```
-curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh -m
-```
-Then run `systemctl status mtprotoproxy -l` and use the link with `(experimental)` tag in front of it.
-
-I will patch the script to give you this output at the end of installing as soon as possible.
+Fake TLS is a method that makes the proxy look like TLS (something like websites traffic). In order to make your clients use it you have to share the specific link with them. The script will print it at the end. 
 #### Managing The Proxy
 ##### Service
 Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy -l` to see logs of script.
 ##### Config
 To manually config, proxy edit config.py in /opt/mtprotoproxy to change the config; Then restart the server using `systemctl restart mtprotoproxy` or just run script again.
-###### Installing Proxy's Master Branch
-Should you want to test the stuff that are not available in the stable branch of [mtprotoproxy](https://github.com/alexbers/mtprotoproxy), pass `-m` as argument to script to install master branch.
-```bash
-curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh -m
-```
 ## Official Script
 **Before You Begin**: Do not use OVH or IPHoster datacenters for MTProto.
 ### Install

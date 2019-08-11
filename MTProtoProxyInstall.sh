@@ -57,7 +57,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
   echo "  3) Change AD TAG"
   echo "  4) Add a secret"
   echo "  5) Revoke a secret"
-  echo "  6) Change user limits"
+  echo "  6) Change user connection limits"
   echo "  7) Generate firewall rules"
   echo "  8) Change secure mode"
   echo "  9) Uninstall Proxy"
@@ -90,9 +90,12 @@ if [ -d "/opt/mtprotoproxy" ]; then
       for user in "${SECRET_ARY[@]}"
       do
         SECRET=$(jq --arg u "$user" -r '.[$u]' tempSecrets.json)
-        SECRET="${SECRET:1}"
-        SECRET="${SECRET::-1}"
         echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
+        s=$(python3.6 -c "import base64;tls_secret = bytes.fromhex(\"ee\" + \"$SECRET\") + \"google.com\".encode();print(base64.urlsafe_b64encode(tls_secret))")
+        s="${s::-1}"
+        s="${s:2}"
+        echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
+        echo
       done
       sed -i '/^$/d' config.py #Remove empty lines
       rm -f tempSecrets.json
@@ -197,6 +200,10 @@ if [ -d "/opt/mtprotoproxy" ]; then
       echo
       echo "You can now connect to your server with this secret with this link:"
       echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
+      s=$(python3.6 -c "import base64;tls_secret = bytes.fromhex(\"ee\" + \"$SECRET\") + \"google.com\".encode();print(base64.urlsafe_b64encode(tls_secret))")
+      s="${s::-1}"
+      s="${s:2}"
+      echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
       ;;
     #Revoke secret
     5)
@@ -245,7 +252,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
     #User limits
     6)
       clear
-      echo "$(tput setaf 3)Make sure you installed master branch!$(tput sgr 0)"
       rm -f tempSecrets.json
       SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
       SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
@@ -457,7 +463,6 @@ while true; do
   SECRETTEMP+="$SECRET"
   SECRETTEMP+='"'
   SECRETS+="$SECRETTEMP , "
-  if [ "$1" == "-m" ]; then
   #Setup limiter
   read -r -p "Do you want to limit users connected to this secret?(y/n) " -e -i "n" OPTION
   OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
@@ -478,7 +483,6 @@ while true; do
       echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
       exit 1
   esac
-  fi
   read -r -p "Do you want to add another secret?(y/n) " -e -i "n" OPTION
   OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
   case $OPTION in
@@ -494,7 +498,7 @@ while true; do
   COUNTER=$((COUNTER+1))
 done
 SECRETS=${SECRETS::${#SECRETS}-2}
-if [ "$1" == "-m" ]; then
+if [ ${#limits[@]} -gt 0 ]; then
   GenerateConnectionLimiterConfig
 fi
 #Set secure mode
@@ -578,11 +582,7 @@ if ! [ -d "/opt" ]; then
   mkdir /opt
 fi
 cd /opt || exit 2
-if [ "$1" == "-m" ]; then
-  git clone https://github.com/alexbers/mtprotoproxy.git
-else
-  git clone -b stable https://github.com/alexbers/mtprotoproxy.git
-fi
+git clone https://github.com/alexbers/mtprotoproxy.git
 cd mtprotoproxy || exit 2
 #Now edit the config file
 rm -f config.py
@@ -674,5 +674,9 @@ COUNTER=0
 for i in "${SECRET_END_ARY[@]}"
 do
   echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
+  s=$(python3.6 -c "import base64;tls_secret = bytes.fromhex(\"ee\" + \"$i\") + \"google.com\".encode();print(base64.urlsafe_b64encode(tls_secret))")
+  s="${s::-1}"
+  s="${s:2}"
+  echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
   COUNTER=$COUNTER+1
 done
