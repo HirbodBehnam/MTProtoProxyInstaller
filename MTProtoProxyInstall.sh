@@ -91,9 +91,9 @@ if [ -d "/opt/mtprotoproxy" ]; then
       do
         SECRET=$(jq --arg u "$user" -r '.[$u]' tempSecrets.json)
         echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
-        s=$(python3.6 -c "import base64;tls_secret = bytes.fromhex(\"ee\" + \"$SECRET\") + \"google.com\".encode();print(base64.urlsafe_b64encode(tls_secret))")
-        s="${s::-1}"
-        s="${s:2}"
+        s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"google.com\".encode().hex())")
+        #s="${s::-1}"
+        #s="${s:2}"
         echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
         echo
       done
@@ -200,9 +200,9 @@ if [ -d "/opt/mtprotoproxy" ]; then
       echo
       echo "You can now connect to your server with this secret with this link:"
       echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
-      s=$(python3.6 -c "import base64;tls_secret = bytes.fromhex(\"ee\" + \"$SECRET\") + \"google.com\".encode();print(base64.urlsafe_b64encode(tls_secret))")
-      s="${s::-1}"
-      s="${s:2}"
+      s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"google.com\".encode().hex())")
+      #s="${s::-1}"
+      #s="${s:2}"
       echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
       ;;
     #Revoke secret
@@ -674,9 +674,9 @@ COUNTER=0
 for i in "${SECRET_END_ARY[@]}"
 do
   echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
-  s=$(python3.6 -c "import base64;tls_secret = bytes.fromhex(\"ee\" + \"$i\") + \"google.com\".encode();print(base64.urlsafe_b64encode(tls_secret))")
-  s="${s::-1}"
-  s="${s:2}"
+  s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"google.com\".encode().hex())")
+  #s="${s::-1}"
+  #s="${s:2}"
   echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
   COUNTER=$COUNTER+1
 done
