@@ -122,7 +122,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
         echo "Current tag is $TAG. If you want to remove it, just press enter. Otherwise type the new TAG:"
       fi
       read -r TAG
-      systemctl stop mtprotoproxy
       if ! [ -z "$TAG" ] && [ "$OldEmptyTag" = true ]; then
         #This adds the AD_TAG to end of file
         echo "" >> config.py #Adds a new line
@@ -142,7 +141,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
         sed -i '/^AD_TAG/ d' config.py
       fi
       sed -i '/^$/d' config.py #Remove empty lines
-      systemctl start mtprotoproxy
+      pid=$(systemctl show --property MainPID --value mtprotoproxy)
+      kill -USR2 "$pid"
       echo "Done"
       ;;
     #New secret
@@ -184,12 +184,12 @@ if [ -d "/opt/mtprotoproxy" ]; then
       SECRETS+='": "'
       SECRETS+="$SECRET"
       SECRETS+='"}'
-      systemctl stop mtprotoproxy
       sed -i '/^USERS\s*=.*/ d' config.py #Remove USERS
       echo "" >> config.py
       echo "USERS = $SECRETS" >> config.py
       sed -i '/^$/d' config.py #Remove empty lines
-      systemctl start mtprotoproxy
+      pid=$(systemctl show --property MainPID --value mtprotoproxy)
+      kill -USR2 "$pid"
       echo "Done"
       PUBLIC_IP="$(curl https://api.ipify.org -sS)"
       CURL_EXIT_STATUS=$?
@@ -240,12 +240,12 @@ if [ -d "/opt/mtprotoproxy" ]; then
       fi
       USER_TO_REVOKE=$((USER_TO_REVOKE-1))
       SECRET=$(jq --arg u "${SECRET_ARY[$USER_TO_REVOKE]}" 'del(.[$u])' tempSecrets.json)
-      systemctl stop mtprotoproxy
       sed -i '/^USERS\s*=.*/ d' config.py #Remove USERS
       echo "" >> config.py
       echo "USERS = $SECRET" >> config.py
       sed -i '/^$/d' config.py #Remove empty lines
-      systemctl start mtprotoproxy
+      pid=$(systemctl show --property MainPID --value mtprotoproxy)
+      kill -USR2 "$pid"
       rm -f tempSecrets.json
       echo "Done"
       ;;
@@ -313,12 +313,12 @@ if [ -d "/opt/mtprotoproxy" ]; then
       GenerateConnectionLimiterConfig
       rm limits_bash.txt
       echo -e "$LIMITER_FILE" >> "limits_bash.txt" 
-      systemctl stop mtprotoproxy
       sed -i '/^USER_MAX_TCP_CONNS\s*=.*/ d' config.py #Remove settings
       echo "" >> config.py
       echo "USER_MAX_TCP_CONNS = { $LIMITER_CONFIG }" >> config.py
       sed -i '/^$/d' config.py #Remove empty lines
-      systemctl start mtprotoproxy
+      pid=$(systemctl show --property MainPID --value mtprotoproxy)
+      kill -USR2 "$pid"
       echo "Done"
     ;;
     7)
@@ -361,12 +361,12 @@ if [ -d "/opt/mtprotoproxy" ]; then
           echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
           exit 1
       esac
-      systemctl stop mtprotoproxy
       sed -i '/^SECURE_ONLY\s*=.*/ d' config.py #Remove Secret_Only
       echo "" >> config.py
       echo "SECURE_ONLY = $SECURE_MODE" >> config.py
       sed -i '/^$/d' config.py #Remove empty lines
-      systemctl start mtprotoproxy
+      pid=$(systemctl show --property MainPID --value mtprotoproxy)
+      kill -USR2 "$pid"
       echo "Done"
       ;;
     #Uninstall proxy
