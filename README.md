@@ -1,7 +1,7 @@
 # MTProto Proxy Auto Installer
 A very small script to install MTProtoProxy On Centos or Ubuntu
 
-**A NEW VERSION OF MTPROTO PROTOCOL HAS BEEN RELEASED THAT SUPPORTS TLS! (Fake-TLS)**. It's currently available at master branch of python proxy. [Read More](#Fake-TLS)
+**A NEW VERSION OF MTPROTO PROTOCOL HAS BEEN RELEASED THAT SUPPORTS TLS! (Fake-TLS)**. It's currently available only in python proxy. [Read More](#Fake-TLS)
 ## Why this installer?
 * Generate random secret
 * Automatically configure firewall
