@@ -572,8 +572,13 @@ else
   exit 2
 fi
 #Start NTP
-systemctl start ntp
-systemctl enable ntp
+if [[ $distro =~ "CentOS" ]]; then
+  systemctl start ntpd
+  systemctl enable ntpd
+else
+  systemctl start ntp
+  systemctl enable ntp
+fi
 #Install pip
 curl https://bootstrap.pypa.io/get-pip.py | python3.6
 #This libs make proxy faster

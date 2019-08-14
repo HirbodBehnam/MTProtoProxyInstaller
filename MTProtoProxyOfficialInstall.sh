@@ -495,8 +495,13 @@ elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
   apt-get -y install git curl build-essential libssl-dev zlib1g-dev sed cron ca-certificates ntp
 fi
 #Setup ntp
-systemctl start ntp
-systemctl enable ntp
+if [[ $distro =~ "CentOS" ]]; then
+  systemctl start ntpd
+  systemctl enable ntpd
+else
+  systemctl start ntp
+  systemctl enable ntp
+fi
 #Clone and build
 cd /opt || exit 2
 git clone https://github.com/TelegramMessenger/MTProxy
