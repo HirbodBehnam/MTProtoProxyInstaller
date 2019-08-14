@@ -42,6 +42,12 @@ function GenerateConnectionLimiterConfig(){
   done
   LIMITER_CONFIG=${LIMITER_CONFIG::${#LIMITER_CONFIG}-2}
 }
+function RestartService(){
+  pid=$(systemctl show --property MainPID mtprotoproxy)
+  arrPID=(${pid//=/ })
+  pid=${arrPID[1]}
+  kill -USR2 "$pid"
+}
 #User must run the script as root
 if [[ "$EUID" -ne 0 ]]; then
   echo "Please run this script as root"
@@ -141,8 +147,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
         sed -i '/^AD_TAG/ d' config.py
       fi
       sed -i '/^$/d' config.py #Remove empty lines
-      pid=$(systemctl show --property MainPID --value mtprotoproxy)
-      kill -USR2 "$pid"
+      RestartService
       echo "Done"
       ;;
     #New secret
@@ -188,8 +193,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       echo "" >> config.py
       echo "USERS = $SECRETS" >> config.py
       sed -i '/^$/d' config.py #Remove empty lines
-      pid=$(systemctl show --property MainPID --value mtprotoproxy)
-      kill -USR2 "$pid"
+      RestartService
       echo "Done"
       PUBLIC_IP="$(curl https://api.ipify.org -sS)"
       CURL_EXIT_STATUS=$?
@@ -244,8 +248,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       echo "" >> config.py
       echo "USERS = $SECRET" >> config.py
       sed -i '/^$/d' config.py #Remove empty lines
-      pid=$(systemctl show --property MainPID --value mtprotoproxy)
-      kill -USR2 "$pid"
+      RestartService
       rm -f tempSecrets.json
       echo "Done"
       ;;
@@ -317,8 +320,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       echo "" >> config.py
       echo "USER_MAX_TCP_CONNS = { $LIMITER_CONFIG }" >> config.py
       sed -i '/^$/d' config.py #Remove empty lines
-      pid=$(systemctl show --property MainPID --value mtprotoproxy)
-      kill -USR2 "$pid"
+      RestartService
       echo "Done"
     ;;
     7)
@@ -365,8 +367,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       echo "" >> config.py
       echo "SECURE_ONLY = $SECURE_MODE" >> config.py
       sed -i '/^$/d' config.py #Remove empty lines
-      pid=$(systemctl show --property MainPID --value mtprotoproxy)
-      kill -USR2 "$pid"
+      RestartService
       echo "Done"
       ;;
     #Uninstall proxy
