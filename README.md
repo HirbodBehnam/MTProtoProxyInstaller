@@ -1,7 +1,7 @@
 # MTProto Proxy Auto Installer
 A very small script to install MTProtoProxy On Centos or Ubuntu
 
-**A NEW VERSION OF MTPROTO PROTOCOL HAS BEEN RELEASED THAT SUPPORTS TLS! (Fake-TLS)**. It's currently available only in python proxy. [Read More](#Fake-TLS)
+**A NEW VERSION OF MTPROTO PROTOCOL HAS BEEN RELEASED THAT SUPPORTS TLS! (Fake-TLS)**. It's currently available only in python or erlang proxy. [Read More](#Fake-TLS)
 ## Why this installer?
 * Generate random secret
 * Automatically configure firewall
@@ -71,6 +71,17 @@ Use `systemctl start MTProxy` to start, `systemctl stop MTProxy` to stop and `sy
 The service file is saved in `/etc/systemd/system/MTProxy.service`. You can edit it manually. There is also a file named `mtconfig.conf` at `/opt/MTProxy/objs/bin` that is created by script. It’s used in loading proxy configs by script. *You must not delete this file* ,however, you can edit it. Also if you have enabled auto updater, you will have two other files named `updater.sh` and `updater.log`
 ###### Secure Only?
 There is a pull request that will do it for you. See [here](https://github.com/TelegramMessenger/MTProxy/pull/248). Script will ask you if you want to enable random padding only or not.
+## Erlang Installer
+Thanks to @seriyps creator of the [Erlang Proxy](https://github.com/seriyps/mtproto_proxy) you can now install the Erlang proxy with a script.
+
+**Note:** This script only works on Ubuntu 18.04.
+```bash
+curl -L -o mtp_install.sh https://git.io/fj5ru && bash mtp_install.sh
+```
+You can also just provide port/secret/ad-tag/protocols as command line arguments:
+```bash
+curl -L -o mtp_install.sh https://git.io/fj5ru && bash mtp_install.sh -p 443 -s d0d6e111bada5511fcce9584deadbeef -t dcbe8f1493fa4cd9ab300891c0b5b326 -a dd -a tls
+```
 ## Other Information
 ### Firewall
 Setup will try to configure the proxy on public zone. However you can manually enter these rules in case of any error or whatever. Just rerun the script and choose `Generate Firewalld Rules` and script will generate and apply firewall rules.
@@ -104,6 +115,8 @@ https://www.reddit.com/r/Telegram/comments/95m5vi/how_to_deploy_mtproto_proxy_se
 [Python Proxy](https://github.com/alexbers/mtprotoproxy)
 
 [Official C Proxy](https://github.com/TelegramMessenger/MTProxy)
+
+[Erlang Proxy](https://github.com/seriyps/mtproto_proxy)
 ### Donations
 You can donate to me through bitcoin at `1XDgEkpnkJ7hC8Kwv5adfaDC1Z3FrkwsK`, Ethereum at `0xbb527a28B76235E1C125206B7CcFF944459b4894`, ZCash 
 at `t1ZKYrYZCjxDYvo6mQaLZi3gNe2a6MydUo3` and Bitcoin Gold at `GcNgxfyR3nnAsD3Nhuckvq14sXYuDFkK9P`
