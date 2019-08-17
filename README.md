@@ -90,7 +90,7 @@ Due to some ISPs detecting MTProxy by packet sizes, random padding is added to p
 It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
 ### Quota Managment
-I've written a small program in golang([link](https://github.com/HirbodBehnam/PortForwarder)) to forward traffic with quota managment. I've also written a guide [here](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Quota-Management-For-Server) in order to configure it with MTProto.
+I've written a small program in golang([link](https://github.com/HirbodBehnam/PortForwarder)) to forward traffic with quota managment. I've also written a guide [here](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Quota-Management-For-Server) in order to configure it with MTProto. Right now it also supports the limiting the amount of _connections_ per port.
 ### How to install on Windows?
 I've written a small guide to install that on Windows. Please read [wiki](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki) for more info.
 ### Server
