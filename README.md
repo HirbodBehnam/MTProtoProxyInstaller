@@ -98,14 +98,26 @@ You can use any VPS or Dedicated Server. If you want a cheap and low-end server,
 
 If you live in Iran and you want to pay with IRR you can buy one at [Tikweb](https://tikweb.ir/) or [ParsHost](https://pars.host/).
 #### Persian guide to buying servers, installing script, making servers _nearly_ censorship-resistant and FAQ
+___TL;DR___: It wont get blocked, unless your ip gets exposed. DPI cannot detect fake-tls.
+
+At first let's talk about Fake-TLS mode.
+
+So basically Fake TLS is here in order make the proxies censorship resistent. So does it makes it censorship-resistent? _Well yes but actually, no_.
+
+Some of you guys tested it for me! And here are the results: Most likely, _Private Proxies_ do not get banned. Some guy told me that he had a private server with about 1k users and it's not blocked yet! So it looks like that it's undetectable by Iran's DPI.
+But unfortunately, _Public Proxies_ are still getting blocked. It looks like(totally not sure ) that they are using TL-Client bots (The users that are not users but they are bots; [example api](https://github.com/sochix/TLSharp)) are scanning the channels randomly for mtproto links and then they block it's IP. They usually get blocked in 2 hours.
+If you are planing to sell mtproto, your server may got blocked if it is shared alot. You can plain tunnel it through a domestic server to make sure that your forien server is safe.
+
+<details><summary>What it used to be</summary>
+
 ***BEFORE YOU BEGIN***: If you are going to invest in MTProto and you are going to publish your proxy's link, I think you should just turn back. I believe MTProto Proxy is a failed project in Iran. Continue reading for more info. Utilizing this for self-use could significantly lessen the chance of your server's IP getting censored. *I don't say there is no way to make your server censorship-resistant, I just don't know them.* **Please do not contact me and ask me for other ways.**
 
 More info about Iran censorship: It roughly takes 15 ~ 2 hours to block your new public and non-resistant server. If you route your traffic through a local server, it speed will be throttled in 3 hours ~ 2 days. (Normal VPS)
 
 Iran _MAY_ use DPI to block your server. So private uses may not be safe too. I've written a [small guide](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Route-Traffic-Through-Domestic-Server) to route proxy with some programs from domestic servers. These methods are useful if you are using your proxy privately.
 
-__I DO NOT USE MTPROTO PROXY MYSELF.__ Use [shadowsocks with Cloak](https://github.com/HirbodBehnam/Shadowsocks-Cloak-Installer)(**Highly Recommended**) or [wireguard](https://github.com/l-n-s/wireguard-install) or [openvpn](https://github.com/angristan/openvpn-install) instead.
-
+~~I DO NOT USE MTPROTO PROXY MYSELF~~ (Right now I'm using it with Fake) You can also use [shadowsocks with Cloak](https://github.com/HirbodBehnam/Shadowsocks-Cloak-Installer)(**Highly Recommended**) or [wireguard](https://github.com/l-n-s/wireguard-install) or [openvpn](https://github.com/angristan/openvpn-install) instead.
+</details>
 (If you are from Iran, you may need to open this link with VPN)
 
 http://www.mediafire.com/folder/3zcys4aw9v232/Guide

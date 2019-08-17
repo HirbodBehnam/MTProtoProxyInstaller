@@ -449,7 +449,6 @@ case $OPTION in
   'y')
     echo "$(tput setaf 1)Note:$(tput sgr 0) Joined users and admins won't see the channel at very top."
     echo "On telegram, go to @MTProxybot Bot and enter this server's IP and $PORT as port. Then as secret enter $SECRET"
-    echo "$(tput setaf 3)Also make sure server time is precise, otherwise the proxy may not work when TAG is set.$(tput sgr 0) You may need to use ntp to sync your system time."
     echo "Bot will give you a string named TAG. Enter it here:"
     read -r TAG
     ;;
@@ -488,20 +487,13 @@ fi
 #Now install packages
 if [[ $distro =~ "CentOS" ]]; then
   yum -y install epel-release
-  yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie ntp
+  yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie
   yum -y groupinstall "Development Tools"
 elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
   apt-get update
-  apt-get -y install git curl build-essential libssl-dev zlib1g-dev sed cron ca-certificates ntp
+  apt-get -y install git curl build-essential libssl-dev zlib1g-dev sed cron ca-certificates
 fi
-#Setup ntp
-if [[ $distro =~ "CentOS" ]]; then
-  systemctl start ntpd
-  systemctl enable ntpd
-else
-  systemctl start ntp
-  systemctl enable ntp
-fi
+timedatectl set-ntp on #Make the time accurate by enabling ntp
 #Clone and build
 cd /opt || exit 2
 git clone https://github.com/TelegramMessenger/MTProxy
