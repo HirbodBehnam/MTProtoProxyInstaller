@@ -74,7 +74,7 @@ There is a pull request that will do it for you. See [here](https://github.com/T
 ## Erlang Installer
 Thanks to @seriyps creator of the [Erlang Proxy](https://github.com/seriyps/mtproto_proxy) you can now install the Erlang proxy with a script.
 
-**Note:** This script only works on Ubuntu 18.04.
+**Note:** This script works on Ubuntu 18/19 , Debian 9/10 and Centos 7.
 ```bash
 curl -L -o mtp_install.sh https://git.io/fj5ru && bash mtp_install.sh
 ```
@@ -98,7 +98,7 @@ You can use any VPS or Dedicated Server. If you want a cheap and low-end server,
 
 If you live in Iran and you want to pay with IRR you can buy one at [Tikweb](https://tikweb.ir/) or [ParsHost](https://pars.host/).
 #### Persian guide to buying servers, installing script, making servers _nearly_ censorship-resistant and FAQ
-___TL;DR___: It wont get blocked, unless your ip gets exposed. DPI cannot detect fake-tls.
+___TL;DR___: It wont get blocked, unless your ip gets exposed.(You share the proxy in a channel or something like it) DPI cannot detect fake-tls.
 
 At first let's talk about Fake-TLS mode.
 

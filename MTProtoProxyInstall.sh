@@ -348,24 +348,29 @@ if [ -d "/opt/mtprotoproxy" ]; then
         fi
       fi
       ;;
+    #Change Secure only
     8)
-      #Change Secure only
-      read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "y" OPTION
-      OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
+      echo "1) No Restrictions"
+      echo "2) \"dd\" secrets and TLS connections"
+      echo "3) TLS connection only"
+      read -r -p "Do want to restrict the connections? Select one: " -e -i "2" OPTION
       case $OPTION in
-        'y')
-          SECURE_MODE="True"
-          ;;
-        'n')
-          SECURE_MODE="False"
-          ;;
-        *)
-          echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
-          exit 1
+      '1')
+        ;;
+      '2')
+        SECURE_MODE="SECURE_ONLY = True"
+      ;;
+      '3')
+        SECURE_MODE="TLS_ONLY = True"
+      ;;
+      *)
+        echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
+        exit 1
       esac
       sed -i '/^SECURE_ONLY\s*=.*/ d' config.py #Remove Secret_Only
+      sed -i '/^TLS_ONLY\s*=.*/ d' config.py #Remove Secret_Only
       echo "" >> config.py
-      echo "SECURE_ONLY = $SECURE_MODE" >> config.py
+      echo "$SECURE_MODE" >> config.py
       sed -i '/^$/d' config.py #Remove empty lines
       RestartService
       echo "Done"
@@ -503,13 +508,19 @@ if [ ${#limits[@]} -gt 0 ]; then
   GenerateConnectionLimiterConfig
 fi
 #Set secure mode
-read -r -p "Enable \"Secure Only Mode\"? If yes, only connections with random padding enabled are accepted.(y/n) " -e -i "y" OPTION
-OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
+echo
+echo "1) No Restrictions"
+echo "2) \"dd\" secrets and TLS connections"
+echo "3) TLS connection only"
+read -r -p "Do want to restrict the connections? Select one: " -e -i "2" OPTION
 case $OPTION in
-  'y')
-    SECURE_MODE=true
+  '1')
     ;;
-  'n')
+  '2')
+    SECURE_MODE="SECURE_ONLY = True"
+    ;;
+  '3')
+    SECURE_MODE="TLS_ONLY = True"
     ;;
   *)
     echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
@@ -597,9 +608,7 @@ if ! [ -z "$TAG" ]; then
   TAGTEMP+='"'
   echo "$TAGTEMP" >> config.py
 fi
-if [ "$SECURE_MODE" = true ]; then
-  echo "SECURE_ONLY = True" >> config.py
-fi
+echo "$SECURE_MODE" >> config.py
 echo -e "$LIMITER_FILE" >> "limits_bash.txt" 
 #Setup firewall
 echo "Setting firewalld rules"
