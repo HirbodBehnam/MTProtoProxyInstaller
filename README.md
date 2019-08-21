@@ -90,14 +90,14 @@ Due to some ISPs detecting MTProxy by packet sizes, random padding is added to p
 It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
 ### Quota Managment
-I've written a small program in golang([link](https://github.com/HirbodBehnam/PortForwarder)) to forward traffic with quota managment. I've also written a guide [here](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Quota-Management-For-Server) in order to configure it with MTProto. Right now it also supports the limiting the amount of _connections_ per port.
+I've written a small program in golang([link](https://github.com/HirbodBehnam/PortForwarder)) to forward traffic with quota managment. I've also written a guide [here](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Quota-Management-For-Server) in order to configure it with MTProto. Right now it also supports the limiting the amount of _connections_ per port. [Persian Guild](http://www.mediafire.com/file/4u3khp5oj7ecgxk/%25D9%2585%25D8%25AD%25D8%25AF%25D9%2588%25D8%25AF_%25DA%25A9%25D8%25B1%25D8%25AF%25D9%2586_%25DA%25A9%25D8%25A7%25D8%25B1%25D8%25A8%25D8%25B1%25D8%25A7%25D9%2586.pdf/file)
 ### How to install on Windows?
 I've written a small guide to install that on Windows. Please read [wiki](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki) for more info.
 ### Server
 You can use any VPS or Dedicated Server. If you want a cheap and low-end server, I personally recommend to buy one at [Virmach](https://virmach.com/); They also accept cryptos!
 
 If you live in Iran and you want to pay with IRR you can buy one at [Tikweb](https://tikweb.ir/) or [ParsHost](https://pars.host/).
-#### Persian guide to buying servers, installing script, making servers _nearly_ censorship-resistant and FAQ
+#### Persian guide to buying servers, installing script, making servers _nearly_ censorship-resistant, FAQ and QoS
 ___TL;DR___: It wont get blocked, unless your ip gets exposed.(You share the proxy in a channel or something like it) DPI cannot detect fake-tls.
 
 At first let's talk about Fake-TLS mode.
