@@ -680,7 +680,9 @@ fi
 COUNTER=0
 for i in "${SECRET_END_ARY[@]}"
 do
-  echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
+  if [[ "$SECURE_MODE" == "SECURE_ONLY = True" ]]; then
+    echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
+  fi
   s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"google.com\".encode().hex())")
   #s="${s::-1}"
   #s="${s:2}"
