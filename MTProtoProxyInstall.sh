@@ -156,6 +156,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
       SECRETS=$(echo "$SECRETS" | tr "'" '"')
       SECRETS="${SECRETS: : -1}" #Remove last char "}" here
+      echo "$(tput setaf 3)Warning!$(tput sgr 0) Do not use special characters like \" , ' , $ or... for username"
       read -r -p "Ok now please enter the username: " -e -i "NewUser" NEW_USR
       echo "Do you want to set secret manually or shall I create a random secret?"
       echo "   1) Manually enter a secret"
@@ -434,6 +435,7 @@ if [ "$PORT" -gt 65535 ] ; then
 fi
 #Now the username and secrets
 declare -A limits
+echo "$(tput setaf 3)Warning!$(tput sgr 0) Do not use special characters like \" , ' , $ or... for username"
 while true; do
   echo "Now tell me a user name. Usernames are used to name secrets: "
   read -r -e -i "MTSecret$COUNTER" USERNAME
