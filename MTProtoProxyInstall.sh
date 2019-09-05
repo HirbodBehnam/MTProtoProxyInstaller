@@ -573,8 +573,13 @@ elif [[ $distro =~ "Debian" ]]; then
     curl -o Python-3.6.9.tar.xz https://www.python.org/ftp/python/3.6.9/Python-3.6.9.tar.xz
     tar xvf Python-3.6.9.tar.xz
     cd Python-3.6.9 || exit 2
-    ./configure --enable-optimizations
-    make -j8
+    read -r -p "$(tput setaf 4)Question:$(tput sgr 0) Do you want to enable optimizations while building python? If yes, building will take much longer but the python will be faster. (y/n): " -e -i "y" OPTION
+    if [[ $OPTION == "y" || $OPTION == "Y" ]]; then
+      ./configure --enable-optimizations
+    else
+      ./configure
+    fi
+    make
     make altinstall
     ln -s /usr/local/bin/python3.6 /usr/bin/python3.6
   fi
