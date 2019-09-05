@@ -84,6 +84,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
       SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
       SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+      TLS_DOMAIN=$(python3.6 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
       if [ "$SECRET_COUNT" == "0" ] ; then
         echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets. Cannot show nothing!"
         exit 4
@@ -97,7 +98,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       do
         SECRET=$(jq --arg u "$user" -r '.[$u]' tempSecrets.json)
         echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
-        s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"google.com\".encode().hex())")
+        s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
         #s="${s::-1}"
         #s="${s:2}"
         echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
@@ -202,10 +203,11 @@ if [ -d "/opt/mtprotoproxy" ]; then
         PUBLIC_IP="YOUR_IP"
       fi
       PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+      TLS_DOMAIN=$(python3.6 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
       echo
       echo "You can now connect to your server with this secret with this link:"
       echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
-      s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"google.com\".encode().hex())")
+      s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
       #s="${s::-1}"
       #s="${s:2}"
       echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
@@ -544,8 +546,10 @@ case $OPTION in
     echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
     exit 1
 esac
-read -n 1 -s -r -p "Press any key to install..."
+#Change host mask
+read -r -p "Select a host that DPI thinks you are visiting (TLS_DOMAIN): " -e -i "www.cloudflare.com" TLS_DOMAIN
 #Now lets install
+read -n 1 -s -r -p "Press any key to install..."
 clear
 if [[ $distro =~ "CentOS" ]]; then
   yum -y install epel-release
@@ -602,6 +606,7 @@ chmod 0777 config.py
 echo "PORT = $PORT
 USERS = { $SECRETS }
 USER_MAX_TCP_CONNS = { $LIMITER_CONFIG }
+TLS_DOMAIN = \"$TLS_DOMAIN\"
 ">> config.py
 if ! [ -z "$TAG" ]; then
   TAGTEMP="AD_TAG = "
@@ -685,7 +690,7 @@ do
   if [[ "$SECURE_MODE" == "SECURE_ONLY = True" ]]; then
     echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
   fi
-  s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"google.com\".encode().hex())")
+  s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
   #s="${s::-1}"
   #s="${s:2}"
   echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
