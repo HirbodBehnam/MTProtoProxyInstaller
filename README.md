@@ -106,7 +106,7 @@ Some of you guys tested it for me! And here are the results: Most likely, _Priva
 But unfortunately, _Public Proxies_ are still getting blocked. It looks like (totally not sure) that they are using TL-Client bots (The users that are not users but they are bots; [example api](https://github.com/sochix/TLSharp)) are scanning the channels randomly for mtproto links and then they block it's IP. They usually get blocked in 2 hours.
 If you are planing to sell mtproto, your server may got blocked if it is shared alot. You can plain tunnel it through a domestic server to make sure that your foreign server is safe.
 
-You are still reading? Good. Because I have something for you: As I said before, Iran most likely use bots to scan the channels to detect proxy links. So to counter this, I've written a small bot to protect the proxy links with a captcha. Here is the [link](https://github.com/HirbodBehnam/CaptchaBot). In this case bots can't access the links and unless people do not share it in other channels, they have to manually go and extract the link of proxy.
+You are still reading? Good. Because I have something for you: As I said before, Iran most likely uses bots to scan the channels to detect proxy links. So to counter this, I've written a small bot to protect the proxy links with a captcha. Here is the [link](https://github.com/HirbodBehnam/CaptchaBot). In this case bots can't access the links and unless people do not share it in other channels, they have to manually go and extract the link of proxy.
 
 <details><summary>What it used to be</summary>
 
@@ -116,7 +116,7 @@ More info about Iran censorship: It roughly takes 15 ~ 2 hours to block your new
 
 Iran _MAY_ use DPI to block your server. So private uses may not be safe too. I've written a [small guide](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Route-Traffic-Through-Domestic-Server) to route proxy with some programs from domestic servers. These methods are useful if you are using your proxy privately.
 
-~~I DO NOT USE MTPROTO PROXY MYSELF~~ (Right now I'm using it with Fake) You can also use [shadowsocks with Cloak](https://github.com/HirbodBehnam/Shadowsocks-Cloak-Installer)(**Highly Recommended**) or [wireguard](https://github.com/l-n-s/wireguard-install) or [openvpn](https://github.com/angristan/openvpn-install) instead.
+~~I DO NOT USE MTPROTO PROXY MYSELF~~ (Right now I'm using it with Fake-TLS and it's been a month that my server is not blocked yet) You can also use [shadowsocks with Cloak](https://github.com/HirbodBehnam/Shadowsocks-Cloak-Installer)(**Highly Recommended**) or [wireguard](https://github.com/l-n-s/wireguard-install) or [openvpn](https://github.com/angristan/openvpn-install) instead.
 </details>
 (If you are from Iran, you may need to open this link with VPN)
 
