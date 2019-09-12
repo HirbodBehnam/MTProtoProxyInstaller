@@ -46,13 +46,16 @@ function GetRandomPortLO(){
 }
 function GenerateService(){
   local ARGS_STR
-  ARGS_STR="-u nobody -p $PORT_LO -H $PORT"
+  ARGS_STR="-u nobody -H $PORT"
   for i in "${SECRET_ARY[@]}" # Add secrets
   do
     ARGS_STR+=" -S $i"
   done
   if ! [ -z "$TAG" ]; then
     ARGS_STR+=" -P $TAG "
+  fi
+  if ! [ -z "$TLS_DOMAIN" ]; then
+    ARGS_STR+=" -D $TLS_DOMAIN "
   fi
   NEW_CORE=$(($CPU_CORES-1))
   ARGS_STR+=" -M $NEW_CORE $CUSTOM_ARGS --aes-pwd proxy-secret proxy-multi.conf"
@@ -101,9 +104,15 @@ if [ -d "/opt/MTProxy" ]; then
       if [ $CURL_EXIT_STATUS -ne 0 ]; then
         PUBLIC_IP="YOUR_IP"
       fi
+      HEX_DOMAIN=$(printf "%s" "$TLS_DOMAIN" | xxd -pu)
+      HEX_DOMAIN="$(echo $HEX_DOMAIN | tr '[A-Z]' '[a-z]')"
       for i in "${SECRET_ARY[@]}"
       do
-        echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
+        if [ -z "$TLS_DOMAIN" ]; then
+          echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
+        else
+          echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=ee$i$HEX_DOMAIN"
+        fi
       done
     ;;
     #Change TAG
@@ -311,10 +320,10 @@ if [ -d "/opt/MTProxy" ]; then
   esac
   exit
 fi
-if [ "$#" -ge 3 ]; then
+if [ "$#" -ge 2 ]; then
   AUTO=true
   #Check secret
-  SECRETS=$3
+  SECRETS=$2
   SECRET_ARY=(${SECRETS//,/ })
   for i in "${SECRET_ARY[@]}"
   do 
@@ -337,20 +346,6 @@ if [ "$#" -ge 3 ]; then
     echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
     exit 1
   fi
-  #Check loopback port
-  PORT_LO=$2
-  if [[ $PORT_LO -eq -1 ]] ; then #Check random loopback status port
-    GetRandomPortLO
-    echo "I've selected $PORT_LO as your loopback status port."
-  fi
-  if ! [[ $PORT_LO =~ $regex ]] ; then #Check if the loopback status port is valid
-    echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
-    exit 1
-  fi
-  if [ "$PORT_LO" -gt 65535 ] ; then
-    echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
-    exit 1
-  fi
   #Check tag
   if [ "$#" -ge 4 ]; then
     TAG=$4
@@ -358,7 +353,7 @@ if [ "$#" -ge 3 ]; then
   CPU_CORES=$(nproc --all)
   CUSTOM_ARGS=""
   ENABLE_UPDATER="y"
-  read
+  TLS_DOMAIN="www.cloudflare.com"
 else
 #Variables
 SECRET=""
@@ -384,24 +379,6 @@ if ! [[ $PORT =~ $regex ]] ; then #Check if the port is valid
 fi
 if [ "$PORT" -gt 65535 ] ; then
   echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
-  exit 1
-fi
-#Status port
-read -r -p "Select a port for status port (-1 to randomize): " -e -i "-1" PORT_LO
-if [[ $PORT_LO -eq -1 ]] ; then #Check random loopback status port
-  GetRandomPortLO
-  echo "I've selected $PORT_LO as your loopback status port."
-fi
-if ! [[ $PORT_LO =~ $regex ]] ; then #Check if the loopback status port is valid
-  echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
-  exit 1
-fi
-if [ "$PORT_LO" -gt 65535 ] ; then
-  echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
-  exit 1
-fi
-if [ "$PORT" = "$PORT_LO" ]; then
-  echo "$(tput setaf 1)Error:$(tput sgr 0) The loopback status port and the main port cannot be same."
   exit 1
 fi
 while true; do
@@ -473,10 +450,10 @@ fi
 if [ "$CPU_CORES" -gt 16 ]; then
   echo "$(tput setaf 3)Warning:$(tput sgr 0) Values more than 16 can cause some problems later. Proceed at your own risk."
 fi
-#Check random padding only
-read -r -p "Do you want to allow only 'dd' secrets to connect?[y/n] " -e -i "y" DDOnly
 #Secret and config updater
 read -r -p "Do you want to enable the automatic config updater? I will update \"proxy-secret\" and \"proxy-multi.conf\" each day at midnight(12:00 AM). It's recommended to enable this.[y/n] " -e -i "y" ENABLE_UPDATER
+#Change host mask
+read -r -p "Select a host that DPI thinks you are visiting (TLS_DOMAIN). Pass an empty string to disable Fake-TLS. Enabling this option will automaticly disable the 'dd' secrets: " -e -i "www.cloudflare.com" TLS_DOMAIN
 #Other arguments
 echo "If you want to use custom arguments to run the proxy enter them here; Otherwise just press enter."
 read -r CUSTOM_ARGS
@@ -487,22 +464,17 @@ fi
 #Now install packages
 if [[ $distro =~ "CentOS" ]]; then
   yum -y install epel-release
-  yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie
+  yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie vim-common
   yum -y groupinstall "Development Tools"
 elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
   apt-get update
-  apt-get -y install git curl build-essential libssl-dev zlib1g-dev sed cron ca-certificates
+  apt-get -y install git curl build-essential libssl-dev zlib1g-dev sed cron ca-certificates vim-common
 fi
 timedatectl set-ntp on #Make the time accurate by enabling ntp
 #Clone and build
 cd /opt || exit 2
 git clone https://github.com/TelegramMessenger/MTProxy
 cd MTProxy || exit 2
-if [ "$DDOnly" = "y" ] || [ "$DDOnly" = "Y" ]; then
-  git fetch origin pull/248/head:ddonly
-  git checkout ddonly
-  CUSTOM_ARGS+=" -R"
-fi
 make #Build the proxy
 BUILD_STATUS=$? #Check if build was successful
 if [ $BUILD_STATUS -ne 0 ]; then
@@ -531,6 +503,7 @@ echo "CPU_CORES=$CPU_CORES" >> mtconfig.conf
 echo "SECRET_ARY=(${SECRET_ARY[*]})" >> mtconfig.conf
 echo "TAG=\"$TAG\"" >> mtconfig.conf
 echo "CUSTOM_ARGS=\"$CUSTOM_ARGS\"" >> mtconfig.conf
+echo "TLS_DOMAIN=\"$TLS_DOMAIN\"" >> mtconfig.conf
 #Setup firewall
 echo "Setting firewalld rules"
 if [[ $distro =~ "CentOS" ]]; then
@@ -633,7 +606,13 @@ CURL_EXIT_STATUS=$?
 if [ $CURL_EXIT_STATUS -ne 0 ]; then
   PUBLIC_IP="YOUR_IP"
 fi
+HEX_DOMAIN=$(printf "%s" "$TLS_DOMAIN" | xxd -pu)
+HEX_DOMAIN="$(echo $HEX_DOMAIN | tr '[A-Z]' '[a-z]')"
 for i in "${SECRET_ARY[@]}"
 do
-  echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
+  if [ -z "$TLS_DOMAIN" ]; then
+    echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
+  else
+    echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=ee$i$HEX_DOMAIN"
+  fi
 done

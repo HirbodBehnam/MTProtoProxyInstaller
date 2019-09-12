@@ -1,7 +1,7 @@
 # MTProto Proxy Auto Installer
 A very small script to install MTProtoProxy On Centos or Ubuntu
 
-**A NEW VERSION OF MTPROTO PROTOCOL HAS BEEN RELEASED THAT SUPPORTS TLS! (Fake-TLS)**. It's currently available only in python or erlang proxy. [Read More](#Fake-TLS)
+**A NEW VERSION OF MTPROTO PROTOCOL HAS BEEN RELEASED THAT SUPPORTS TLS! (Fake-TLS)**. [Read More](#Fake-TLS)
 ## Why this installer?
 * Generate random secret
 * Automatically configure firewall
@@ -34,10 +34,6 @@ curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInsta
 Wait until the setup finishes, you should be given the links. (using `systemctl status mtprotoproxy -l` will display said links as well)
 
 To update, uninstall, change port, revoke secret or... the proxy, run this script again.
-#### Secure Only
-You can enable random padding with adding a `dd` at the beginning of secret in Telegram client. [Read More](#random-padding) If you enable secure mode, server drops the connections that are not using the random padding.
-#### Fake TLS
-Fake TLS is a method that makes the proxy look like TLS (something like websites traffic). In order to make your clients use it you have to share the specific link with them. The script will print it at the end. 
 #### Managing The Proxy
 ##### Service
 Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy -l` to see logs of script.
@@ -56,21 +52,19 @@ Each worker can handle more than 10000 connections on a modern CPU. Connections 
 #### Auto Install (Keyless)
 You can use command below to automatically install MTProto proxy to without even pressing a key.
 ```bash
-curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fjo3u && bash MTProtoProxyOfficialInstall.sh PORT STATS_PORT SECRET [TAG]
+curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fjo3u && bash MTProtoProxyOfficialInstall.sh PORT SECRET [TAG]
 ```
 You can enter more than one secret by splitting secrets by `,`.
 
-Example of using 443 as proxy port, generate random port for stats port, 00000000000000000000000000000000 and 0123456789abcdef0123456789abcdef as secrets , and empty tag:
+Example of using 443 as proxy port, 00000000000000000000000000000000 and 0123456789abcdef0123456789abcdef as secrets , and empty tag:
 ```bash
-curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fjo3u && bash MTProtoProxyOfficialInstall.sh 443 -1 00000000000000000000000000000000,0123456789abcdef0123456789abcdef
+curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fjo3u && bash MTProtoProxyOfficialInstall.sh 443 00000000000000000000000000000000,0123456789abcdef0123456789abcdef
 ```
 #### Managing The Proxy
 ##### Service
 Use `systemctl start MTProxy` to start, `systemctl stop MTProxy` to stop and `systemctl status MTProxy -l` to see logs of script.
 ##### Config
 The service file is saved in `/etc/systemd/system/MTProxy.service`. You can edit it manually. There is also a file named `mtconfig.conf` at `/opt/MTProxy/objs/bin` that is created by script. It’s used in loading proxy configs by script. *You must not delete this file* ,however, you can edit it. Also if you have enabled auto updater, you will have two other files named `updater.sh` and `updater.log`
-###### Secure Only?
-There is a pull request that will do it for you. See [here](https://github.com/TelegramMessenger/MTProxy/pull/248). Script will ask you if you want to enable random padding only or not.
 ## Erlang Installer
 Thanks to @seriyps creator of the [Erlang Proxy](https://github.com/seriyps/mtproto_proxy) you can now install the Erlang proxy with a script.
 
@@ -89,6 +83,10 @@ Setup will try to configure the proxy on public zone. However you can manually e
 Due to some ISPs detecting MTProxy by packet sizes, random padding is added to packets if such mode is enabled.
 It's only enabled for clients which request it.
 Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on client side.
+
+**DO NOT USE RANDOM PADDING AT THE MOMENT OR YOUR SERVER WILL BE LIKELY BLOCKED**
+### Fake TLS
+Fake TLS is a method that makes the proxy traffic look like TLS (something like websites traffic). In order to make your clients use it you have to share the specific link with them. The script will print it at the end. Fake-TLS links begins with `ee`.
 ### Quota Managment
 I've written a small program in golang([link](https://github.com/HirbodBehnam/PortForwarder)) to forward traffic with quota managment. I've also written a guide [here](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Quota-Management-For-Server) in order to configure it with MTProto. Right now it also supports the limiting the amount of _connections_ per port. [Persian Guild](http://www.mediafire.com/file/4u3khp5oj7ecgxk/%25D9%2585%25D8%25AD%25D8%25AF%25D9%2588%25D8%25AF_%25DA%25A9%25D8%25B1%25D8%25AF%25D9%2586_%25DA%25A9%25D8%25A7%25D8%25B1%25D8%25A8%25D8%25B1%25D8%25A7%25D9%2586.pdf/file)
 ### How to install on Windows?
@@ -104,9 +102,11 @@ At first let's talk about Fake-TLS mode.
 
 So basically Fake TLS is here in order make the proxies censorship resistent. So does it makes it censorship-resistent? _Well yes but actually, no_.
 
-Some of you guys tested it for me! And here are the results: Most likely, _Private Proxies_ do not get banned. Some guy told me that he had a private server with about 1k users and it's not blocked yet! So it looks like that it's undetectable by Iran's DPI.
-But unfortunately, _Public Proxies_ are still getting blocked. It looks like(totally not sure ) that they are using TL-Client bots (The users that are not users but they are bots; [example api](https://github.com/sochix/TLSharp)) are scanning the channels randomly for mtproto links and then they block it's IP. They usually get blocked in 2 hours.
-If you are planing to sell mtproto, your server may got blocked if it is shared alot. You can plain tunnel it through a domestic server to make sure that your forien server is safe.
+Some of you guys tested it for me! And here are the results: Most likely, _Private Proxies_ do not get banned. Some guy told me that he had a private server with about 1k users and it's not blocked yet. So it looks like that it's undetectable by Iran's DPI.
+But unfortunately, _Public Proxies_ are still getting blocked. It looks like (totally not sure) that they are using TL-Client bots (The users that are not users but they are bots; [example api](https://github.com/sochix/TLSharp)) are scanning the channels randomly for mtproto links and then they block it's IP. They usually get blocked in 2 hours.
+If you are planing to sell mtproto, your server may got blocked if it is shared alot. You can plain tunnel it through a domestic server to make sure that your foreign server is safe.
+
+You are still reading? Good. Because I have something for you: As I said before, Iran most likely use bots to scan the channels to detect proxy links. So to counter this, I've written a small bot to protect the proxy links with a captcha. Here is the [link](https://github.com/HirbodBehnam/CaptchaBot). In this case bots can't access the links and unless people do not share it in other channels, they have to manually go and extract the link of proxy.
 
 <details><summary>What it used to be</summary>
 
