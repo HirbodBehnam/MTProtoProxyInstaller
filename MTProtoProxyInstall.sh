@@ -28,6 +28,41 @@ function GetRandomPort(){
     GetRandomPort
   fi
 }
+function ListUsersAndSelect(){
+  clear
+  rm -f tempSecrets.json
+  SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+  SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+  if [ "$SECRET_COUNT" == "0" ] ; then
+    echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets."
+    exit 4
+  fi
+  RemoveMultiLineUser #Regenerate USERS only in one line
+  SECRET=$(echo "$SECRET" | tr "'" '"')
+  echo "$SECRET" >> tempSecrets.json
+  SECRET_ARY=()
+  mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
+  echo "Here are list of current users:"
+  COUNTER=1
+  NUMBER_OF_SECRETS=${#SECRET_ARY[@]}
+  for i in "${SECRET_ARY[@]}"
+  do
+    echo "	$COUNTER) $i"
+    COUNTER=$((COUNTER+1))
+  done
+  read -r -p "Please select a user by it's index: " USER_TO_LIMIT
+  regex='^[0-9]+$'
+  if ! [[ $USER_TO_LIMIT =~ $regex ]] ; then
+    echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
+    exit 1
+  fi
+  if [ "$USER_TO_LIMIT" -lt 1 ] || [ "$USER_TO_LIMIT" -gt "$NUMBER_OF_SECRETS" ]; then
+    echo "$(tput setaf 1)Error:$(tput sgr 0) Invalid number"
+    exit 1
+  fi
+  USER_TO_LIMIT=$((USER_TO_LIMIT-1))
+  KEY=${SECRET_ARY[$USER_TO_LIMIT]}
+}
 function GenerateConnectionLimiterConfig(){
   LIMITER_CONFIG=""
   LIMITER_FILE=""
@@ -64,10 +99,11 @@ if [ -d "/opt/mtprotoproxy" ]; then
   echo "  4) Add a secret"
   echo "  5) Revoke a secret"
   echo "  6) Change user connection limits"
-  echo "  7) Generate firewall rules"
-  echo "  8) Change secure mode"
-  echo "  9) Uninstall Proxy"
-  echo "  *) Exit"
+  echo "  7) Change user expiry date"
+  echo "  8) Generate firewall rules"
+  echo "  9) Change secure mode"
+  echo "  10) Uninstall Proxy"
+  echo "  * ) Exit"
   read -r -p "Please enter a number: " OPTION
   cd /opt/mtprotoproxy/ || exit 2
   case $OPTION in
@@ -94,10 +130,15 @@ if [ -d "/opt/mtprotoproxy" ]; then
       echo "$SECRET" >> tempSecrets.json
       SECRET_ARY=()
       mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
+      #Check secure only and stuff
+      TLS=false
+      if sed '/^#/ d' "config.py" | grep -q "TLS_ONLY = True"; then #sed is used to remove lines with #
+        TLS=true
+      fi
       for user in "${SECRET_ARY[@]}"
       do
         SECRET=$(jq --arg u "$user" -r '.[$u]' tempSecrets.json)
-        echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
+        [ $TLS == false ] && echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
         s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
         #s="${s::-1}"
         #s="${s:2}"
@@ -206,7 +247,9 @@ if [ -d "/opt/mtprotoproxy" ]; then
       TLS_DOMAIN=$(python3.6 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
       echo
       echo "You can now connect to your server with this secret with this link:"
-      echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
+      if ! sed '/^#/ d' "config.py" | grep -q "TLS_ONLY = True" "config.py" ; then
+        echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
+      fi
       s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
       #s="${s::-1}"
       #s="${s:2}"
@@ -214,39 +257,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
       ;;
     #Revoke secret
     5)
-      clear
-      rm -f tempSecrets.json
-      SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-      SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
-      if [ "$SECRET_COUNT" == "0" ] ; then
-        echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets. Cannot revoke nothing!"
-        exit 4
-      fi
-      RemoveMultiLineUser #Regenerate USERS only in one line
-      SECRET=$(echo "$SECRET" | tr "'" '"')
-      echo "$SECRET" >> tempSecrets.json
-      SECRET_ARY=()
-      mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
-      echo "Here are list of current users:"
-      COUNTER=1
-      NUMBER_OF_SECRETS=${#SECRET_ARY[@]}
-      for i in "${SECRET_ARY[@]}"
-      do
-        echo "	$COUNTER) $i"
-        COUNTER=$((COUNTER+1))
-      done
-      read -r -p "Please select a user by it's index to revoke: " USER_TO_REVOKE
-      regex='^[0-9]+$'
-      if ! [[ $USER_TO_REVOKE =~ $regex ]] ; then
-        echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
-        exit 1
-      fi
-      if [ "$USER_TO_REVOKE" -lt 1 ] || [ "$USER_TO_REVOKE" -gt "$NUMBER_OF_SECRETS" ]; then
-        echo "$(tput setaf 1)Error:$(tput sgr 0) Invalid number"
-        exit 1
-      fi
-      USER_TO_REVOKE=$((USER_TO_REVOKE-1))
-      SECRET=$(jq --arg u "${SECRET_ARY[$USER_TO_REVOKE]}" 'del(.[$u])' tempSecrets.json)
+      ListUsersAndSelect
+      SECRET=$(jq --arg u "$KEY" 'del(.[$u])' tempSecrets.json)
       sed -i '/^USERS\s*=.*/ d' config.py #Remove USERS
       echo "" >> config.py
       echo "USERS = $SECRET" >> config.py
@@ -257,39 +269,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       ;;
     #User limits
     6)
-      clear
-      rm -f tempSecrets.json
-      SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-      SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
-      if [ "$SECRET_COUNT" == "0" ] ; then
-        echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets. Cannot limit nothing!"
-        exit 4
-      fi
-      RemoveMultiLineUser #Regenerate USERS only in one line
-      SECRET=$(echo "$SECRET" | tr "'" '"')
-      echo "$SECRET" >> tempSecrets.json
-      SECRET_ARY=()
-      mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
-      echo "Here are list of current users:"
-      COUNTER=1
-      NUMBER_OF_SECRETS=${#SECRET_ARY[@]}
-      for i in "${SECRET_ARY[@]}"
-      do
-        echo "	$COUNTER) $i"
-        COUNTER=$((COUNTER+1))
-      done
-      read -r -p "Please select a user by it's index to change the limits: " USER_TO_LIMIT
-      regex='^[0-9]+$'
-      if ! [[ $USER_TO_LIMIT =~ $regex ]] ; then
-        echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
-        exit 1
-      fi
-      if [ "$USER_TO_LIMIT" -lt 1 ] || [ "$USER_TO_LIMIT" -gt "$NUMBER_OF_SECRETS" ]; then
-        echo "$(tput setaf 1)Error:$(tput sgr 0) Invalid number"
-        exit 1
-      fi
-      USER_TO_LIMIT=$((USER_TO_LIMIT-1))
-      KEY=${SECRET_ARY[$USER_TO_LIMIT]}
+      ListUsersAndSelect
       declare -A limits
       while IFS= read -r line
       do
@@ -304,8 +284,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       else
         echo "This user have no restrictions."
       fi
-      read -r -p "Please enter the max users that you want to connect to this user; Enter 0 for unlimited.: " MAX_USER
-      regex='^[0-9]+$'
+      read -r -p "Please enter the max users that you want to connect to this user; Enter 0 for unlimited: " MAX_USER
       if ! [[ $MAX_USER =~ $regex ]] ; then
         echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
         exit 1
@@ -326,8 +305,27 @@ if [ -d "/opt/mtprotoproxy" ]; then
       RestartService
       echo "Done"
     ;;
+    #Expiry date
     7)
-      #Firewall rules
+      ListUsersAndSelect
+      read -r -p "Enter the expiry date in format of day/month/year(Example 11/9/2019). Enter nothing for removal: " DATE
+      if [[ $DATE == "" ]]; then
+        j=$(jq -c --arg k "$KEY" 'del(.[$k])' limits_date.json)
+      else
+        j=$(jq -c --arg k "$KEY" --arg v "$DATE" '.[$k] = $v' limits_date.json)
+      fi
+      rm limits_date.json
+      echo -e "$j" >> limits_date.json
+      #Save it to the config.py
+      sed -i '/^USER_EXPIRATIONS\s*=.*/ d' config.py #Remove settings
+      echo "" >> config.py
+      echo "USER_EXPIRATIONS = $j" >> config.py
+      sed -i '/^$/d' config.py #Remove empty lines
+      RestartService
+      echo "Done"
+    ;;
+    #Firewall rules
+    8)
       PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
       if [[ $distro =~ "CentOS" ]]; then
         echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
@@ -352,20 +350,20 @@ if [ -d "/opt/mtprotoproxy" ]; then
       fi
       ;;
     #Change Secure only
-    8)
+    9)
       echo "1) No Restrictions"
       echo "2) \"dd\" secrets and TLS connections"
       echo "3) TLS connection only"
-      read -r -p "Do want to restrict the connections? Select one: " -e -i "2" OPTION
+      read -r -p "Do want to restrict the connections? Select one: " -e -i "3" OPTION
       case $OPTION in
       '1')
         ;;
       '2')
         SECURE_MODE="SECURE_ONLY = True"
-      ;;
+        ;;
       '3')
         SECURE_MODE="TLS_ONLY = True"
-      ;;
+        ;;
       *)
         echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
         exit 1
@@ -379,7 +377,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
       echo "Done"
       ;;
     #Uninstall proxy
-    9)
+    10)
       read -r -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n) " OPTION
       OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
       case $OPTION in
@@ -516,7 +514,7 @@ echo
 echo "1) No Restrictions"
 echo "2) \"dd\" secrets and TLS connections"
 echo "3) TLS connection only"
-read -r -p "Do want to restrict the connections? Select one: " -e -i "2" OPTION
+read -r -p "Do want to restrict the connections? Select one: " -e -i "3" OPTION
 case $OPTION in
   '1')
     ;;
@@ -622,6 +620,7 @@ if ! [ -z "$TAG" ]; then
 fi
 echo "$SECURE_MODE" >> config.py
 echo -e "$LIMITER_FILE" >> "limits_bash.txt" 
+echo "{}" >> "limits_date.json"
 #Setup firewall
 echo "Setting firewalld rules"
 if [[ $distro =~ "CentOS" ]]; then
@@ -692,7 +691,7 @@ fi
 COUNTER=0
 for i in "${SECRET_END_ARY[@]}"
 do
-  if [[ "$SECURE_MODE" == "SECURE_ONLY = True" ]]; then
+  if [[ "$SECURE_MODE" != "TLS_ONLY = True" ]]; then
     echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
   fi
   s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
