@@ -6,11 +6,12 @@ A very small script to install MTProtoProxy On Centos or Ubuntu
 * Generate random secret
 * Automatically configure firewall
 * Create a service to run it on background and start up
-* Choose between Official Proxy and Python Proxy
+* Choose between Official Proxy, Python Proxy and Erlang Proxy
 * Easy to setup
 * Revoke and add secrets after install
 * Supports Centos 7 or Ubuntu 16 or later and Debian 9 and 8
 * Automatically configure NTP
+* [Future Plan] API Support
 ## Official Or Python Proxy?
 Use python if:
 1. Your server's CPU has one core or you want to run proxy on one core.
