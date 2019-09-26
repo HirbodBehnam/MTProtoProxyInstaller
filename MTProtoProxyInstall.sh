@@ -300,7 +300,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		TLS_DOMAIN=$(python3.6 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
 		s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
 		if [ "$#" -ge 2 ]; then
-			PrintOkJson "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s" #And fuck non-tls connections
+			echo "{\"ok\":true,\"msg\":{\"link\":\"tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s\",\"secret\":\"$SECRET\"}}"
 		else
 			echo
 			echo "You can now connect to your server with this secret with this link:"
@@ -331,7 +331,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			echo "Done"
 		fi
 		;;
-	#User limits
+	#Connection limits
 	6)
 		#API Usage: bash MTProtoProxyInstall.sh 6 <USERNAME> <LIMIT> -> Pass zero for unlimited
 		if [ "$#" -ge 3 ]; then
