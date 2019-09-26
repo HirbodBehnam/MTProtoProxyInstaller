@@ -1,7 +1,7 @@
 # MTProto Proxy Auto Installer
 A very small script to install MTProtoProxy On Centos or Ubuntu
 
-**A NEW VERSION OF MTPROTO PROTOCOL HAS BEEN RELEASED THAT SUPPORTS TLS! (Fake-TLS)**. [Read More](#Fake-TLS)
+**Using fake-tls protocol is highly advised**
 ## Why this installer?
 * Generate random secret
 * Automatically configure firewall
@@ -11,7 +11,7 @@ A very small script to install MTProtoProxy On Centos or Ubuntu
 * Revoke and add secrets after install
 * Supports Centos 7 or Ubuntu 16 or later and Debian 9 and 8
 * Automatically configure NTP
-* API Support
+* API Support [[Reference](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/API-For-Python-Script)]
 ## Official Or Python Proxy?
 Use python if:
 1. Your server's CPU has one core or you want to run proxy on one core.
@@ -40,6 +40,8 @@ To update, uninstall, change port, revoke secret or... the proxy, run this scrip
 Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy -l` to see logs of script.
 ##### Config
 To manually config, proxy edit config.py in /opt/mtprotoproxy to change the config; Then restart the server using `systemctl restart mtprotoproxy` or just run script again.
+### API
+This script gives you post-install API support to control the proxy. [More Info](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/API-For-Python-Script)
 ## Official Script
 **Before You Begin**: Do not use OVH or IPHoster datacenters for MTProto.
 ### Install
