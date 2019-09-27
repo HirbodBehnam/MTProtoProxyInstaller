@@ -115,6 +115,7 @@ distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 clear
 #Check if user already installed Proxy
 if [ -d "/opt/mtprotoproxy" ]; then
+	SCRIPT_LOCATION=$(realpath "$0")
 	cd /opt/mtprotoproxy/ || exit 2
 	if [ "$#" -ge 1 ]; then
 		OPTION=$1
@@ -318,7 +319,11 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		else
 			ListUsersAndSelect
 		fi
-		SECRET=$(jq --arg u "$KEY" 'del(.[$u])' tempSecrets.json)
+		#remove expiry date and connection limits
+		bash "$SCRIPT_LOCATION" 6 "$KEY" 0 &>/dev/null
+		bash "$SCRIPT_LOCATION" 7 "$KEY" &>/dev/null
+		#remove the secret
+		SECRET=$(jq -c --arg u "$KEY" 'del(.[$u])' tempSecrets.json)
 		sed -i '/^USERS\s*=.*/ d' config.py #Remove USERS
 		echo "" >>config.py
 		echo "USERS = $SECRET" >>config.py
@@ -566,7 +571,7 @@ while true; do
 	read -r -p "Do you want to limit users connected to this secret?(y/n) " -e -i "n" OPTION
 	OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 	case $OPTION in
-	'y')
+	'y')&>/dev/null
 		read -r -p "How many users do you want to connect to this secret? " OPTION
 		if ! [[ $OPTION =~ $regex ]]; then
 			echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
