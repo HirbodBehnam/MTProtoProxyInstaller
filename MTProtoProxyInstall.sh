@@ -571,7 +571,7 @@ while true; do
 	read -r -p "Do you want to limit users connected to this secret?(y/n) " -e -i "n" OPTION
 	OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 	case $OPTION in
-	'y')&>/dev/null
+	'y')
 		read -r -p "How many users do you want to connect to this secret? " OPTION
 		if ! [[ $OPTION =~ $regex ]]; then
 			echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
