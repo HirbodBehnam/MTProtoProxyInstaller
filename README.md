@@ -91,7 +91,7 @@ Add dd prefix to secret (cafe...babe => ddcafe...babe) to enable this mode on cl
 ### Fake TLS
 Fake TLS is a method that makes the proxy traffic look like TLS (something like websites traffic). In order to make your clients use it you have to share the specific link with them. The script will print it at the end. Fake-TLS links begins with `ee`.
 ### Quota Managment
-I've written a small program in golang([link](https://github.com/HirbodBehnam/PortForwarder)) to forward traffic with quota managment. I've also written a guide [here](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Quota-Management-For-Server) in order to configure it with MTProto. Right now it also supports the limiting the amount of _connections_ per port. [Persian Guild](http://www.mediafire.com/file/4u3khp5oj7ecgxk/%25D9%2585%25D8%25AD%25D8%25AF%25D9%2588%25D8%25AF_%25DA%25A9%25D8%25B1%25D8%25AF%25D9%2586_%25DA%25A9%25D8%25A7%25D8%25B1%25D8%25A8%25D8%25B1%25D8%25A7%25D9%2586.pdf/file)
+I've written a small program in golang([link](https://github.com/HirbodBehnam/PortForwarder)) to forward traffic with quota managment. I've also written a guide [here](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/Quota-Management-For-Server) in order to configure it with MTProto. Right now it also supports the limiting the amount of _connections_ per port. [Persian Guide](http://rizy.ir/limitUsers)
 ### How to install on Windows?
 I've written a small guide to install that on Windows. Please read [wiki](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki) for more info.
 ### Server
