@@ -173,14 +173,10 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
 		#Check secure only and stuff
 		TLS=false
-		if sed '/^#/ d' "config.py" | grep -q "TLS_ONLY = True"; then #sed is used to remove lines with #
-			TLS=true
-		fi
 		for user in "${SECRET_ARY[@]}"; do
 			SECRET=$(jq --arg u "$user" -r '.[$u]' tempSecrets.json)
-			[ $TLS == false ] && echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
 			s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
-			echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
+			echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s"
 			echo
 		done
 		sed -i '/^$/d' config.py #Remove empty lines
@@ -304,10 +300,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		else
 			echo
 			echo "You can now connect to your server with this secret with this link:"
-			if ! sed '/^#/ d' "config.py" | grep -q "TLS_ONLY = True" "config.py"; then
-				echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
-			fi
-			echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
+			echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s"
 		fi
 		;;
 	#Revoke secret
@@ -762,10 +755,7 @@ if [ $CURL_EXIT_STATUS -ne 0 ]; then
 fi
 COUNTER=0
 for i in "${SECRET_END_ARY[@]}"; do
-	if [[ $SECURE_MODE != "TLS_ONLY = True" ]]; then
-		echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
-	fi
 	s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
-	echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s (Fake-TLS)"
+	echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s"
 	COUNTER=$COUNTER+1
 done
