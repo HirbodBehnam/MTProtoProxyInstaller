@@ -143,9 +143,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		echo "  6) Change user connection limits"
 		echo "  7) Change user expiry date"
 		echo "  8) Generate firewall rules"
-		echo "  9) Change secure mode"
-		echo "  10) Uninstall Proxy"
-		echo "  * ) Exit"
+		echo "  9) Uninstall Proxy"
+		echo "  *) Exit"
 		read -r -p "Please enter a number: " OPTION
 	fi
 	case $OPTION in
@@ -443,36 +442,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			fi
 		fi
 		;;
-	#Change Secure only
-	9)
-		echo "1) No Restrictions"
-		echo '2) "dd" secrets and TLS connections'
-		echo "3) TLS connection only"
-		read -r -p "Do want to restrict the connections? Select one: " -e -i "3" OPTION
-		case $OPTION in
-		'1') ;;
-
-		'2')
-			SECURE_MODE="SECURE_ONLY = True"
-			;;
-		'3')
-			SECURE_MODE="TLS_ONLY = True"
-			;;
-		*)
-			echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
-			exit 1
-			;;
-		esac
-		sed -i '/^SECURE_ONLY\s*=.*/ d' config.py #Remove Secret_Only
-		sed -i '/^TLS_ONLY\s*=.*/ d' config.py    #Remove TLS_ONLY
-		echo "" >>config.py
-		echo "$SECURE_MODE" >>config.py
-		sed -i '/^$/d' config.py #Remove empty lines
-		RestartService
-		echo "Done"
-		;;
 	#Uninstall proxy
-	10)
+	9)
 		read -r -p "I still keep some packages like python. Do want to uninstall MTProto-Proxy?(y/n) " OPTION
 		OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 		case $OPTION in
@@ -614,13 +585,14 @@ echo '2) "dd" secrets and TLS connections'
 echo "3) TLS connection only"
 read -r -p "Do want to restrict the connections? Select one: " -e -i "3" OPTION
 case $OPTION in
-'1') ;;
-
+'1') 
+	SECURE_MODE="MODES = { \"classic\": True, \"secure\": True, \"tls\": True }"
+	;;
 '2')
-	SECURE_MODE="SECURE_ONLY = True"
+	SECURE_MODE="MODES = { \"classic\": False, \"secure\": True, \"tls\": True }"
 	;;
 '3')
-	SECURE_MODE="TLS_ONLY = True"
+	SECURE_MODE="MODES = { \"classic\": False, \"secure\": False, \"tls\": True }"
 	;;
 *)
 	echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
