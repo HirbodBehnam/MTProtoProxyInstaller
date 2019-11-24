@@ -1,9 +1,9 @@
 #!/bin/bash
 function RemoveMultiLineUser() {
 	local SECRET_T
-	SECRET_T=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+	SECRET_T=$($PYTHON_VERSION -c 'import config;print(getattr(config, "USERS",""))')
 	SECRET_T=$(echo "$SECRET_T" | tr "'" '"')
-	python3.6 -c "import re;f = open('config.py', 'r');s = f.read();p = re.compile('USERS\\s*=\\s*\\{.*?\\}', re.DOTALL);nonBracketedString = p.sub('', s);f = open('config.py', 'w');f.write(nonBracketedString)"
+	$PYTHON_VERSION -c "import re;f = open('config.py', 'r');s = f.read();p = re.compile('USERS\\s*=\\s*\\{.*?\\}', re.DOTALL);nonBracketedString = p.sub('', s);f = open('config.py', 'w');f.write(nonBracketedString)"
 	echo "" >>config.py
 	echo "USERS = $SECRET_T" >>config.py
 }
@@ -31,8 +31,8 @@ function GetRandomPort() {
 function ListUsersAndSelect() {
 	clear
 	rm -f tempSecrets.json
-	SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-	SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+	SECRET=$($PYTHON_VERSION -c 'import config;print(getattr(config, "USERS",""))')
+	SECRET_COUNT=$($PYTHON_VERSION -c 'import config;print(len(getattr(config, "USERS","")))')
 	if [ "$SECRET_COUNT" == "0" ]; then
 		echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets."
 		exit 4
@@ -93,8 +93,8 @@ function PrintOkJson() {
 function GetSecretFromUsername() {
 	rm -f tempSecrets.json
 	KEY="$1"
-	SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-	SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+	SECRET=$($PYTHON_VERSION -c 'import config;print(getattr(config, "USERS",""))')
+	SECRET_COUNT=$($PYTHON_VERSION -c 'import config;print(len(getattr(config, "USERS","")))')
 	if [ "$SECRET_COUNT" == "0" ]; then
 		PrintErrorJson "You have no secrets"
 	fi
@@ -121,8 +121,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		OPTION=$1
 		if [ "$OPTION" == "list" ]; then
 			if [ "$#" == 1 ]; then #list all of the secret and usernames
-				SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-				SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+				SECRET=$($PYTHON_VERSION -c 'import config;print(getattr(config, "USERS",""))')
+				SECRET_COUNT=$($PYTHON_VERSION -c 'import config;print(len(getattr(config, "USERS","")))')
 				if [ "$SECRET_COUNT" == "0" ]; then
 					PrintErrorJson "You have no secrets"
 				fi
@@ -158,10 +158,10 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			PUBLIC_IP="YOUR_IP"
 		fi
 		rm -f tempSecrets.json
-		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
-		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-		SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
-		TLS_DOMAIN=$(python3.6 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
+		PORT=$($PYTHON_VERSION -c 'import config;print(getattr(config, "PORT",-1))')
+		SECRET=$($PYTHON_VERSION -c 'import config;print(getattr(config, "USERS",""))')
+		SECRET_COUNT=$($PYTHON_VERSION -c 'import config;print(len(getattr(config, "USERS","")))')
+		TLS_DOMAIN=$($PYTHON_VERSION -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
 		if [ "$SECRET_COUNT" == "0" ]; then
 			echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets. Cannot show nothing!"
 			exit 4
@@ -175,7 +175,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		TLS=false
 		for user in "${SECRET_ARY[@]}"; do
 			SECRET=$(jq --arg u "$user" -r '.[$u]' tempSecrets.json)
-			s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
+			s=$($PYTHON_VERSION -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
 			echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s"
 			echo
 		done
@@ -195,7 +195,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		;;
 	#Change AD_TAG
 	3)
-		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		TAG=$($PYTHON_VERSION -c 'import config;print(getattr(config, "AD_TAG",""))')
 		OldEmptyTag=false
 		if [ -z "$TAG" ]; then
 			OldEmptyTag=true
@@ -229,8 +229,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 	#New secret
 	4)
 		#API Usage: bash MTProtoProxyInstall.sh 4 <USERNAME> <SECRET> -> Do not define secret to generate a random secret
-		SECRETS=$(python3.6 -c 'import config;print(getattr(config, "USERS","{}"))')
-		SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+		SECRETS=$($PYTHON_VERSION -c 'import config;print(getattr(config, "USERS","{}"))')
+		SECRET_COUNT=$($PYTHON_VERSION -c 'import config;print(len(getattr(config, "USERS","")))')
 		SECRETS=$(echo "$SECRETS" | tr "'" '"')
 		SECRETS="${SECRETS::-1}" #Remove last char "}" here
 		if [ "$#" -ge 2 ]; then #Get username
@@ -292,9 +292,9 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		if [ $CURL_EXIT_STATUS -ne 0 ]; then
 			PUBLIC_IP="YOUR_IP"
 		fi
-		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
-		TLS_DOMAIN=$(python3.6 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
-		s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
+		PORT=$($PYTHON_VERSION -c 'import config;print(getattr(config, "PORT",-1))')
+		TLS_DOMAIN=$($PYTHON_VERSION -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
+		s=$($PYTHON_VERSION -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
 		if [ "$#" -ge 2 ]; then
 			echo "{\"ok\":true,\"msg\":{\"link\":\"tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s\",\"secret\":\"$SECRET\"}}"
 		else
@@ -412,7 +412,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		;;
 	#Firewall rules
 	8)
-		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+		PORT=$($PYTHON_VERSION -c 'import config;print(getattr(config, "PORT",-1))')
 		if [[ $distro =~ "CentOS" ]]; then
 			echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
 			echo "firewall-cmd --runtime-to-permanent"
@@ -441,7 +441,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 		case $OPTION in
 		"y")
-			PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+			PORT=$($PYTHON_VERSION -c 'import config;print(getattr(config, "PORT",-1))')
 			systemctl stop mtprotoproxy
 			systemctl disable mtprotoproxy
 			rm -rf /opt/mtprotoproxy
@@ -478,6 +478,21 @@ echo "Source at https://github.com/alexbers/mtprotoproxy"
 echo "Now I will gather some info from you."
 echo ""
 echo ""
+echo "Do you have a version of python newer than $PYTHON_VERSION ? (1 - Yes, 2 - No)"
+
+read -r -p "Does your current distro have / supports $PYTHON_VERSION ? (1 - Yes, 2 - No)" -e -i "2" PYTHON_VERSION
+if [[ $PYTHON_VERSION -eq 1 ]]; then
+	echo "I've selected Python 3 as your version of python"
+	$PYTHON_VERSION = "python3"
+fi
+
+if [[ $PYTHON_VERSION -eq 2 ]]; then
+	echo "I've selected Python 3.6 as your version of python"
+	$PYTHON_VERSION = "$PYTHON_VERSION"
+fi
+echo ""
+echo ""
+
 read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i "-1" PORT
 if [[ $PORT -eq -1 ]]; then
 	GetRandomPort
@@ -625,11 +640,11 @@ elif [[ $distro =~ "Ubuntu" ]]; then
 		add-apt-repository ppa:jonathonf/python-3.6
 	fi
 	apt-get update
-	apt-get -y install python3.6 python3.6-distutils sed git curl jq ca-certificates
+	apt-get -y install $PYTHON_VERSION $PYTHON_VERSION-distutils sed git curl jq ca-certificates
 elif [[ $distro =~ "Debian" ]]; then
 	apt-get update
 	apt-get install -y jq ca-certificates iptables-persistent iptables git sed curl wget
-	if ! command -v "python3.6" >/dev/null; then
+	if ! command -v "$PYTHON_VERSION" >/dev/null; then
 		apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev #python packages
 		#Download and install python 3.6.9
 		cd /tmp || exit 2
@@ -644,10 +659,10 @@ elif [[ $distro =~ "Debian" ]]; then
 		fi
 		make
 		make altinstall
-		ln -s /usr/local/bin/python3.6 /usr/bin/python3.6
+		ln -s /usr/local/bin/$PYTHON_VERSION /usr/bin/$PYTHON_VERSION
 	fi
-	if ! [ -f "/usr/local/bin/python3.6" ]; then #in case user had python3.6
-		ln -s /usr/local/bin/python3.6 /usr/bin/python3.6
+	if ! [ -f "/usr/local/bin/$PYTHON_VERSION" ]; then #in case user had $PYTHON_VERSION
+		ln -s /usr/local/bin/$PYTHON_VERSION /usr/bin/$PYTHON_VERSION
 	fi
 	#Firewall
 	iptables -A INPUT -p tcp --dport "$PORT" --jump ACCEPT
@@ -658,7 +673,7 @@ else
 fi
 timedatectl set-ntp on #Make the time accurate by enabling ntp
 #Install pip
-curl https://bootstrap.pypa.io/get-pip.py | python3.6
+curl https://bootstrap.pypa.io/get-pip.py | $PYTHON_VERSION
 #This libs make proxy faster
 pip3.6 install cryptography uvloop
 if ! [ -d "/opt" ]; then
@@ -733,7 +748,7 @@ After=network.target
 
 [Service]
 Type = simple
-ExecStart = /usr/bin/python3.6 /opt/mtprotoproxy/mtprotoproxy.py
+ExecStart = /usr/bin/$PYTHON_VERSION /opt/mtprotoproxy/mtprotoproxy.py
 StartLimitBurst=0
 
 [Install]
@@ -755,7 +770,7 @@ if [ $CURL_EXIT_STATUS -ne 0 ]; then
 fi
 COUNTER=0
 for i in "${SECRET_END_ARY[@]}"; do
-	s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
+	s=$($PYTHON_VERSION -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
 	echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s"
 	COUNTER=$COUNTER+1
 done
