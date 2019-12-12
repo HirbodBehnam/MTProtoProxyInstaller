@@ -629,7 +629,7 @@ elif [[ $distro =~ "Ubuntu" ]]; then
 	apt update
 	if ! [[ $(lsb_release -r -s) =~ "17" ]] && ! [[ $(lsb_release -r -s) =~ "18" ]] && ! [[ $(lsb_release -r -s) =~ "19" ]]; then
 		apt-get -y install software-properties-common python-software-properties
-		add-apt-repository ppa:jonathonf/python-3.6
+		add-apt-repository ppa:deadsnakes/ppa
 	fi
 	apt-get update
 	apt-get -y install python3.6 python3.6-distutils sed git curl jq ca-certificates
