@@ -349,7 +349,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			fi
 		else
 			if [ ${limits[$KEY]+abc} ]; then
-				MAX_USER=$((limits[$KEY] / 5))
+				MAX_USER=$((limits[$KEY] / 8))
 				echo "Current limit is $MAX_USER concurrent users. (${limits[$KEY]} connections)"
 			else
 				echo "This user have no restrictions."
@@ -360,7 +360,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 				exit 1
 			fi
 		fi
-		MAX_USER=$((MAX_USER * 5))
+		MAX_USER=$((MAX_USER * 8))
 		if [ "$MAX_USER" = "0" ]; then
 			unset limits["$KEY"]
 		else
@@ -548,8 +548,8 @@ while true; do
 			echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
 			exit 1
 		fi
-		#Multiply number of connections by 5. You can manualy change this. Read more: https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L128
-		OPTION=$((OPTION * 5))
+		#Multiply number of connections by 8. You can manualy change this. Read more: https://github.com/alexbers/mtprotoproxy/blob/master/mtprotoproxy.py#L202
+		OPTION=$((OPTION * 8))
 		limits+=(["$USERNAME"]="$OPTION")
 		;;
 	'n') ;;
