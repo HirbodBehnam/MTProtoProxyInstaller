@@ -132,42 +132,6 @@ if [ -d "/opt/MTProxy" ]; then
 		sed -i "s/^TAG=.*/TAG=$TAG/" mtconfig.conf
 		echo "Done"
 		;;
-	#Revoke Secret
-	4)
-		NUMBER_OF_SECRETS=${#SECRET_ARY[@]}
-		if [ "$NUMBER_OF_SECRETS" -le 1 ]; then
-			echo "Cannot remove the last secret."
-			exit 1
-		fi
-		echo "Select a secret to revoke:"
-		COUNTER=1
-		for i in "${SECRET_ARY[@]}"; do
-			echo "  $COUNTER) $i"
-			COUNTER=$((COUNTER + 1))
-		done
-		read -r -p "Select a user by it's index to revoke: " USER_TO_REVOKE
-		if ! [[ $USER_TO_REVOKE =~ $regex ]]; then
-			echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
-			exit 1
-		fi
-		if [ "$USER_TO_REVOKE" -lt 1 ] || [ "$USER_TO_REVOKE" -gt "$NUMBER_OF_SECRETS" ]; then
-			echo "$(tput setaf 1)Error:$(tput sgr 0) Invalid number"
-			exit 1
-		fi
-		USER_TO_REVOKE1=$(($USER_TO_REVOKE - 1))
-		SECRET_ARY=("${SECRET_ARY[@]:0:$USER_TO_REVOKE1}" "${SECRET_ARY[@]:$USER_TO_REVOKE}")
-		cd /etc/systemd/system || exit 2
-		systemctl stop MTProxy
-		rm MTProxy.service
-		GenerateService
-		echo "$SERVICE_STR" >>MTProxy.service
-		systemctl daemon-reload
-		systemctl start MTProxy
-		cd /opt/MTProxy/objs/bin/ || exit 2 || exit 2
-		SECRET_ARY_STR=${SECRET_ARY[*]}
-		sed -i "s/^SECRET_ARY=.*/SECRET_ARY=($SECRET_ARY_STR)/" mtconfig.conf
-		echo "Done"
-		;;
 	#Add secret
 	3)
 		echo "Do you want to set secret manually or shall I create a random secret?"
@@ -216,6 +180,42 @@ if [ -d "/opt/MTProxy" ]; then
 		echo "You can now connect to your server with this secret with this link:"
 		echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$SECRET"
 		;;
+	#Revoke Secret
+	4)
+		NUMBER_OF_SECRETS=${#SECRET_ARY[@]}
+		if [ "$NUMBER_OF_SECRETS" -le 1 ]; then
+			echo "Cannot remove the last secret."
+			exit 1
+		fi
+		echo "Select a secret to revoke:"
+		COUNTER=1
+		for i in "${SECRET_ARY[@]}"; do
+			echo "  $COUNTER) $i"
+			COUNTER=$((COUNTER + 1))
+		done
+		read -r -p "Select a user by it's index to revoke: " USER_TO_REVOKE
+		if ! [[ $USER_TO_REVOKE =~ $regex ]]; then
+			echo "$(tput setaf 1)Error:$(tput sgr 0) The input is not a valid number"
+			exit 1
+		fi
+		if [ "$USER_TO_REVOKE" -lt 1 ] || [ "$USER_TO_REVOKE" -gt "$NUMBER_OF_SECRETS" ]; then
+			echo "$(tput setaf 1)Error:$(tput sgr 0) Invalid number"
+			exit 1
+		fi
+		USER_TO_REVOKE1=$(($USER_TO_REVOKE - 1))
+		SECRET_ARY=("${SECRET_ARY[@]:0:$USER_TO_REVOKE1}" "${SECRET_ARY[@]:$USER_TO_REVOKE}")
+		cd /etc/systemd/system || exit 2
+		systemctl stop MTProxy
+		rm MTProxy.service
+		GenerateService
+		echo "$SERVICE_STR" >>MTProxy.service
+		systemctl daemon-reload
+		systemctl start MTProxy
+		cd /opt/MTProxy/objs/bin/ || exit 2 || exit 2
+		SECRET_ARY_STR=${SECRET_ARY[*]}
+		sed -i "s/^SECRET_ARY=.*/SECRET_ARY=($SECRET_ARY_STR)/" mtconfig.conf
+		echo "Done"
+		;;	
 	#Change CPU workers
 	5)
 		CPU_CORES=$(nproc --all)
@@ -365,7 +365,7 @@ else
 	echo ""
 	echo ""
 	#Proxy Port
-	read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i "-1" PORT
+	read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i "443" PORT
 	if [[ $PORT -eq -1 ]]; then #Check random port
 		GetRandomPort
 		echo "I've selected $PORT as your port."
