@@ -216,7 +216,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			TAGTEMP+="$TAG"
 			TAGTEMP+='"'
 			echo "$TAGTEMP" >>config.py
-		elif ! [ -z "$TAG" ] && [ "$OldEmptyTag" = false ]; then
+		elif [ -n "$TAG" ] && [ "$OldEmptyTag" = false ]; then
 			# This replaces the AD_TAG
 			TAGTEMP='"'
 			TAGTEMP+="$TAG"
@@ -724,7 +724,7 @@ USERS = { $SECRETS }
 USER_MAX_TCP_CONNS = { $LIMITER_CONFIG }
 TLS_DOMAIN = \"$TLS_DOMAIN\"
 " >>config.py
-if ! [ -z "$TAG" ]; then
+if [ -n "$TAG" ]; then
 	TAGTEMP="AD_TAG = "
 	TAGTEMP+='"'
 	TAGTEMP+="$TAG"
