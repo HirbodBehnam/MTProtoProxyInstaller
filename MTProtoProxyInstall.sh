@@ -669,18 +669,20 @@ if [[ $distro =~ "CentOS" ]]; then
 elif [[ $distro =~ "Ubuntu" ]]; then
 	apt update
 	if ! [[ $(lsb_release -r -s) =~ "17" ]] && ! [[ $(lsb_release -r -s) =~ "18" ]] && ! [[ $(lsb_release -r -s) =~ "19" ]]; then
-		apt-get -y install software-properties-common python-software-properties
+		apt-get -y install software-properties-common
 		add-apt-repository ppa:deadsnakes/ppa
+		apt-get update
+		apt-get -y install python3.6 sed git curl jq ca-certificates
+	else
+		apt-get -y install python3.6 python3.6-distutils sed git curl jq ca-certificates
 	fi
-	apt-get update
-	apt-get -y install python3.6 python3.6-distutils sed git curl jq ca-certificates
 elif [[ $distro =~ "Debian" ]]; then
 	apt-get update
 	apt-get install -y jq ca-certificates iptables-persistent iptables git sed curl wget
 	if ! command -v "python3.6" >/dev/null; then
 		apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev #python packages
 		#Download and install python 3.6.9
-		cd /tmp || exit 2
+		cd /opt || exit 2
 		curl -o Python-3.6.9.tar.xz https://www.python.org/ftp/python/3.6.9/Python-3.6.9.tar.xz
 		tar xvf Python-3.6.9.tar.xz
 		cd Python-3.6.9 || exit 2

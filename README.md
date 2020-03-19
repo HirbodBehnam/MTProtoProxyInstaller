@@ -9,7 +9,7 @@ A very small script to install MTProtoProxy On Centos or Ubuntu
 * Choose between Official Proxy, Python Proxy and Erlang Proxy
 * Easy to setup
 * Revoke and add secrets after install
-* Supports Centos 7 or ~Ubuntu 16~ (For now Ubuntu 16 repo is broken, use later versions) or later and Debian 9 and 8
+* Supports Centos 7/8 or Ubuntu 16 or later and Debian 9 and 8
 * Automatically configure NTP
 * API Support [[Reference](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/API-For-Python-Script)]
 ## Official Or Python Proxy?
