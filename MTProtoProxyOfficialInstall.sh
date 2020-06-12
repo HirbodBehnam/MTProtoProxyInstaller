@@ -299,16 +299,16 @@ if [ "$#" -ge 2 ]; then
 	AUTO=true
 	# Parse arguments like: https://stackoverflow.com/4213397
 	while [[ "$#" -gt 0 ]]; do
-    	case $1 in
-        	-s|--secret) SECRET_ARY+=("$2"); shift ;;
-        	-p|--port) PORT=$2; shift ;;
+		case $1 in
+			-s|--secret) SECRET_ARY+=("$2"); shift ;;
+		 	-p|--port) PORT=$2; shift ;;
 			-t|--tag) TAG=$2; shift ;;
 			--workers) CPU_CORES=$2; shift ;;
 			--disable-updater) ENABLE_UPDATER="n" ;;
 			--tls) TLS_DOMAIN="$2"; shift ;;
 			--custom-args) CUSTOM_ARGS="$2"; shift;;
-    	esac
-    	shift
+		esac
+	shift
 	done
 	#Check secret
 	if [[ ${#SECRET_ARY[@]} -eq 0 ]];then
