@@ -20,30 +20,6 @@ function GetRandomPort() {
 		GetRandomPort
 	fi
 }
-function GetRandomPortLO() {
-	if ! [ "$INSTALLED_LSOF" == true ]; then
-		echo "Installing lsof package. Please wait."
-		if [[ $distro =~ "CentOS" ]]; then
-			yum -y -q install lsof
-		elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
-			apt-get -y install lsof >/dev/null
-		fi
-		local RETURN_CODE
-		RETURN_CODE=$?
-		if [ $RETURN_CODE -ne 0 ]; then
-			echo "$(tput setaf 3)Warning!$(tput sgr 0) lsof package did not installed successfully. The randomized port may be in use."
-		else
-			INSTALLED_LSOF=true
-		fi
-	fi
-	PORT_LO=$((RANDOM % 16383 + 49152))
-	if lsof -Pi :$PORT_LO -sTCP:LISTEN -t >/dev/null; then
-		GetRandomPortLO
-	fi
-	if [ $PORT_LO -eq $PORT ]; then
-		GetRandomPortLO
-	fi
-}
 function GenerateService() {
 	local ARGS_STR
 	ARGS_STR="-u nobody -H $PORT"
@@ -318,11 +294,27 @@ if [ -d "/opt/MTProxy" ]; then
 	esac
 	exit
 fi
+SECRET_ARY=()
 if [ "$#" -ge 2 ]; then
 	AUTO=true
+	# Parse arguments like: https://stackoverflow.com/4213397
+	while [[ "$#" -gt 0 ]]; do
+    	case $1 in
+        	-s|--secret) SECRET_ARY+=("$2"); shift ;;
+        	-p|--port) PORT=$2; shift ;;
+			-t|--tag) TAG=$2; shift ;;
+			--workers) CPU_CORES=$2; shift ;;
+			--disable-updater) ENABLE_UPDATER="n" ;;
+			--tls) TLS_DOMAIN="$2"; shift ;;
+			--custom-args) CUSTOM_ARGS="$2"; shift;;
+    	esac
+    	shift
+	done
 	#Check secret
-	SECRETS=$2
-	SECRET_ARY=(${SECRETS//,/ })
+	if [[ ${#SECRET_ARY[@]} -eq 0 ]];then
+		echo "$(tput setaf 1)Error:$(tput sgr 0) Please enter at least one secret"
+		exit 1
+	fi
 	for i in "${SECRET_ARY[@]}"; do
 		if ! [[ $i =~ ^[0-9a-f]{32}$ ]]; then
 			echo "$(tput setaf 1)Error:$(tput sgr 0) Enter hexadecimal characters and secret must be 32 characters. Error on secret $i"
@@ -330,8 +322,7 @@ if [ "$#" -ge 2 ]; then
 		fi
 	done
 	#Check port
-	PORT=$1
-	if [[ $PORT -eq -1 ]]; then #Check random port
+	if [ -z ${PORT+x} ]; then #Check random port
 		GetRandomPort
 		echo "I've selected $PORT as your port."
 	fi
@@ -343,25 +334,19 @@ if [ "$#" -ge 2 ]; then
 		echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
 		exit 1
 	fi
-	#Check tag
-	if [ "$#" -ge 4 ]; then
-		TAG=$4
-	fi
-	CPU_CORES=$(nproc --all)
-	CUSTOM_ARGS=""
-	ENABLE_UPDATER="y"
-	TLS_DOMAIN="www.cloudflare.com"
+	#Check other stuff
+	if [ -z ${CPU_CORES+x} ]; then CPU_CORES=$(nproc --all); fi
+	if [ -z ${ENABLE_UPDATER+x} ]; then ENABLE_UPDATER="y"; fi
+	if [ -z ${TLS_DOMAIN+x} ]; then TLS_DOMAIN="www.cloudflare.com"; fi
 else
 	#Variables
 	SECRET=""
-	SECRET_ARY=()
 	TAG=""
 	echo "Welcome to MTProto-Proxy auto installer!"
 	echo "Created by Hirbod Behnam"
-	echo "I will install mtprotoproxy the official repository"
-	echo "You can auto install like \"./MTProtoProxyOfficialInstall Port Status_Port Secret [TAG]\""
+	echo "I will install mtprotoproxy, the official repository"
 	echo "Source at https://github.com/TelegramMessenger/MTProxy"
-	echo "Now I will gather some info from you."
+	echo "Now I will gather some info from you..."
 	echo ""
 	echo ""
 	#Proxy Port
@@ -497,7 +482,6 @@ if [ $STATUS_SECRET -ne 0 ]; then
 fi
 #Setup mtconfig.conf
 touch mtconfig.conf
-echo "PORT_LO=$PORT_LO" >>mtconfig.conf
 echo "PORT=$PORT" >>mtconfig.conf
 echo "CPU_CORES=$CPU_CORES" >>mtconfig.conf
 echo "SECRET_ARY=(${SECRET_ARY[*]})" >>mtconfig.conf

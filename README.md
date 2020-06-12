@@ -57,15 +57,26 @@ and wait until the setup finishes and you will see the links after install.
 #### Workers
 Each worker can handle more than 10000 connections on a modern CPU. Connections will be split between workers. Do not spawn workers more than your CPUs thread count.
 #### Auto Install (Keyless)
-You can use command below to automatically install MTProto proxy to without even pressing a key.
-```bash
-curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fjo3u && bash MTProtoProxyOfficialInstall.sh PORT SECRET [TAG]
-```
-You can enter more than one secret by splitting secrets by `,`.
+You can run the script with arguments to enable the "keyless installer".
 
-Example of using 443 as proxy port, 00000000000000000000000000000000 and 0123456789abcdef0123456789abcdef as secrets , and empty tag:
+For example:
 ```bash
-curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fjo3u && bash MTProtoProxyOfficialInstall.sh 443 00000000000000000000000000000000,0123456789abcdef0123456789abcdef
+curl -o MTProtoProxyOfficialInstall.sh -L https://git.io/fjo3u && bash MTProtoProxyOfficialInstall.sh --port 443 --secret 00000000000000000000000000000000
+```
+Reference:
+```
+-p | --port : int -> The port that the proxy will listen on it. Do not include this argument to choose a random port
+-s | --secret : string -> Adds a secret to list of secrets. Secret must be a 32 characters and in hexadecimal format; Use multiple of this argument to add more secrets (See example below)
+-t | --tag : string -> Set the advertisement tag for the proxy. Do not pass this argument to disable the tag.
+--workers : int -> The number of workers that the proxy spawns. Default is number of your CPU threads - 1.
+--disable-updater : bool -> Pass this argument to disable the proxy updater.
+--tls : string -> The host that the proxy must mimic. The default is www.cloudflare.com. To disable the fake tls, use this: '--tls ""'
+--custom-args : string -> If you want you can set some other arguments that are directly put into the service file.
+```
+
+Example:
+```bash
+bash MTProtoProxyOfficialInstall.sh --port 443 --secret 00000000000000000000000000000000 --secret 0123456789abcdef0123456789abcdef --tag dcbe8f1493fa4cd9ab300891c0b5b326 --tls "www.google.com"
 ```
 #### Managing The Proxy
 ##### Service
