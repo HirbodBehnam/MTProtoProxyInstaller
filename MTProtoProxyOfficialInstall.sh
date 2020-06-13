@@ -584,7 +584,7 @@ fi
 tput setaf 3
 printf "%$(tput cols)s" | tr ' ' '#'
 tput sgr 0
-echo "These are the links with random padding:"
+echo "These are the links for proxy:"
 PUBLIC_IP="$(curl https://api.ipify.org -sS)"
 CURL_EXIT_STATUS=$?
 if [ $CURL_EXIT_STATUS -ne 0 ]; then
