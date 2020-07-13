@@ -263,9 +263,8 @@ if [ -d "/opt/MTProxy" ]; then
 	#Uninstall proxy
 	8)
 		read -r -p "I still keep some packages like \"Development Tools\". Do want to uninstall MTProto-Proxy?(y/n) " OPTION
-		OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 		case $OPTION in
-		"y")
+		"y" | "Y")
 			cd /opt/MTProxy || exit 2
 			systemctl stop MTProxy
 			systemctl disable MTProxy
@@ -307,6 +306,7 @@ if [ "$#" -ge 2 ]; then
 			--disable-updater) ENABLE_UPDATER="n" ;;
 			--tls) TLS_DOMAIN="$2"; shift ;;
 			--custom-args) CUSTOM_ARGS="$2"; shift;;
+			--no-bbr) ENABLE_BBR="n" ;;
 		esac
 	shift
 	done
@@ -338,6 +338,7 @@ if [ "$#" -ge 2 ]; then
 	if [ -z ${CPU_CORES+x} ]; then CPU_CORES=$(nproc --all); fi
 	if [ -z ${ENABLE_UPDATER+x} ]; then ENABLE_UPDATER="y"; fi
 	if [ -z ${TLS_DOMAIN+x} ]; then TLS_DOMAIN="www.cloudflare.com"; fi
+	if [ -z ${ENABLE_BBR+x} ]; then ENABLE_UPDATER="y"; fi
 else
 	#Variables
 	SECRET=""
@@ -390,11 +391,10 @@ else
 		esac
 		SECRET_ARY+=("$SECRET")
 		read -r -p "Do you want to add another secret?(y/n) " -e -i "n" OPTION
-		OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 		case $OPTION in
-		'y') ;;
+		'y' | "Y") ;;
 
-		'n')
+		'n' | "N")
 			break
 			;;
 		*)
@@ -405,15 +405,14 @@ else
 	done
 	#Now setup the tag
 	read -r -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
-	OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 	case $OPTION in
-	'y')
+	'y' | "Y")
 		echo "$(tput setaf 1)Note:$(tput sgr 0) Joined users and admins won't see the channel at very top."
 		echo "On telegram, go to @MTProxybot Bot and enter this server's IP and $PORT as port. Then as secret enter $SECRET"
 		echo "Bot will give you a string named TAG. Enter it here:"
 		read -r TAG
 		;;
-	'n') ;;
+	'n' | "N") ;;
 
 	*)
 		echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
@@ -498,10 +497,9 @@ if [[ $distro =~ "CentOS" ]]; then
 			OPTION="y"
 		else
 			read -r -p "Looks like \"firewalld\" is not installed Do you want to install it?(y/n) " -e -i "y" OPTION
-			OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 		fi
 		case $OPTION in
-		"y")
+		"y" | "Y")
 			yum -y install firewalld
 			systemctl enable firewalld
 			;;
@@ -536,13 +534,11 @@ elif [[ $distro =~ "Ubuntu" ]]; then
 	fi
 	#Use BBR on user will
 	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ]; then
-		if [ "$AUTO" = true ]; then
-			OPTION="y"
-		else
+		if [ "$AUTO" != true ]; then
 			echo
-			read -r -p "Do you want to use BBR? BBR might help your proxy run faster.(y/n) " -e -i "y" OPTION
+			read -r -p "Do you want to use BBR? BBR might help your proxy run faster.(y/n) " -e -i "y" ENABLE_BBR
 		fi
-		case $OPTION in
+		case $ENABLE_BBR in
 		"y" | "Y")
 			echo 'net.core.default_qdisc=fq' | tee -a /etc/sysctl.conf
 			echo 'net.ipv4.tcp_congestion_control=bbr' | tee -a /etc/sysctl.conf
