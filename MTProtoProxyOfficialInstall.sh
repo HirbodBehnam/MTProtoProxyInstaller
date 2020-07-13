@@ -536,8 +536,12 @@ elif [[ $distro =~ "Ubuntu" ]]; then
 	fi
 	#Use BBR on user will
 	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ]; then
-		echo
-		read -r -p "Do you want to use BBR? BBR might help your proxy run faster.(y/n) " -e -i "y" OPTION
+		if [ "$AUTO" = true ]; then
+			OPTION="y"
+		else
+			echo
+			read -r -p "Do you want to use BBR? BBR might help your proxy run faster.(y/n) " -e -i "y" OPTION
+		fi
 		case $OPTION in
 		"y" | "Y")
 			echo 'net.core.default_qdisc=fq' | tee -a /etc/sysctl.conf
