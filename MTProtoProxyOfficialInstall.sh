@@ -534,6 +534,18 @@ elif [[ $distro =~ "Ubuntu" ]]; then
 			;;
 		esac
 	fi
+	#Use BBR on user will
+	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ]; then
+		echo
+		read -r -p "Do you want to use BBR? BBR might help your proxy run faster.(y/n) " -e -i "y" OPTION
+		case $OPTION in
+		"y" | "Y")
+			echo 'net.core.default_qdisc=fq' | tee -a /etc/sysctl.conf
+			echo 'net.ipv4.tcp_congestion_control=bbr' | tee -a /etc/sysctl.conf
+			sysctl -p
+			;;
+		esac
+	fi
 elif [[ $distro =~ "Debian" ]]; then
 	apt-get install -y iptables iptables-persistent
 	iptables -A INPUT -p tcp --dport "$PORT" --jump ACCEPT
