@@ -31,7 +31,6 @@ function GetRandomPort() {
 }
 function ListUsersAndSelect() {
 	clear
-	rm -f tempSecrets.json
 	SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
 	SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
 	if [ "$SECRET_COUNT" == "0" ]; then
@@ -40,7 +39,7 @@ function ListUsersAndSelect() {
 	fi
 	RemoveMultiLineUser #Regenerate USERS only in one line
 	SECRET=$(echo "$SECRET" | tr "'" '"')
-	echo "$SECRET" >>tempSecrets.json
+	echo "$SECRET" >tempSecrets.json
 	SECRET_ARY=()
 	mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
 	echo "Here are list of current users:"
@@ -158,7 +157,6 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		if [ $CURL_EXIT_STATUS -ne 0 ]; then
 			PUBLIC_IP="YOUR_IP"
 		fi
-		rm -f tempSecrets.json
 		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
 		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
 		SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
@@ -169,7 +167,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		fi
 		RemoveMultiLineUser #Regenerate USERS only in one line
 		SECRET=$(echo "$SECRET" | tr "'" '"')
-		echo "$SECRET" >>tempSecrets.json
+		echo "$SECRET" >tempSecrets.json
 		SECRET_ARY=()
 		mapfile -t SECRET_ARY < <(jq -r 'keys[]' tempSecrets.json)
 		#Print
@@ -372,8 +370,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			limits[$KEY]=$MAX_USER
 		fi
 		GenerateConnectionLimiterConfig
-		rm limits_bash.txt
-		echo -e "$LIMITER_FILE" >>"limits_bash.txt"
+		echo -e "$LIMITER_FILE" >"limits_bash.txt"
 		sed -i '/^USER_MAX_TCP_CONNS\s*=.*/ d' config.py #Remove settings
 		echo "" >>config.py
 		echo "USER_MAX_TCP_CONNS = { $LIMITER_CONFIG }" >>config.py
@@ -408,8 +405,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		else
 			j=$(jq -c --arg k "$KEY" --arg v "$DATE" '.[$k] = $v' limits_date.json)
 		fi
-		rm limits_date.json
-		echo -e "$j" >>limits_date.json
+		echo -e "$j" >limits_date.json
 		#Save it to the config.py
 		sed -i '/^USER_EXPIRATIONS\s*=.*/ d' config.py #Remove settings
 		echo "" >>config.py
@@ -445,8 +441,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			fi
 			j=$(jq -c --arg k "$KEY" --argjson v "$LIMIT" '.[$k] = $v' limits_quota.json)
 		fi
-		rm limits_quota.json
-		echo -e "$j" >> limits_quota.json
+		echo -e "$j" >limits_quota.json
 		#Save it to the config.py
 		sed -i '/^USER_DATA_QUOTA\s*=.*/ d' config.py #Remove settings
 		echo "" >>config.py
@@ -493,8 +488,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
 			systemctl stop mtprotoproxy
 			systemctl disable mtprotoproxy
-			rm -rf /opt/mtprotoproxy
-			rm -f /etc/systemd/system/mtprotoproxy.service
+			rm -rf /opt/mtprotoproxy /etc/systemd/system/mtprotoproxy.service
 			systemctl daemon-reload
 			if [[ $distro =~ "CentOS" ]]; then
 				firewall-cmd --remove-port="$PORT"/tcp
@@ -718,14 +712,12 @@ cd /opt || exit 2
 git clone https://github.com/alexbers/mtprotoproxy.git
 cd mtprotoproxy || exit 2
 #Now edit the config file
-rm -f config.py
-touch config.py
 chmod 0777 config.py
 echo "PORT = $PORT
 USERS = { $SECRETS }
 USER_MAX_TCP_CONNS = { $LIMITER_CONFIG }
 TLS_DOMAIN = \"$TLS_DOMAIN\"
-" >>config.py
+" >config.py
 if [ -n "$TAG" ]; then
 	TAGTEMP="AD_TAG = "
 	TAGTEMP+='"'

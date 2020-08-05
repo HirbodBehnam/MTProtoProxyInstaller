@@ -99,9 +99,8 @@ if [ -d "/opt/MTProxy" ]; then
 		read -r TAG
 		cd /etc/systemd/system || exit 2
 		systemctl stop MTProxy
-		rm MTProxy.service
 		GenerateService
-		echo "$SERVICE_STR" >>MTProxy.service
+		echo "$SERVICE_STR" >MTProxy.service
 		systemctl daemon-reload
 		systemctl start MTProxy
 		cd /opt/MTProxy/objs/bin/ || exit 2
@@ -138,9 +137,8 @@ if [ -d "/opt/MTProxy" ]; then
 		#Add secret to config
 		cd /etc/systemd/system || exit 2
 		systemctl stop MTProxy
-		rm MTProxy.service
 		GenerateService
-		echo "$SERVICE_STR" >>MTProxy.service
+		echo "$SERVICE_STR" >MTProxy.service
 		systemctl daemon-reload
 		systemctl start MTProxy
 		cd /opt/MTProxy/objs/bin/ || exit 2
@@ -227,9 +225,8 @@ if [ -d "/opt/MTProxy" ]; then
 		#Save
 		cd /etc/systemd/system || exit 2
 		systemctl stop MTProxy
-		rm MTProxy.service
 		GenerateService
-		echo "$SERVICE_STR" >>MTProxy.service
+		echo "$SERVICE_STR" >MTProxy.service
 		systemctl daemon-reload
 		systemctl start MTProxy
 		cd /opt/MTProxy/objs/bin/ || exit 2
@@ -277,8 +274,7 @@ if [ -d "/opt/MTProxy" ]; then
 				iptables -D INPUT -p tcp --dport "$PORT" --jump ACCEPT
 				iptables-save >/etc/iptables/rules.v4
 			fi
-			rm -rf /opt/MTProxy
-			rm -f /etc/systemd/system/MTProxy.service
+			rm -rf /opt/MTProxy /etc/systemd/system/MTProxy.service
 			systemctl daemon-reload
 			sed -i '\|cd /opt/MTProxy/objs/bin && bash updater.sh|d' /etc/crontab
 			if [[ $distro =~ "CentOS" ]]; then
