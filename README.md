@@ -35,13 +35,23 @@ Wait until the setup finishes, you should be given the links. (using `systemctl 
 To update, uninstall, change port, revoke secret or... the proxy, run this script again.
 #### Managing The Proxy
 ##### Service
-Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy -l` to see logs of script.
+Use `systemctl start mtprotoproxy` to start, `systemctl stop mtprotoproxy` to stop and `systemctl status mtprotoproxy -l` to see logs of script. For hot reload see below.
 ##### Config
-To manually config, proxy edit config.py in /opt/mtprotoproxy to change the config; Then restart the server using `systemctl restart mtprotoproxy` or just run script again.
+To manually config, proxy edit config.py in /opt/mtprotoproxy to change the config; Then restart the server using `systemctl restart mtprotoproxy` or use hot reload.
 ##### Quota Limiter
 Python version of the proxy has the ability to limit the users by the traffic they use. You can change the quota by re-running the script after the installation. But remember that if you restart the proxy, all of the usages will reset. (They start counting from 0 again.)
 
 Therefore, if you want user management you can use this [program](https://github.com/HirbodBehnam/PortForwarder)
+##### Hot Reload:
+Hot reload reloads the config file without restarting the service. It can be useful if you have set some quota limits.
+
+Copy and execute each of these lines on your terminal:
+```bash
+pid=$(systemctl show --property MainPID mtprotoproxy)
+arrPID=(${pid//=/ })
+pid=${arrPID[1]}
+kill -USR2 "$pid"
+```
 ### API
 This script gives you post-install API support to control the proxy. [More Info](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/API-For-Python-Script)
 ## Official Script
