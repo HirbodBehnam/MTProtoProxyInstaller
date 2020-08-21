@@ -108,7 +108,7 @@ if [ -d "/opt/MTProxy" ]; then
 		systemctl daemon-reload
 		systemctl start MTProxy
 		cd /opt/MTProxy/objs/bin/ || exit 2
-		sed -i "s/^TAG=.*/TAG=$TAG/" mtconfig.conf
+		sed -i "s/^TAG=.*/TAG=\"$TAG\"/" mtconfig.conf
 		echo "Done"
 		;;
 	#Add secret
@@ -242,9 +242,9 @@ if [ -d "/opt/MTProxy" ]; then
 			read -r -p "Please enter your private IP: " -e -i "$IP" PRIVATE_IP
 		fi
 		cd /opt/MTProxy/objs/bin/ || exit 2
-		sed -i "s/^HAVE_NAT=.*/HAVE_NAT=$HAVE_NAT/" mtconfig.conf
-		sed -i "s/^PUBLIC_IP=.*/PUBLIC_IP=$PUBLIC_IP/" mtconfig.conf
-		sed -i "s/^PRIVATE_IP=.*/PRIVATE_IP=$PRIVATE_IP/" mtconfig.conf
+		sed -i "s/^HAVE_NAT=.*/HAVE_NAT=\"$HAVE_NAT\"/" mtconfig.conf
+		sed -i "s/^PUBLIC_IP=.*/PUBLIC_IP=\"$PUBLIC_IP\"/" mtconfig.conf
+		sed -i "s/^PRIVATE_IP=.*/PRIVATE_IP=\"$PRIVATE_IP\"/" mtconfig.conf
 		echo "Done"
 		;;
 	#Change other args
