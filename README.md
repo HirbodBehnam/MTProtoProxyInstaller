@@ -3,6 +3,7 @@ A very small script to install MTProtoProxy On Centos or Ubuntu
 
 ## Why this installer?
 * Generate random secret
+* Scripts for all proxy servers
 * Automatically configure firewall
 * Create a service to run it on background and start up
 * Choose between Official Proxy, Python Proxy and Erlang Proxy
@@ -91,7 +92,15 @@ bash MTProtoProxyOfficialInstall.sh --port 443 --secret 000000000000000000000000
 Use `systemctl start MTProxy` to start, `systemctl stop MTProxy` to stop and `systemctl status MTProxy -l` to see logs of script.
 ##### Config
 The service file is saved in `/etc/systemd/system/MTProxy.service`. You can edit it manually. There is also a file named `mtconfig.conf` at `/opt/MTProxy/objs/bin` that is created by script. It’s used in loading proxy configs by script. *You must not delete this file* ,however, you can edit it. Also if you have enabled auto updater, you will have two other files named `updater.sh` and `updater.log`
-## Erlang Installer
+## Golang Version Installer (MTG)
+This proxy server is written in golang. TBH, I have not worked with it and I have not an idea if it's good or not. Also note that the go version is meant to be easy to setup and does not give you a lot of options to configure your proxy.
+### Install 
+```
+curl -o MTGInstall.sh -L https://git.io/mtginstaller && bash MTGInstall.sh
+```
+### Service
+A service name under the name of `mtg` is created for you. All of the configs are in that service.
+## Erlang Version Installer
 Thanks to @seriyps creator of the [Erlang Proxy](https://github.com/seriyps/mtproto_proxy) you can now install the Erlang proxy with a script.
 
 **Note:** This script works on Ubuntu 18/19 , Debian 9/10 and Centos 7.
@@ -131,6 +140,8 @@ https://www.reddit.com/r/Telegram/comments/95m5vi/how_to_deploy_mtproto_proxy_se
 [Python Proxy](https://github.com/alexbers/mtprotoproxy)
 
 [Official C Proxy](https://github.com/TelegramMessenger/MTProxy)
+
+[Golang Proxy aka MTG](https://github.com/9seconds/mtg)
 
 [Erlang Proxy](https://github.com/seriyps/mtproto_proxy)
 ### Donations
