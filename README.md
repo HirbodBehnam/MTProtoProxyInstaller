@@ -95,7 +95,7 @@ The service file is saved in `/etc/systemd/system/MTProxy.service`. You can edit
 ## Golang Version Installer (MTG)
 This proxy server is written in golang. TBH, I have not worked with it and I have not an idea if it's good or not. Also note that the go version is meant to be easy to setup and does not give you a lot of options to configure your proxy.
 ### Install 
-```
+```bash
 curl -o MTGInstall.sh -L https://git.io/mtg_installer && bash MTGInstall.sh
 ```
 ### Service
