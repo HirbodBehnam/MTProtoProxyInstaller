@@ -26,11 +26,14 @@ function GenerateService() {
 	for i in "${SECRET_ARY[@]}"; do # Add secrets
 		ARGS_STR+=" -S $i"
 	done
-	if ! [ -z "$TAG" ]; then
+	if [ -n "$TAG" ]; then
 		ARGS_STR+=" -P $TAG "
 	fi
-	if ! [ -z "$TLS_DOMAIN" ]; then
+	if [ -n "$TLS_DOMAIN" ]; then
 		ARGS_STR+=" -D $TLS_DOMAIN "
+	fi
+	if [ "$HAVE_NAT" == "y" ]; then
+		ARGS_STR+=" --nat-info $PRIVATE_IP:$PUBLIC_IP "
 	fi
 	NEW_CORE=$(($CPU_CORES - 1))
 	ARGS_STR+=" -M $NEW_CORE $CUSTOM_ARGS --aes-pwd proxy-secret proxy-multi.conf"
@@ -63,9 +66,10 @@ if [ -d "/opt/MTProxy" ]; then
 	echo "  3) Add a secret"
 	echo "  4) Revoke a secret"
 	echo "  5) Change Worker Numbers"
-	echo "  6) Change Custom Arguments"
-	echo "  7) Generate Firewall Rules"
-	echo "  8) Uninstall Proxy"
+	echo "  6) Change NAT settings"
+	echo "  7) Change Custom Arguments"
+	echo "  8) Generate Firewall Rules"
+	echo "  9) Uninstall Proxy"
 	echo "  *) Exit"
 	read -r -p "Please enter a number: " OPTION
 	source /opt/MTProxy/objs/bin/mtconfig.conf #Load Configs
@@ -218,8 +222,33 @@ if [ -d "/opt/MTProxy" ]; then
 		sed -i "s/^CPU_CORES=.*/CPU_CORES=$CPU_CORES/" mtconfig.conf
 		echo "Done"
 		;;
-	#Change other args
+	#Change NAT types
 	6)
+		#Try to autodetect private ip: https://github.com/angristan/openvpn-install/blob/master/openvpn-install.sh#L230
+		IP=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+		HAVE_NAT="n"
+		if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
+			HAVE_NAT="y"
+		fi
+		read -r -p "Is your server behind NAT? (You probably need this if you are using AWS)(y/n) " -e -i "$HAVE_NAT" HAVE_NAT
+		if [[ "$HAVE_NAT" == "y" ]]; then
+			PUBLIC_IP="$(curl https://api.ipify.org -sS)"
+			read -r -p "Please enter your public IP: " -e -i "$PUBLIC_IP" PUBLIC_IP
+			if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
+				echo "I have detected that $IP is your private IP address. Please verify it."
+			else
+				IP=""
+			fi
+			read -r -p "Please enter your private IP: " -e -i "$IP" PRIVATE_IP
+		fi
+		cd /opt/MTProxy/objs/bin/ || exit 2
+		sed -i "s/^HAVE_NAT=.*/HAVE_NAT=$HAVE_NAT/" mtconfig.conf
+		sed -i "s/^PUBLIC_IP=.*/PUBLIC_IP=$PUBLIC_IP/" mtconfig.conf
+		sed -i "s/^PRIVATE_IP=.*/PRIVATE_IP=$PRIVATE_IP/" mtconfig.conf
+		echo "Done"
+		;;
+	#Change other args
+	7)
 		echo "If you want to use custom arguments to run the proxy enter them here; Otherwise just press enter."
 		read -r -e -i "$CUSTOM_ARGS" CUSTOM_ARGS
 		#Save
@@ -234,7 +263,7 @@ if [ -d "/opt/MTProxy" ]; then
 		echo "Done"
 		;;
 	#Firewall rules
-	7)
+	8)
 		if [[ $distro =~ "CentOS" ]]; then
 			echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
 			echo "firewall-cmd --runtime-to-permanent"
@@ -258,7 +287,7 @@ if [ -d "/opt/MTProxy" ]; then
 		fi
 		;;
 	#Uninstall proxy
-	8)
+	9)
 		read -r -p "I still keep some packages like \"Development Tools\". Do want to uninstall MTProto-Proxy?(y/n) " OPTION
 		case $OPTION in
 		"y" | "Y")
@@ -434,6 +463,24 @@ else
 	read -r -p "Do you want to enable the automatic config updater? I will update \"proxy-secret\" and \"proxy-multi.conf\" each day at midnight(12:00 AM). It's recommended to enable this.[y/n] " -e -i "y" ENABLE_UPDATER
 	#Change host mask
 	read -r -p "Select a host that DPI thinks you are visiting (TLS_DOMAIN). Pass an empty string to disable Fake-TLS. Enabling this option will automaticly disable the 'dd' secrets: " -e -i "www.cloudflare.com" TLS_DOMAIN
+	#Use nat status for proxies behind NAT
+	#Try to autodetect private ip: https://github.com/angristan/openvpn-install/blob/master/openvpn-install.sh#L230
+	IP=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+	HAVE_NAT="n"
+	if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
+		HAVE_NAT="y"
+	fi
+	read -r -p "Is your server behind NAT? (You probably need this if you are using AWS)(y/n) " -e -i "$HAVE_NAT" HAVE_NAT
+	if [[ "$HAVE_NAT" == "y" ]]; then
+		PUBLIC_IP="$(curl https://api.ipify.org -sS)"
+		read -r -p "Please enter your public IP: " -e -i "$PUBLIC_IP" PUBLIC_IP
+		if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
+			echo "I have detected that $IP is your private IP address. Please verify it."
+		else
+			IP=""
+		fi
+		read -r -p "Please enter your private IP: " -e -i "$IP" PRIVATE_IP
+	fi
 	#Other arguments
 	echo "If you want to use custom arguments to run the proxy enter them here; Otherwise just press enter."
 	read -r CUSTOM_ARGS
@@ -483,6 +530,9 @@ echo "SECRET_ARY=(${SECRET_ARY[*]})" >>mtconfig.conf
 echo "TAG=\"$TAG\"" >>mtconfig.conf
 echo "CUSTOM_ARGS=\"$CUSTOM_ARGS\"" >>mtconfig.conf
 echo "TLS_DOMAIN=\"$TLS_DOMAIN\"" >>mtconfig.conf
+echo "HAVE_NAT=\"$HAVE_NAT\"" >>mtconfig.conf
+echo "PUBLIC_IP=\"$PUBLIC_IP\"" >>mtconfig.conf
+echo "PRIVATE_IP=\"$PRIVATE_IP\"" >>mtconfig.conf
 #Setup firewall
 echo "Setting firewalld rules"
 if [[ $distro =~ "CentOS" ]]; then
