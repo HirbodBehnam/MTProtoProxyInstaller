@@ -796,9 +796,7 @@ echo
 echo "Use these links to connect to your proxy:"
 PUBLIC_IP="$(curl https://api.ipify.org -sS)"
 CURL_EXIT_STATUS=$?
-if [ $CURL_EXIT_STATUS -ne 0 ]; then
-	PUBLIC_IP="YOUR_IP"
-fi
+[ $CURL_EXIT_STATUS -ne 0 ] && PUBLIC_IP="YOUR_IP"
 COUNTER=0
 for i in "${SECRET_END_ARY[@]}"; do
 	s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")

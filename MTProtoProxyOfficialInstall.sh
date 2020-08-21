@@ -637,9 +637,7 @@ tput sgr 0
 echo "These are the links for proxy:"
 PUBLIC_IP="$(curl https://api.ipify.org -sS)"
 CURL_EXIT_STATUS=$?
-if [ $CURL_EXIT_STATUS -ne 0 ]; then
-	PUBLIC_IP="YOUR_IP"
-fi
+[ $CURL_EXIT_STATUS -ne 0 ] && PUBLIC_IP="YOUR_IP"
 HEX_DOMAIN=$(printf "%s" "$TLS_DOMAIN" | xxd -pu)
 HEX_DOMAIN="$(echo $HEX_DOMAIN | tr '[A-Z]' '[a-z]')"
 for i in "${SECRET_ARY[@]}"; do
