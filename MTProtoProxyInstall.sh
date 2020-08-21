@@ -636,21 +636,12 @@ case $OPTION in
 esac
 #Now setup the tag
 read -r -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
-OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
-case $OPTION in
-'y')
+if [[ "$OPTION" == "y" || "$OPTION" == "Y" ]]; then
 	echo "$(tput setaf 1)Note:$(tput sgr 0) Joined users and admins won't see the channel at very top."
 	echo "On telegram, go to @MTProxybot Bot and enter this server's IP and $PORT as port. Then as secret enter $SECRET"
 	echo "Bot will give you a string named TAG. Enter it here:"
 	read -r TAG
-	;;
-'n') ;;
-
-*)
-	echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
-	exit 1
-	;;
-esac
+fi
 #Change host mask
 read -r -p "Select a host that DPI thinks you are visiting (TLS_DOMAIN): " -e -i "www.cloudflare.com" TLS_DOMAIN
 #Now lets install

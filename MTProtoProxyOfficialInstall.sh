@@ -231,7 +231,7 @@ if [ -d "/opt/MTProxy" ]; then
 			HAVE_NAT="y"
 		fi
 		read -r -p "Is your server behind NAT? (You probably need this if you are using AWS)(y/n) " -e -i "$HAVE_NAT" HAVE_NAT
-		if [[ "$HAVE_NAT" == "y" ]]; then
+		if [[ "$HAVE_NAT" == "y" || "$HAVE_NAT" == "Y" ]]; then
 			PUBLIC_IP="$(curl https://api.ipify.org -sS)"
 			read -r -p "Please enter your public IP: " -e -i "$PUBLIC_IP" PUBLIC_IP
 			if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
@@ -430,20 +430,12 @@ else
 	done
 	#Now setup the tag
 	read -r -p "Do you want to setup the advertising tag?(y/n) " -e -i "n" OPTION
-	case $OPTION in
-	'y' | "Y")
+	if [[ "$OPTION" == "y" || "$OPTION" == "Y" ]]; then
 		echo "$(tput setaf 1)Note:$(tput sgr 0) Joined users and admins won't see the channel at very top."
 		echo "On telegram, go to @MTProxybot Bot and enter this server's IP and $PORT as port. Then as secret enter $SECRET"
 		echo "Bot will give you a string named TAG. Enter it here:"
 		read -r TAG
-		;;
-	'n' | "N") ;;
-
-	*)
-		echo "$(tput setaf 1)Invalid option$(tput sgr 0)"
-		exit 1
-		;;
-	esac
+	fi
 	#Get CPU Cores
 	CPU_CORES=$(nproc --all)
 	echo "I've detected that your server has $CPU_CORES cores. If you want I can configure proxy to run at all of your cores. This will make the proxy to spawn $CPU_CORES workers. For some reasons, proxy will most likely to fail at more than 16 cores. So please choose a number between 1 and 16."
@@ -471,7 +463,7 @@ else
 		HAVE_NAT="y"
 	fi
 	read -r -p "Is your server behind NAT? (You probably need this if you are using AWS)(y/n) " -e -i "$HAVE_NAT" HAVE_NAT
-	if [[ "$HAVE_NAT" == "y" ]]; then
+	if [[ "$HAVE_NAT" == "y" || "$HAVE_NAT" == "Y" ]]; then
 		PUBLIC_IP="$(curl https://api.ipify.org -sS)"
 		read -r -p "Please enter your public IP: " -e -i "$PUBLIC_IP" PUBLIC_IP
 		if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
