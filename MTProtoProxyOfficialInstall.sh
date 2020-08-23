@@ -331,9 +331,10 @@ if [ "$#" -ge 2 ]; then
 			--disable-updater) ENABLE_UPDATER="n" ;;
 			--tls) TLS_DOMAIN="$2"; shift ;;
 			--custom-args) CUSTOM_ARGS="$2"; shift;;
+			--no-nat) HAVE_NAT="n" ;;
 			--no-bbr) ENABLE_BBR="n" ;;
 		esac
-	shift
+		shift
 	done
 	#Check secret
 	if [[ ${#SECRET_ARY[@]} -eq 0 ]];then
@@ -358,6 +359,15 @@ if [ "$#" -ge 2 ]; then
 	if [ "$PORT" -gt 65535 ]; then
 		echo "$(tput setaf 1)Error:$(tput sgr 0): Number must be less than 65536"
 		exit 1
+	fi
+	#Check NAT
+	if [[ "$HAVE_NAT" != "n" ]]; then
+		PRIVATE_IP=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+		PUBLIC_IP="$(curl https://api.ipify.org -sS)"
+		HAVE_NAT="n"
+		if echo "$PRIVATE_IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
+			HAVE_NAT="y"
+		fi
 	fi
 	#Check other stuff
 	if [ -z ${CPU_CORES+x} ]; then CPU_CORES=$(nproc --all); fi

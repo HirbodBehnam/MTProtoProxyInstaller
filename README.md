@@ -81,6 +81,7 @@ Reference:
 --tls : string -> The host that the proxy must mimic. The default is www.cloudflare.com. To disable the fake tls, use this: '--tls ""'
 --custom-args : string -> If you want you can set some other arguments that are directly put into the service file.
 --no-bbr : bool -> Pass this argument to do not enable BBR if the operating system is Ubuntu 18.04 or higher. (Does not have any effect on other operating systems).
+--no-nat: bool -> Pass this argument to disable the NAT check
 ```
 
 Example:
