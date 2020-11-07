@@ -772,7 +772,6 @@ elif [[ $distro =~ "Ubuntu" ]]; then
 fi
 #Now lets create the service
 cd /etc/systemd/system || exit 2
-touch mtprotoproxy.service
 echo "[Unit]
 Description = MTProto Proxy Service
 After=network.target
@@ -783,7 +782,7 @@ ExecStart = /usr/bin/python3.6 /opt/mtprotoproxy/mtprotoproxy.py
 StartLimitBurst=0
 
 [Install]
-WantedBy = multi-user.target" >>mtprotoproxy.service
+WantedBy = multi-user.target" >mtprotoproxy.service
 systemctl daemon-reload
 systemctl enable mtprotoproxy
 systemctl start mtprotoproxy

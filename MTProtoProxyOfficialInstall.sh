@@ -184,9 +184,8 @@ if [ -d "/opt/MTProxy" ]; then
 		SECRET_ARY=("${SECRET_ARY[@]:0:$USER_TO_REVOKE1}" "${SECRET_ARY[@]:$USER_TO_REVOKE}")
 		cd /etc/systemd/system || exit 2
 		systemctl stop MTProxy
-		rm MTProxy.service
 		GenerateService
-		echo "$SERVICE_STR" >>MTProxy.service
+		echo "$SERVICE_STR" >MTProxy.service
 		systemctl daemon-reload
 		systemctl start MTProxy
 		cd /opt/MTProxy/objs/bin/ || exit 2 || exit 2
@@ -213,9 +212,8 @@ if [ -d "/opt/MTProxy" ]; then
 		#Save
 		cd /etc/systemd/system || exit 2
 		systemctl stop MTProxy
-		rm MTProxy.service
 		GenerateService
-		echo "$SERVICE_STR" >>MTProxy.service
+		echo "$SERVICE_STR" >MTProxy.service
 		systemctl daemon-reload
 		systemctl start MTProxy
 		cd /opt/MTProxy/objs/bin/ || exit 2
@@ -525,8 +523,7 @@ if [ $STATUS_SECRET -ne 0 ]; then
 	echo "$(tput setaf 1)Error:$(tput sgr 0) Cannot download proxy-multi.conf from Telegram servers."
 fi
 #Setup mtconfig.conf
-touch mtconfig.conf
-echo "PORT=$PORT" >>mtconfig.conf
+echo "PORT=$PORT" >mtconfig.conf
 echo "CPU_CORES=$CPU_CORES" >>mtconfig.conf
 echo "SECRET_ARY=(${SECRET_ARY[*]})" >>mtconfig.conf
 echo "TAG=\"$TAG\"" >>mtconfig.conf
@@ -601,9 +598,8 @@ elif [[ $distro =~ "Debian" ]]; then
 fi
 #Setup service files
 cd /etc/systemd/system || exit 2
-touch MTProxy.service
 GenerateService
-echo "$SERVICE_STR" >>MTProxy.service
+echo "$SERVICE_STR" >MTProxy.service
 systemctl daemon-reload
 systemctl start MTProxy
 systemctl is-active --quiet MTProxy #Check if service is active
@@ -631,7 +627,7 @@ if [ $STATUS_CONF -eq 0 ]; then
 fi
 rm proxy-multi.conf1
 systemctl start MTProxy
-echo "Updater runned at $(date). Exit codes of getProxySecret and getProxyConfig are $STATUS_SECRET and $STATUS_CONF" >> updater.log' >>/opt/MTProxy/objs/bin/updater.sh
+echo "Updater runned at $(date). Exit codes of getProxySecret and getProxyConfig are $STATUS_SECRET and $STATUS_CONF" >> updater.log' >/opt/MTProxy/objs/bin/updater.sh
 	echo "" >>/etc/crontab
 	echo "0 0 * * * root cd /opt/MTProxy/objs/bin && bash updater.sh" >>/etc/crontab
 	if [[ $distro =~ "CentOS" ]]; then
