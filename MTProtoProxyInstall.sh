@@ -390,19 +390,19 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			DATE="$3"
 		else
 			ListUsersAndSelect
-			read -r -p "Enter the expiry date in format of day/month/year(Example 11/9/2019). Enter nothing for removal: " DATE
-		fi
-		if ! [[ $DATE =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then 
-			if [ "$#" -ge 2 ]; then
-				PrintErrorJson "Invalid date format"
-			else
-				echo "Invalid format (DD/MM/YYYY)"
-				exit 1
-			fi
+			read -r -p "Enter the expiry date in format of day/month/year(Example 11/09/2019). Enter nothing for removal: " DATE
 		fi
 		if [[ $DATE == "" ]]; then
 			j=$(jq -c --arg k "$KEY" 'del(.[$k])' limits_date.json)
 		else
+			if ! [[ $DATE =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then 
+				if [ "$#" -ge 2 ]; then
+					PrintErrorJson "Invalid date format"
+				else
+					echo "Invalid format (DD/MM/YYYY)"
+					exit 1
+				fi
+			fi
 			j=$(jq -c --arg k "$KEY" --arg v "$DATE" '.[$k] = $v' limits_date.json)
 		fi
 		echo -e "$j" >limits_date.json
