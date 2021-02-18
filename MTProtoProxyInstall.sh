@@ -2,9 +2,9 @@
 regex='^[0-9]+$'
 function RemoveMultiLineUser() {
 	local SECRET_T
-	SECRET_T=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
+	SECRET_T=$(python3.8 -c 'import config;print(getattr(config, "USERS",""))')
 	SECRET_T=$(echo "$SECRET_T" | tr "'" '"')
-	python3.6 -c "import re;f = open('config.py', 'r');s = f.read();p = re.compile('USERS\\s*=\\s*\\{.*?\\}', re.DOTALL);nonBracketedString = p.sub('', s);f = open('config.py', 'w');f.write(nonBracketedString)"
+	python3.8 -c "import re;f = open('config.py', 'r');s = f.read();p = re.compile('USERS\\s*=\\s*\\{.*?\\}', re.DOTALL);nonBracketedString = p.sub('', s);f = open('config.py', 'w');f.write(nonBracketedString)"
 	echo "" >>config.py
 	echo "USERS = $SECRET_T" >>config.py
 }
@@ -31,8 +31,8 @@ function GetRandomPort() {
 }
 function ListUsersAndSelect() {
 	clear
-	SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-	SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+	SECRET=$(python3.8 -c 'import config;print(getattr(config, "USERS",""))')
+	SECRET_COUNT=$(python3.8 -c 'import config;print(len(getattr(config, "USERS","")))')
 	if [ "$SECRET_COUNT" == "0" ]; then
 		echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets."
 		exit 4
@@ -92,8 +92,8 @@ function PrintOkJson() {
 function GetSecretFromUsername() {
 	rm -f tempSecrets.json
 	KEY="$1"
-	SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-	SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+	SECRET=$(python3.8 -c 'import config;print(getattr(config, "USERS",""))')
+	SECRET_COUNT=$(python3.8 -c 'import config;print(len(getattr(config, "USERS","")))')
 	if [ "$SECRET_COUNT" == "0" ]; then
 		PrintErrorJson "You have no secrets"
 	fi
@@ -103,6 +103,27 @@ function GetSecretFromUsername() {
 	SECRET=$(jq -r --arg k "$KEY" '.[$k]' tempSecrets.json)
 	if [ "$SECRET" == "null" ]; then
 		PrintErrorJson "This secret does not exist."
+	fi
+}
+function CompilePython() {
+	if ! command -v "python3.8" >/dev/null; then
+		if [[ $distro =~ "CentOS" ]]; then
+			yum -y groupinstall "Development Tools"
+			yum -y install openssl-devel bzip2-devel libffi-devel
+		else
+			apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev
+		fi
+		#Download and install python 3.8
+		cd /opt || exit 2
+		curl -o Python-3.8.7.tar.xz https://www.python.org/ftp/python/3.8.7/Python-3.8.7.tar.xz
+		tar xf Python-3.8.7.tar.xz
+		cd Python-3.8.7 || exit 2
+		./configure --enable-optimizations
+		make altinstall
+		ln -s /usr/local/bin/python3.8 /usr/bin/python3.8
+	fi
+	if ! [ -f "/usr/local/bin/python3.8" ]; then #in case user had python3.8
+		ln -s /usr/local/bin/python3.8 /usr/bin/python3.8
 	fi
 }
 #User must run the script as root
@@ -120,8 +141,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		OPTION=$1
 		if [ "$OPTION" == "list" ]; then
 			if [ "$#" == 1 ]; then #list all of the secret and usernames
-				SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-				SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+				SECRET=$(python3.8 -c 'import config;print(getattr(config, "USERS",""))')
+				SECRET_COUNT=$(python3.8 -c 'import config;print(len(getattr(config, "USERS","")))')
 				if [ "$SECRET_COUNT" == "0" ]; then
 					PrintErrorJson "You have no secrets"
 				fi
@@ -157,10 +178,10 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		if [ $CURL_EXIT_STATUS -ne 0 ]; then
 			PUBLIC_IP="YOUR_IP"
 		fi
-		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
-		SECRET=$(python3.6 -c 'import config;print(getattr(config, "USERS",""))')
-		SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
-		TLS_DOMAIN=$(python3.6 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
+		PORT=$(python3.8 -c 'import config;print(getattr(config, "PORT",-1))')
+		SECRET=$(python3.8 -c 'import config;print(getattr(config, "USERS",""))')
+		SECRET_COUNT=$(python3.8 -c 'import config;print(len(getattr(config, "USERS","")))')
+		TLS_DOMAIN=$(python3.8 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
 		if [ "$SECRET_COUNT" == "0" ]; then
 			echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets. Cannot show nothing!"
 			exit 4
@@ -173,7 +194,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		#Print
 		for user in "${SECRET_ARY[@]}"; do
 			SECRET=$(jq --arg u "$user" -r '.[$u]' tempSecrets.json)
-			s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
+			s=$(python3.8 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
 			echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s"
 			echo
 		done
@@ -190,14 +211,14 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			git pull
 			mv /tmp/config.py /opt/mtprotoproxy/config.py
 			#Update cryptography and uvloop
-			pip3.6 install --upgrade cryptography uvloop
+			pip3.8 install --upgrade cryptography uvloop
 			systemctl start mtprotoproxy
 			echo "Proxy updated."
 		fi
 		;;
 	#Change AD_TAG
 	3)
-		TAG=$(python3.6 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		TAG=$(python3.8 -c 'import config;print(getattr(config, "AD_TAG",""))')
 		OldEmptyTag=false
 		if [ -z "$TAG" ]; then
 			OldEmptyTag=true
@@ -231,8 +252,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 	#New secret
 	4)
 		#API Usage: bash MTProtoProxyInstall.sh 4 <USERNAME> <SECRET> -> Do not define secret to generate a random secret
-		SECRETS=$(python3.6 -c 'import config;print(getattr(config, "USERS","{}"))')
-		SECRET_COUNT=$(python3.6 -c 'import config;print(len(getattr(config, "USERS","")))')
+		SECRETS=$(python3.8 -c 'import config;print(getattr(config, "USERS","{}"))')
+		SECRET_COUNT=$(python3.8 -c 'import config;print(len(getattr(config, "USERS","")))')
 		SECRETS=$(echo "$SECRETS" | tr "'" '"')
 		SECRETS="${SECRETS::-1}" #Remove last char "}" here
 		if [ "$#" -ge 2 ]; then #Get username
@@ -294,9 +315,9 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		if [ $CURL_EXIT_STATUS -ne 0 ]; then
 			PUBLIC_IP="YOUR_IP"
 		fi
-		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
-		TLS_DOMAIN=$(python3.6 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
-		s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
+		PORT=$(python3.8 -c 'import config;print(getattr(config, "PORT",-1))')
+		TLS_DOMAIN=$(python3.8 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
+		s=$(python3.8 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
 		if [ "$#" -ge 2 ]; then
 			echo "{\"ok\":true,\"msg\":{\"link\":\"tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s\",\"secret\":\"$SECRET\"}}"
 		else
@@ -456,7 +477,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		;;
 	#Firewall rules
 	9)
-		PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+		PORT=$(python3.8 -c 'import config;print(getattr(config, "PORT",-1))')
 		if [[ $distro =~ "CentOS" ]]; then
 			echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
 			echo "firewall-cmd --runtime-to-permanent"
@@ -485,7 +506,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 		case $OPTION in
 		"y")
-			PORT=$(python3.6 -c 'import config;print(getattr(config, "PORT",-1))')
+			PORT=$(python3.8 -c 'import config;print(getattr(config, "PORT",-1))')
 			systemctl stop mtprotoproxy
 			systemctl disable mtprotoproxy
 			rm -rf /opt/mtprotoproxy /etc/systemd/system/mtprotoproxy.service
@@ -649,41 +670,20 @@ read -n 1 -s -r -p "Press any key to install..."
 clear
 if [[ $distro =~ "CentOS" ]]; then
 	yum -y install epel-release
-	yum -y update
-	yum -y install sed git python36 curl ca-certificates jq
+	yum -y install sed git curl ca-certificates jq
+	CompilePython
 elif [[ $distro =~ "Ubuntu" ]]; then
 	apt update
-	if ! [[ $(lsb_release -r -s) =~ "17" ]] && ! [[ $(lsb_release -r -s) =~ "18" ]] && ! [[ $(lsb_release -r -s) =~ "19" ]]; then
+	if ! [[ $(lsb_release -r -s) =~ "20" ]]; then
 		apt-get -y install software-properties-common
 		add-apt-repository ppa:deadsnakes/ppa
-		apt-get update
-		apt-get -y install python3.6 sed git curl jq ca-certificates
-	else
-		apt-get -y install python3.6 python3.6-distutils sed git curl jq ca-certificates
 	fi
+	apt-get update
+	apt-get -y install python3.8 python3.8-distutils sed git curl jq ca-certificates
 elif [[ $distro =~ "Debian" ]]; then
 	apt-get update
 	apt-get install -y jq ca-certificates iptables-persistent iptables git sed curl wget
-	if ! command -v "python3.6" >/dev/null; then
-		apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev #python packages
-		#Download and install python 3.6.9
-		cd /opt || exit 2
-		curl -o Python-3.6.9.tar.xz https://www.python.org/ftp/python/3.6.9/Python-3.6.9.tar.xz
-		tar xvf Python-3.6.9.tar.xz
-		cd Python-3.6.9 || exit 2
-		read -r -p "$(tput setaf 4)Question:$(tput sgr 0) Do you want to enable optimizations while building python? If yes, building will take much longer but the python will be faster. (y/n): " -e -i "y" OPTION
-		if [[ $OPTION == "y" || $OPTION == "Y" ]]; then
-			./configure --enable-optimizations
-		else
-			./configure
-		fi
-		make
-		make altinstall
-		ln -s /usr/local/bin/python3.6 /usr/bin/python3.6
-	fi
-	if ! [ -f "/usr/local/bin/python3.6" ]; then #in case user had python3.6
-		ln -s /usr/local/bin/python3.6 /usr/bin/python3.6
-	fi
+	CompilePython
 	#Firewall
 	iptables -A INPUT -p tcp --dport "$PORT" --jump ACCEPT
 	iptables-save >/etc/iptables/rules.v4
@@ -693,9 +693,9 @@ else
 fi
 timedatectl set-ntp on #Make the time accurate by enabling ntp
 #Install pip
-curl https://bootstrap.pypa.io/get-pip.py | python3.6
+curl https://bootstrap.pypa.io/get-pip.py | python3.8
 #This libs make proxy faster
-pip3.6 install cryptography uvloop
+pip3.8 install cryptography uvloop
 if ! [ -d "/opt" ]; then
 	mkdir /opt
 fi
@@ -758,7 +758,7 @@ elif [[ $distro =~ "Ubuntu" ]]; then
 		esac
 	fi
 	#Use BBR on user will
-	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ]; then
+	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ] && { [[ $(lsb_release -r -s) =~ "20" ]] || [[ $(lsb_release -r -s) =~ "19" ]] || [[ $(lsb_release -r -s) =~ "18" ]]; }; then
 		echo
 		read -r -p "Do you want to use BBR? BBR might help your proxy run faster.(y/n) " -e -i "y" OPTION
 		case $OPTION in
@@ -778,7 +778,7 @@ After=network.target
 
 [Service]
 Type = simple
-ExecStart = /usr/bin/python3.6 /opt/mtprotoproxy/mtprotoproxy.py
+ExecStart = /usr/bin/python3.8 /opt/mtprotoproxy/mtprotoproxy.py
 StartLimitBurst=0
 
 [Install]
@@ -798,7 +798,7 @@ CURL_EXIT_STATUS=$?
 [ $CURL_EXIT_STATUS -ne 0 ] && PUBLIC_IP="YOUR_IP"
 COUNTER=0
 for i in "${SECRET_END_ARY[@]}"; do
-	s=$(python3.6 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
+	s=$(python3.8 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
 	echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s"
 	COUNTER=$COUNTER+1
 done

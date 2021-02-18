@@ -347,7 +347,7 @@ elif [[ $distro =~ "Ubuntu" ]]; then
 		esac
 	fi
 	# Use BBR on user will
-	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ]; then
+	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ] && { [[ $(lsb_release -r -s) =~ "20" ]] || [[ $(lsb_release -r -s) =~ "19" ]] || [[ $(lsb_release -r -s) =~ "18" ]]; }; then
 		echo
 		read -r -p "Do you want to use BBR? BBR might help your proxy run faster.(y/n) " -e -i "y" OPTION
 		case $OPTION in

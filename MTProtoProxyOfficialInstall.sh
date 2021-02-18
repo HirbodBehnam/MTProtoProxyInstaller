@@ -35,7 +35,7 @@ function GenerateService() {
 	if [ "$HAVE_NAT" == "y" ]; then
 		ARGS_STR+=" --nat-info $PRIVATE_IP:$PUBLIC_IP "
 	fi
-	NEW_CORE=$(($CPU_CORES - 1))
+	NEW_CORE=$((CPU_CORES - 1))
 	ARGS_STR+=" -M $NEW_CORE $CUSTOM_ARGS --aes-pwd proxy-secret proxy-multi.conf"
 	SERVICE_STR="[Unit]
 Description=MTProxy
@@ -180,7 +180,7 @@ if [ -d "/opt/MTProxy" ]; then
 			echo "$(tput setaf 1)Error:$(tput sgr 0) Invalid number"
 			exit 1
 		fi
-		USER_TO_REVOKE1=$(($USER_TO_REVOKE - 1))
+		USER_TO_REVOKE1=$((USER_TO_REVOKE - 1))
 		SECRET_ARY=("${SECRET_ARY[@]:0:$USER_TO_REVOKE1}" "${SECRET_ARY[@]:$USER_TO_REVOKE}")
 		cd /etc/systemd/system || exit 2
 		systemctl stop MTProxy
@@ -578,7 +578,7 @@ elif [[ $distro =~ "Ubuntu" ]]; then
 		esac
 	fi
 	#Use BBR on user will
-	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ]; then
+	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ] && { [[ $(lsb_release -r -s) =~ "20" ]] || [[ $(lsb_release -r -s) =~ "19" ]] || [[ $(lsb_release -r -s) =~ "18" ]]; }; then
 		if [ "$AUTO" != true ]; then
 			echo
 			read -r -p "Do you want to use BBR? BBR might help your proxy run faster.(y/n) " -e -i "y" ENABLE_BBR
