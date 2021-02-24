@@ -113,6 +113,10 @@ if [ -d "/opt/MTProxy" ]; then
 		;;
 	#Add secret
 	3)
+		if [ "${#SECRET_ARY[@]}" -ge 16 ]; then
+			echo "$(tput setaf 1)Error$(tput sgr 0) You cannot have more than 16 secrets"
+			exit 1
+		fi
 		echo "Do you want to set secret manually or shall I create a random secret?"
 		echo "   1) Manually enter a secret"
 		echo "   2) Create a random secret"
@@ -425,7 +429,12 @@ else
 		SECRET_ARY+=("$SECRET")
 		read -r -p "Do you want to add another secret?(y/n) " -e -i "n" OPTION
 		case $OPTION in
-		'y' | "Y") ;;
+		'y' | "Y")
+			if [ "${#SECRET_ARY[@]}" -ge 16 ]; then
+				echo "$(tput setaf 1)Error$(tput sgr 0) You cannot have more than 16 secrets"
+				break
+			fi
+			;;
 
 		'n' | "N")
 			break
