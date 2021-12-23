@@ -81,8 +81,8 @@ function GetArch(){
 # Download the proxy
 function DownloadProxy(){
 	local url
-	#url="https://github.com/9seconds/mtg/releases/download/v1.0.6/mtg-linux-$arch" <- Will be used if I want to lock the version
-	url=$(wget -O - -o /dev/null https://api.github.com/repos/9seconds/mtg/releases/latest | grep "/mtg-linux-$arch" | grep -P 'https(.*)[^"]' -o)
+	url="https://github.com/9seconds/mtg/releases/download/v1.0.10/mtg-linux-386$arch" #<- Will be used if I want to lock the version
+	#url=$(wget -O - -o /dev/null https://api.github.com/repos/9seconds/mtg/releases/latest | grep "/mtg-linux-$arch" | grep -P 'https(.*)[^"]' -o) # Auto download latest version
 	wget -O mtg "$url"
 	chmod +x mtg
 	mv mtg /usr/bin
@@ -155,6 +155,7 @@ if [ -f "/usr/bin/mtg" ]; then
 	echo "  4) Change secret"
 	echo "  5) Generate firewall rules"
 	echo "  6) Uninstall Proxy"
+	echo "  7) About"
 	echo "  *) Exit"
 	read -r -p "Please enter a number: " OPTION
 	case $OPTION in
@@ -240,6 +241,11 @@ if [ -f "/usr/bin/mtg" ]; then
 			echo "Done"
 		fi
 		;;
+	7)
+		echo "MTProtoInstaller script by Hirbod Behnam"
+		echo "Source at https://github.com/9seconds/mtg"
+		echo "Github repo of script: https://github.com/HirbodBehnam/MTProtoProxyInstaller"
+		;;
 	esac
 	exit
 fi
@@ -247,6 +253,7 @@ echo "Welcome to MTG auto installer!"
 echo "Created by Hirbod Behnam"
 echo "I will install mtg proxy by 9seconds"
 echo "Source at https://github.com/9seconds/mtg"
+echo "Github repo of script: https://github.com/HirbodBehnam/MTProtoProxyInstaller"
 echo "Now I will gather some info from you."
 echo ""
 echo ""

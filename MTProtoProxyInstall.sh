@@ -115,9 +115,9 @@ function CompilePython() {
 		fi
 		#Download and install python 3.8
 		cd /opt || exit 2
-		curl -o Python-3.8.7.tar.xz https://www.python.org/ftp/python/3.8.7/Python-3.8.7.tar.xz
-		tar xf Python-3.8.7.tar.xz
-		cd Python-3.8.7 || exit 2
+		curl -o Python-3.8.12.tar.xz https://www.python.org/ftp/python/3.8.12/Python-3.8.12.tar.xz
+		tar xf Python-3.8.12.tar.xz
+		cd Python-3.8.12 || exit 2
 		./configure --enable-optimizations
 		make altinstall
 		ln -s /usr/local/bin/python3.8 /usr/bin/python3.8
@@ -165,6 +165,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		echo "  8 ) Change user quota options"
 		echo "  9 ) Generate firewall rules"
 		echo "  10) Uninstall Proxy"
+		echo "  11) About"
 		echo "  * ) Exit"
 		read -r -p "Please enter a number: " OPTION
 	fi
@@ -447,11 +448,27 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			LIMIT="$3"
 		else
 			ListUsersAndSelect
-			read -r -p "Enter the limit of the user in bytes. Enter nothing for removal: " LIMIT
+			read -r -p "Enter the limit of the user in bytes. You can use kb, mb and gb suffixes. Enter nothing for removal: " LIMIT
 		fi
 		if [[ $LIMIT == "" ]]; then
 			j=$(jq -c --arg k "$KEY" 'del(.[$k])' limits_quota.json)
 		else
+			LIMIT="$(echo $LIMIT | tr '[A-Z]' '[a-z]')"
+			MULTIPLIER=1
+			case "$LIMIT" in
+			*kb)
+				MULTIPLIER=1024
+				LIMIT=${LIMIT::-2}
+				;;
+			*mb)
+				MULTIPLIER=$((1024*1024))
+				LIMIT=${LIMIT::-2}
+				;;
+			*gb)
+				MULTIPLIER=$((1024*1024*1024))
+				LIMIT=${LIMIT::-2}
+				;;
+			esac
 			if ! [[ $LIMIT =~ $regex ]]; then
 				if [ "$#" -ge 2 ]; then
 					PrintErrorJson "Invalid number format"
@@ -460,6 +477,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 					exit 1
 				fi
 			fi
+			LIMIT=$((MULTIPLIER*LIMIT))
 			j=$(jq -c --arg k "$KEY" --argjson v "$LIMIT" '.[$k] = $v' limits_quota.json)
 		fi
 		echo -e "$j" >limits_quota.json
@@ -524,6 +542,12 @@ if [ -d "/opt/mtprotoproxy" ]; then
 			;;
 		esac
 		;;
+	# About
+	11)
+		echo "MTProtoInstaller script by Hirbod Behnam"
+		echo "Source at https://github.com/alexbers/mtprotoproxy"
+		echo "Github repo of script: https://github.com/HirbodBehnam/MTProtoProxyInstaller"
+		;;
 	esac
 	exit
 fi
@@ -538,6 +562,7 @@ echo "Welcome to MTProto-Proxy auto installer!"
 echo "Created by Hirbod Behnam"
 echo "I will install mtprotoproxy python script by alexbers"
 echo "Source at https://github.com/alexbers/mtprotoproxy"
+echo "Github repo of script: https://github.com/HirbodBehnam/MTProtoProxyInstaller"
 echo "Now I will gather some info from you."
 echo ""
 echo ""

@@ -61,15 +61,16 @@ distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 clear
 if [ -d "/opt/MTProxy" ]; then
 	echo "You have already installed MTProxy! What do you want to do?"
-	echo "  1) Show connection links"
-	echo "  2) Change TAG"
-	echo "  3) Add a secret"
-	echo "  4) Revoke a secret"
-	echo "  5) Change Worker Numbers"
-	echo "  6) Change NAT settings"
-	echo "  7) Change Custom Arguments"
-	echo "  8) Generate Firewall Rules"
-	echo "  9) Uninstall Proxy"
+	echo "  1 ) Show connection links"
+	echo "  2 ) Change TAG"
+	echo "  3 ) Add a secret"
+	echo "  4 ) Revoke a secret"
+	echo "  5 ) Change Worker Numbers"
+	echo "  6 ) Change NAT settings"
+	echo "  7 ) Change Custom Arguments"
+	echo "  8 ) Generate Firewall Rules"
+	echo "  9 ) Uninstall Proxy"
+	echo "  10) About"
 	echo "  *) Exit"
 	read -r -p "Please enter a number: " OPTION
 	source /opt/MTProxy/objs/bin/mtconfig.conf #Load Configs
@@ -317,6 +318,12 @@ if [ -d "/opt/MTProxy" ]; then
 			;;
 		esac
 		;;
+	# About
+	11)
+		echo "MTProtoInstaller script by Hirbod Behnam"
+		echo "Source at https://github.com/TelegramMessenger/MTProxy"
+		echo "Github repo of script: https://github.com/HirbodBehnam/MTProtoProxyInstaller"
+		;;
 	esac
 	exit
 fi
@@ -384,6 +391,7 @@ else
 	echo "Created by Hirbod Behnam"
 	echo "I will install mtprotoproxy, the official repository"
 	echo "Source at https://github.com/TelegramMessenger/MTProxy"
+	echo "Github repo of script: https://github.com/HirbodBehnam/MTProtoProxyInstaller"
 	echo "Now I will gather some info from you..."
 	echo ""
 	echo ""
