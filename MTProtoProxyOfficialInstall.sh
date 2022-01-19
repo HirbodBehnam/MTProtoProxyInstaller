@@ -390,7 +390,7 @@ else
 	echo "Welcome to MTProto-Proxy auto installer!"
 	echo "Created by Hirbod Behnam"
 	echo "I will install mtprotoproxy, the official repository"
-	echo "Source at https://github.com/TelegramMessenger/MTProxy"
+	echo "Source at https://github.com/TelegramMessenger/MTProxy and https://github.com/krepver/MTProxy"
 	echo "Github repo of script: https://github.com/HirbodBehnam/MTProtoProxyInstaller"
 	echo "Now I will gather some info from you..."
 	echo ""
@@ -517,7 +517,7 @@ fi
 timedatectl set-ntp on #Make the time accurate by enabling ntp
 #Clone and build
 cd /opt || exit 2
-git clone https://github.com/TelegramMessenger/MTProxy
+git clone -b gcc10 https://github.com/krepver/MTProxy.git
 cd MTProxy || exit 2
 make            #Build the proxy
 BUILD_STATUS=$? #Check if build was successful
