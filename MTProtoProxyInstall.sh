@@ -2,20 +2,16 @@
 regex='^[0-9]+$'
 function RemoveMultiLineUser() {
 	local SECRET_T
-	SECRET_T=$(python3.8 -c 'import config;print(getattr(config, "USERS",""))')
+	SECRET_T=$(python3 -c 'import config;print(getattr(config, "USERS",""))')
 	SECRET_T=$(echo "$SECRET_T" | tr "'" '"')
-	python3.8 -c "import re;f = open('config.py', 'r');s = f.read();p = re.compile('USERS\\s*=\\s*\\{.*?\\}', re.DOTALL);nonBracketedString = p.sub('', s);f = open('config.py', 'w');f.write(nonBracketedString)"
+	python3 -c "import re;f = open('config.py', 'r');s = f.read();p = re.compile('USERS\\s*=\\s*\\{.*?\\}', re.DOTALL);nonBracketedString = p.sub('', s);f = open('config.py', 'w');f.write(nonBracketedString)"
 	echo "" >>config.py
 	echo "USERS = $SECRET_T" >>config.py
 }
 function GetRandomPort() {
 	if ! [ "$INSTALLED_LSOF" == true ]; then
 		echo "Installing lsof package. Please wait."
-		if [[ $distro =~ "CentOS" ]]; then
-			yum -y -q install lsof
-		elif [[ $distro =~ "Ubuntu" ]] || [[ $distro =~ "Debian" ]]; then
-			apt-get -y install lsof >/dev/null
-		fi
+		apt-get -y install lsof >/dev/null
 		local RETURN_CODE
 		RETURN_CODE=$?
 		if [ $RETURN_CODE -ne 0 ]; then
@@ -31,8 +27,8 @@ function GetRandomPort() {
 }
 function ListUsersAndSelect() {
 	clear
-	SECRET=$(python3.8 -c 'import config;print(getattr(config, "USERS",""))')
-	SECRET_COUNT=$(python3.8 -c 'import config;print(len(getattr(config, "USERS","")))')
+	SECRET=$(python3 -c 'import config;print(getattr(config, "USERS",""))')
+	SECRET_COUNT=$(python3 -c 'import config;print(len(getattr(config, "USERS","")))')
 	if [ "$SECRET_COUNT" == "0" ]; then
 		echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets."
 		exit 4
@@ -92,8 +88,8 @@ function PrintOkJson() {
 function GetSecretFromUsername() {
 	rm -f tempSecrets.json
 	KEY="$1"
-	SECRET=$(python3.8 -c 'import config;print(getattr(config, "USERS",""))')
-	SECRET_COUNT=$(python3.8 -c 'import config;print(len(getattr(config, "USERS","")))')
+	SECRET=$(python3 -c 'import config;print(getattr(config, "USERS",""))')
+	SECRET_COUNT=$(python3 -c 'import config;print(len(getattr(config, "USERS","")))')
 	if [ "$SECRET_COUNT" == "0" ]; then
 		PrintErrorJson "You have no secrets"
 	fi
@@ -103,27 +99,6 @@ function GetSecretFromUsername() {
 	SECRET=$(jq -r --arg k "$KEY" '.[$k]' tempSecrets.json)
 	if [ "$SECRET" == "null" ]; then
 		PrintErrorJson "This secret does not exist."
-	fi
-}
-function CompilePython() {
-	if ! command -v "python3.8" >/dev/null; then
-		if [[ $distro =~ "CentOS" ]]; then
-			yum -y groupinstall "Development Tools"
-			yum -y install openssl-devel bzip2-devel libffi-devel
-		else
-			apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev
-		fi
-		#Download and install python 3.8
-		cd /opt || exit 2
-		curl -o Python-3.8.12.tar.xz https://www.python.org/ftp/python/3.8.12/Python-3.8.12.tar.xz
-		tar xf Python-3.8.12.tar.xz
-		cd Python-3.8.12 || exit 2
-		./configure --enable-optimizations
-		make altinstall
-		ln -s /usr/local/bin/python3.8 /usr/bin/python3.8
-	fi
-	if ! [ -f "/usr/local/bin/python3.8" ]; then #in case user had python3.8
-		ln -s /usr/local/bin/python3.8 /usr/bin/python3.8
 	fi
 }
 #User must run the script as root
@@ -141,8 +116,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		OPTION=$1
 		if [ "$OPTION" == "list" ]; then
 			if [ "$#" == 1 ]; then #list all of the secret and usernames
-				SECRET=$(python3.8 -c 'import config;print(getattr(config, "USERS",""))')
-				SECRET_COUNT=$(python3.8 -c 'import config;print(len(getattr(config, "USERS","")))')
+				SECRET=$(python3 -c 'import config;print(getattr(config, "USERS",""))')
+				SECRET_COUNT=$(python3 -c 'import config;print(len(getattr(config, "USERS","")))')
 				if [ "$SECRET_COUNT" == "0" ]; then
 					PrintErrorJson "You have no secrets"
 				fi
@@ -179,10 +154,10 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		if [ $CURL_EXIT_STATUS -ne 0 ]; then
 			PUBLIC_IP="YOUR_IP"
 		fi
-		PORT=$(python3.8 -c 'import config;print(getattr(config, "PORT",-1))')
-		SECRET=$(python3.8 -c 'import config;print(getattr(config, "USERS",""))')
-		SECRET_COUNT=$(python3.8 -c 'import config;print(len(getattr(config, "USERS","")))')
-		TLS_DOMAIN=$(python3.8 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
+		PORT=$(python3 -c 'import config;print(getattr(config, "PORT",-1))')
+		SECRET=$(python3 -c 'import config;print(getattr(config, "USERS",""))')
+		SECRET_COUNT=$(python3 -c 'import config;print(len(getattr(config, "USERS","")))')
+		TLS_DOMAIN=$(python3 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
 		if [ "$SECRET_COUNT" == "0" ]; then
 			echo "$(tput setaf 1)Error:$(tput sgr 0) You have no secrets. Cannot show nothing!"
 			exit 4
@@ -195,7 +170,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		#Print
 		for user in "${SECRET_ARY[@]}"; do
 			SECRET=$(jq --arg u "$user" -r '.[$u]' tempSecrets.json)
-			s=$(python3.8 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
+			s=$(python3 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
 			echo "$user: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s"
 			echo
 		done
@@ -219,7 +194,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		;;
 	#Change AD_TAG
 	3)
-		TAG=$(python3.8 -c 'import config;print(getattr(config, "AD_TAG",""))')
+		TAG=$(python3 -c 'import config;print(getattr(config, "AD_TAG",""))')
 		OldEmptyTag=false
 		if [ -z "$TAG" ]; then
 			OldEmptyTag=true
@@ -253,8 +228,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 	#New secret
 	4)
 		#API Usage: bash MTProtoProxyInstall.sh 4 <USERNAME> <SECRET> -> Do not define secret to generate a random secret
-		SECRETS=$(python3.8 -c 'import config;print(getattr(config, "USERS","{}"))')
-		SECRET_COUNT=$(python3.8 -c 'import config;print(len(getattr(config, "USERS","")))')
+		SECRETS=$(python3 -c 'import config;print(getattr(config, "USERS","{}"))')
+		SECRET_COUNT=$(python3 -c 'import config;print(len(getattr(config, "USERS","")))')
 		SECRETS=$(echo "$SECRETS" | tr "'" '"')
 		SECRETS="${SECRETS::-1}" #Remove last char "}" here
 		if [ "$#" -ge 2 ]; then #Get username
@@ -316,9 +291,9 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		if [ $CURL_EXIT_STATUS -ne 0 ]; then
 			PUBLIC_IP="YOUR_IP"
 		fi
-		PORT=$(python3.8 -c 'import config;print(getattr(config, "PORT",-1))')
-		TLS_DOMAIN=$(python3.8 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
-		s=$(python3.8 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
+		PORT=$(python3 -c 'import config;print(getattr(config, "PORT",-1))')
+		TLS_DOMAIN=$(python3 -c 'import config;print(getattr(config, "TLS_DOMAIN", "www.google.com"))')
+		s=$(python3 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
 		if [ "$#" -ge 2 ]; then
 			echo "{\"ok\":true,\"msg\":{\"link\":\"tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s\",\"secret\":\"$SECRET\"}}"
 		else
@@ -495,11 +470,8 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		;;
 	#Firewall rules
 	9)
-		PORT=$(python3.8 -c 'import config;print(getattr(config, "PORT",-1))')
-		if [[ $distro =~ "CentOS" ]]; then
-			echo "firewall-cmd --zone=public --add-port=$PORT/tcp"
-			echo "firewall-cmd --runtime-to-permanent"
-		elif [[ $distro =~ "Ubuntu" ]]; then
+		PORT=$(python3 -c 'import config;print(getattr(config, "PORT",-1))')
+		if [[ $distro =~ "Ubuntu" ]]; then
 			echo "ufw allow $PORT/tcp"
 		elif [[ $distro =~ "Debian" ]]; then
 			echo "iptables -A INPUT -p tcp --dport $PORT --jump ACCEPT"
@@ -507,10 +479,7 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		fi
 		read -r -p "Do you want to apply these rules?[y/n] " -e -i "y" OPTION
 		if [ "$OPTION" == "y" ] || [ "$OPTION" == "Y" ]; then
-			if [[ $distro =~ "CentOS" ]]; then
-				firewall-cmd --zone=public --add-port="$PORT"/tcp
-				firewall-cmd --runtime-to-permanent
-			elif [[ $distro =~ "Ubuntu" ]]; then
+			if [[ $distro =~ "Ubuntu" ]]; then
 				ufw allow "$PORT"/tcp
 			elif [[ $distro =~ "Debian" ]]; then
 				iptables -A INPUT -p tcp --dport "$PORT" --jump ACCEPT
@@ -524,15 +493,12 @@ if [ -d "/opt/mtprotoproxy" ]; then
 		OPTION="$(echo $OPTION | tr '[A-Z]' '[a-z]')"
 		case $OPTION in
 		"y")
-			PORT=$(python3.8 -c 'import config;print(getattr(config, "PORT",-1))')
+			PORT=$(python3 -c 'import config;print(getattr(config, "PORT",-1))')
 			systemctl stop mtprotoproxy
 			systemctl disable mtprotoproxy
 			rm -rf /opt/mtprotoproxy /etc/systemd/system/mtprotoproxy.service
 			systemctl daemon-reload
-			if [[ $distro =~ "CentOS" ]]; then
-				firewall-cmd --remove-port="$PORT"/tcp
-				firewall-cmd --runtime-to-permanent
-			elif [[ $distro =~ "Ubuntu" ]]; then
+			if [[ $distro =~ "Ubuntu" ]]; then
 				ufw delete allow "$PORT"/tcp
 			elif [[ $distro =~ "Debian" ]]; then
 				iptables -D INPUT -p tcp --dport "$PORT" --jump ACCEPT
@@ -693,22 +659,12 @@ read -r -p "Select a host that DPI thinks you are visiting (TLS_DOMAIN): " -e -i
 #Now lets install
 read -n 1 -s -r -p "Press any key to install..."
 clear
-if [[ $distro =~ "CentOS" ]]; then
-	yum -y install epel-release
-	yum -y install sed git curl ca-certificates jq
-	CompilePython
-elif [[ $distro =~ "Ubuntu" ]]; then
+if [[ $distro =~ "Ubuntu" ]]; then
 	apt update
-	if ! [[ $(lsb_release -r -s) =~ "20" ]]; then
-		apt-get -y install software-properties-common
-		add-apt-repository ppa:deadsnakes/ppa
-	fi
-	apt-get update
-	apt-get -y install python3.8 python3.8-distutils sed git curl jq ca-certificates
+	apt-get -y install python3 python3-pip sed git curl jq ca-certificates
 elif [[ $distro =~ "Debian" ]]; then
 	apt-get update
-	apt-get install -y jq ca-certificates iptables-persistent iptables git sed curl wget
-	CompilePython
+	apt-get install -y jq ca-certificates iptables-persistent iptables git sed curl wget python3 python3-pip
 	#Firewall
 	iptables -A INPUT -p tcp --dport "$PORT" --jump ACCEPT
 	iptables-save >/etc/iptables/rules.v4
@@ -717,10 +673,8 @@ else
 	exit 2
 fi
 timedatectl set-ntp on #Make the time accurate by enabling ntp
-#Install pip
-curl https://bootstrap.pypa.io/get-pip.py | python3.8
 #This libs make proxy faster
-pip3.8 install cryptography uvloop
+pip3 install cryptography uvloop
 if ! [ -d "/opt" ]; then
 	mkdir /opt
 fi
@@ -747,27 +701,7 @@ echo "{}" >> "limits_date.json"
 echo "{}" >> "limits_quota.json"
 #Setup firewall
 echo "Setting firewalld rules"
-if [[ $distro =~ "CentOS" ]]; then
-	SETFIREWALL=true
-	if ! yum -q list installed firewalld &>/dev/null; then
-		echo ""
-		read -r -p 'Looks like "firewalld" is not installed Do you want to install it?(y/n) ' -e -i "y" OPTION
-		case $OPTION in
-		"y")
-			yum -y install firewalld
-			systemctl enable firewalld
-			;;
-		*)
-			SETFIREWALL=false
-			;;
-		esac
-	fi
-	if [ "$SETFIREWALL" = true ]; then
-		systemctl start firewalld
-		firewall-cmd --zone=public --add-port="$PORT"/tcp
-		firewall-cmd --runtime-to-permanent
-	fi
-elif [[ $distro =~ "Ubuntu" ]]; then
+if [[ $distro =~ "Ubuntu" ]]; then
 	if dpkg --get-selections | grep -q "^ufw[[:space:]]*install$" >/dev/null; then
 		ufw allow "$PORT"/tcp
 	else
@@ -783,7 +717,7 @@ elif [[ $distro =~ "Ubuntu" ]]; then
 		esac
 	fi
 	#Use BBR on user will
-	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ] && { [[ $(lsb_release -r -s) =~ "20" ]] || [[ $(lsb_release -r -s) =~ "19" ]] || [[ $(lsb_release -r -s) =~ "18" ]]; }; then
+	if ! [ "$(sysctl -n net.ipv4.tcp_congestion_control)" = "bbr" ]; then
 		echo
 		read -r -p "Do you want to use BBR? BBR might help your proxy run faster.(y/n) " -e -i "y" OPTION
 		case $OPTION in
@@ -803,7 +737,7 @@ After=network.target
 
 [Service]
 Type = simple
-ExecStart = /usr/bin/python3.8 /opt/mtprotoproxy/mtprotoproxy.py
+ExecStart = /usr/bin/python3 /opt/mtprotoproxy/mtprotoproxy.py
 StartLimitBurst=0
 
 [Install]
@@ -823,7 +757,7 @@ CURL_EXIT_STATUS=$?
 [ $CURL_EXIT_STATUS -ne 0 ] && PUBLIC_IP="YOUR_IP"
 COUNTER=0
 for i in "${SECRET_END_ARY[@]}"; do
-	s=$(python3.8 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
+	s=$(python3 -c "print(\"ee\" + \"$SECRET\" + \"$TLS_DOMAIN\".encode().hex())")
 	echo "${USERNAME_END_ARY[$COUNTER]}: tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=$s"
 	COUNTER=$COUNTER+1
 done

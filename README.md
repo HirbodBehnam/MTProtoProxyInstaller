@@ -9,7 +9,7 @@ A very small script to install MTProtoProxy On Centos or Ubuntu
 * Choose between Official Proxy, Python Proxy and Erlang Proxy
 * Easy to setup
 * Revoke and add secrets after install
-* Supports Centos 7/8 or Ubuntu 16 or later and Debian 9 and 8
+* Supports Centos 7/8 or Ubuntu 18 or later and Debian 10 or later
 * Automatically configure NTP
 * API Support [[Reference](https://github.com/HirbodBehnam/MTProtoProxyInstaller/wiki/API-For-Python-Script)]
 ## Official Or Python Proxy?
@@ -26,6 +26,9 @@ Python proxy says it can serve about 4000 concurrent connections with 1 CPU core
 
 Official proxy can serve about 10000 to 16000 connections per core.
 ## Python Script
+### COMPATIBILITY NOTE
+**Current Python script does not support Centos any more.**
+You can get the latest version which supports it from [here](https://raw.githubusercontent.com/HirbodBehnam/MTProtoProxyInstaller/4dfad402915ee612332a171c919dcd90132de643/MTProtoProxyInstall.sh).
 ### Install
 On your server run
 ```bash
